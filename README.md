@@ -1,2 +1,2 @@
-# Taico-cotrack
-Repo for new and improved version of CoTrack
+# Taico_Cotrack
+An updated and improved version of CoTrack 

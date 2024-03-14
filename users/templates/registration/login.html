@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %} Login Page {% endblock title%}
+{% block content %}
+    <div class="form-content my-5 p-3">
+        <div class="container my-5">
+            <div class="row justify-content-center  align-items-center">
+                <div class="col-lg-5">
+                    <div class="card shadow-lg border-0 rounded-lg mt-0 mb-3">
+                        <div class="card-header justify-content-center">
+                          <h3 class="font-weight-light my-1 text-center">{% trans 'Sign In' %}</h3>
+                        </div>
+                        {% if form.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <div id="form_errors">
+                                    {% for key, value in form.errors.items %}
+                                        <strong>{{ value }}</strong>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-row p-2">
+                                    <div class="col-md-10 offset-md-1">
+                                        {{ form.username.as_field_group}}
+                                    </div>
+                                </div>
+                                <div class="form-row p-2">
+                                    <div class="col-md-10 offset-md-1">
+                                        {{ form.password.as_field_group}}
+                                    </div>
+                                </div>
+                                <div class="form-row p-2">
+                                    <div class="col-md-10 offset-md-1">
+                                        <div class="form-group">
+                                            <!-- Add a Remember me functionality -->
+                                            {{ form.remember_me }}
+                                            <label> {% trans 'Remember me' %}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-md-10 offset-md-1">
+                                        <div class="form-group mt-0 mb-1">
+                                          <button name="login" class="col-md-12 btn btn-primary" id="login">{% trans 'Sign In' %}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-center">
+                            <div class="small">
+                                <a href="{% url 'register'%}">{% trans "Don't have an account yet? Go to signup" %}</a><br>
+                                <a  href="{% url 'password_reset' %}"><i class='py-2'>{% trans 'Forgot Password' %}?</i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+{% endblock content %}
