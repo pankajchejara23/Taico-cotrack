@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %} Etherpad Interface {% endblock title%}
+{% block content %}
+    <div class="form-content my-5 p-3">
+        <div class="container my-5">
+            <div class="row justify-content-center  align-items-center">
+                <div class="col-lg-5">
+                    <div class="card shadow-lg border-0 rounded-lg mt-0 mb-3">
+                        <div class="card-header justify-content-center">
+                          <h3 class="font-weight-light my-1 text-center">{% trans 'Ehterpad Admin' %}</h3>
+                        </div>
+                        {% if form.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <div id="form_errors">
+                                    {% for key, value in form.errors.items %}
+                                        <strong>{{ value }}</strong>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-row p-2">
+                                    <div class="col-md-10 offset-md-1">
+                                        <div class="form-group">
+		                                    <label class="small mb-1">{% trans 'Ehterpad Group Name' %}</label>
+		                                    {{ form.group_name }}
+		                            </div>
+                                    </div>
+                                </div>
+                                <div class="form-row p-2">
+                                    <div class="col-md-10 offset-md-1">
+                                        <div class="form-group">
+                                            <label class="small mb-1">{% trans 'Number of Writing Pads' %}</label>
+                                            {{ form.number_pad }}
+                                    </div>
+                                    </div>
+                                </div>
+                                <div class="form-row p-2 mt-4">
+                                    <div class="col-md-10 offset-md-1">
+                                        <div class="form-group mt-0 mb-1">
+                                          <button name="create" class="col-md-12 btn btn-primary" id="login">{% trans 'Create Pads' %}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+{% endblock content %}

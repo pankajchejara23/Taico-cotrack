@@ -37,6 +37,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
+    "etherpad_app.apps.EtherpadAppConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -136,3 +137,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = str(os.getenv('EMAIL_USER'))
 EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_PASSWORD'))
+
+# Etherpad config
+ETHERPAD_URL = str(os.getenv('ETHERPAD_URL'))
+ETHERPAD_KEY = str(os.getenv('ETHERPAD_KEY'))
