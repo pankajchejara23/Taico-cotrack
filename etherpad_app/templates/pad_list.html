@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %} Etherpad Interface {% endblock title%}
+{% block content %}
+   <h3 class='p-2 m-5 text-white'> Pads </h3>
+   <div class='p-3'>
+    <table class='table text-white'>
+        <thead>
+            <tr>
+                <th scope='col'>Group</th>
+                <th scope='col'>Pad</th>
+                <th scope='col'>Link</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for pad in object_list %}
+            <tr>
+                <td> {{pad.eth_group.group}} </td>
+                <td> {{pad.eth_padid }} </td>
+                <td> <a class='text-whites' href="{%url 'pad_show' pad.id %}"> link </a> </td>
+            </tr>
+        {% empty %}
+            No pads 
+        {% endfor %}
+        </tbody>
+    </table>
+   </div>
+{% endblock content %}

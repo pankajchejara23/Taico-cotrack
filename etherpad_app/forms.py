@@ -6,7 +6,7 @@ class PadCreateForm(forms.Form):
     Form to create etherpad group and N number of pads
     """
 
-    number_pad = forms.IntegerField(label=_("Number of pads"),
+    pad_number = forms.IntegerField(label=_("Number of pads"),
                                     widget=forms.NumberInput(attrs={
                                         'class':'form-control'
                                         })

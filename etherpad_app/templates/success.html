@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %} Etherpad Interface {% endblock title%}
+{% block content %}
+   <div class="jumbotron text-white">
+        <h1 class="display-4">Welcome, {{user.first_name|default:'Guest'}}</h1>
+        <p class="lead">
+            Etherpads are created successfully. Below are the links to access those pads.
+        </p>
+    </div>
+{% endblock content %}

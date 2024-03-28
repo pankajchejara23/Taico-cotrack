@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-
+from django.contrib import admin
 import requests
 
 def call(function, arguments=None, request=None):
@@ -80,3 +79,5 @@ class Pad(models.Model):
     """
     eth_padid = models.CharField(max_length=50)
     eth_group = models.ForeignKey(PadGroup, on_delete=models.CASCADE)
+
+admin.site.register(Pad)
