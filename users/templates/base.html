@@ -11,12 +11,18 @@
     <!--Font awesome icons -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
-    <title>{% block title %} {% endblock %} </title>
+  <title>{% block title %} {% endblock %} </title>
 </head>
 <body  style="background-image: linear-gradient(to right, #8e2de2, #4a00e0);">
+  <script>
+    function autoResizeDiv()
+      {
+        document.getElementById('demo').style.height = window.innerHeight- 10 +'px';
+      }
+  </script>
   <div class="container-fluid p-5 m-0">
     <div class="ro text-center">
-      <p class='h2 text-white'> CoTrack </p>
+      <p class='h2 text-white'> App Name </p>
     </div>
     <div class="row">
       <div class="col-md-12 ">

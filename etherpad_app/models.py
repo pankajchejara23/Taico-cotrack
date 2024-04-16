@@ -81,3 +81,5 @@ class Pad(models.Model):
     eth_group = models.ForeignKey(PadGroup, on_delete=models.CASCADE)
 
 admin.site.register(Pad)
+admin.site.register(PadGroup)
+admin.site.register(AuthorMap)
