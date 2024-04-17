@@ -33,18 +33,61 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# CKeditor settings
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_RESTRICT_BY_USER = True
+CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js' 
+
+
+CKEDITOR_CONFIGS = {
+    'default':
+        {
+            'toolbar': [
+                {'name': 'basicstyles',
+                'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
+                },
+                {'name': 'paragraph',
+                'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+                       'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
+                       'Language']
+                },
+                {'name': 'links', 
+                 'items': ['Link', 'Unlink', 'Anchor']
+                 },
+                {'name': 'insert',
+                'items': ['Image', 'VideoDetector', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe']
+                },
+                '/',
+                {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+                {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+                {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
+
+                '/',  # put this to force next toolbar on new line
+            ],
+            'width': 'auto',
+            'extraPlugins': ','.join([
+                'codesnippet',
+            ]),
+        },
+}
+
 # Application definition
 
 INSTALLED_APPS = [
-    "users.apps.UsersConfig",
-    "etherpad_app.apps.EtherpadAppConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
+    "django_toggle_switch_widget",
+    "ckeditor",
+    "ckeditor_uploader",
+    "formtools",
+    "users.apps.UsersConfig",
+    "etherpad_app.apps.EtherpadAppConfig",
+    "learning_session.apps.LearningSessionConfig",
 ]
 
 MIDDLEWARE = [
@@ -124,6 +167,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
