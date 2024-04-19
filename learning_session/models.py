@@ -34,6 +34,14 @@ class Session(models.Model):
     conf_consent = models.BooleanField(default=False)           #whether to show consent form
     
 
+# Model for storing Etherpad session id
+class SessionGroupMap(models.Model):
+    """Model to mapping between Etherpad pads and learning session
+    """
+    session = models.ForeignKey(Session,on_delete=models.CASCADE) 
+    eth_groupid = models.CharField(max_length=20)                 
+
+
 def user_directory_path(instance, filename):
     """Function to create filename to store audio/video file
 
@@ -52,7 +60,6 @@ def user_directory_path(instance, filename):
       filename)
 
 
-# Model to store audio or video files
 class Audiofl(models.Model):
     """Model to store audio/video file on the server
 
@@ -123,7 +130,6 @@ class GroupPin(models.Model):
     session = models.ForeignKey(Session,on_delete=models.CASCADE)
     pin = models.CharField(max_length=6)
     group = models.IntegerField()
-
 
 
 admin.site.register(Audiofl)

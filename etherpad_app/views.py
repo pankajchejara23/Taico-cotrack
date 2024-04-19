@@ -8,6 +8,50 @@ from .models import call
 import datetime
 # Create your views here.
 
+
+def create_pads(pad_number, group_name):
+    """This function creates n pads in Etherpad with a Etherpad group with the specified name
+
+    Args:
+        pad_number (int): Number of pads to create in Etherpad
+        group_name (str): Name of Etherpad group
+
+    Returns:
+        str: Etherpad group id
+    """
+    result = {'status':'failure'}
+    # call to create etherpad group
+    group_create_response = call('createGroup')
+    print(group_create_response)
+    eth_group_id = None
+            
+    # check for successful execution of the call
+    if (group_create_response["code"] == 0):
+        eth_group_id = group_create_response["data"]["groupID"]
+        pad_group_object = PadGroup.objects.create(group=group_name,
+                                                    groupID=eth_group_id)
+
+        # create n pads
+        for num in range(int(pad_number)):
+            #prepare pad name
+            pad_name = f'{group_name}_group_{num}'
+
+            # call to create pad
+            pad_create_response = call('createGroupPad',
+                                        {
+                                            'groupID':eth_group_id,
+                                            'padName':pad_name
+                                        })
+            print(pad_create_response)
+            if pad_create_response["code"]==0:
+                pad_object = Pad.objects.create(eth_group=pad_group_object,
+                                                    eth_padid=pad_name)
+                print('Pad created')
+        result['status'] = 'success'
+        result['group_id'] = eth_group_id
+    return result
+        
+
 class PadCreateFormView(View):
     form_class = PadCreateForm
     template_name ='create_pad.html'
@@ -23,35 +67,10 @@ class PadCreateFormView(View):
         if form.is_valid():
             pad_number = form.cleaned_data.get('pad_number')
             group_name = form.cleaned_data.get('group_name')
-
-            # call to create etherpad group
-            group_create_response = call('createGroup', request=self.request)
-            print(group_create_response)
-            eth_group_id = None
-            
-            # check for successful execution of the call
-            if (group_create_response["code"] == 0):
-                eth_group_id = group_create_response["data"]["groupID"]
-                pad_group_object = PadGroup.objects.create(group=group_name,
-                                                           groupID=eth_group_id)
-
-                # create n pads
-                for num in range(int(pad_number)):
-                    #prepare pad name
-                    pad_name = f'{group_name}_group_{num}'
-
-                    # call to create pad
-                    pad_create_response = call('createGroupPad',
-                                               {
-                                                   'groupID':eth_group_id,
-                                                   'padName':pad_name
-                                               },request=self.request)
-                    print(pad_create_response)
-                    if pad_create_response["code"]==0:
-                        pad_object = Pad.objects.create(eth_group=pad_group_object,
-                                                    eth_padid=pad_name)
-                        print('Pad created')
-
+            result = create_pads(pad_number, group_name)
+            if result['status'] == 'failure':
+                #@todo: failure message showing
+                pass
         return render(request, self.success_template)
     
 
