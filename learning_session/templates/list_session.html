@@ -3,113 +3,50 @@
 {% block title %} {% trans 'Learning Sessions' %} {% endblock title%}
 {% block content %}
     {% for session in object_list %}
-        <div class="card" class="p-2 m-5">
-            <div class="card-header">
-                <span  style="font-size:22px"> {{session.name | upper}}  </span>
-                <div class="btn-group float-right">
-                    <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-gears"> </i>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="" data-toggle="tooltip" title="Edit the settings">
-                            <i class="fa fa-edit"></i> {% trans 'Edit' %}
-                        </a>
-                        <a class="dropdown-item" href="" data-toggle="tooltip" title="Create another session with same settings.">
-                            <i class="fa fa-copy"></i>{% trans ' Duplicate' %}
-                        </a>
-                        <!-- check to see if the learning session is active or not-->
-                        {% if session.status  %}
-                            <a class="dropdown-item" href="" data-toggle="tooltip" title="Archive this session.">
-                                <i class="fa fa-check"></i> {% trans 'Archive' %}
-                            </a>
-                        {% else %}
-                            <a class="dropdown-item" href="" data-toggle="tooltip" title="Unarchive this session.">
-                                <i class="fa fa-archive"></i> {% trans 'Unarchive' %}
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
+        <div class="p-2 border-1 rounded-3 m-3 border shadow bg-light" style="opacity:.8;">
+            <div class="d-flex justify-content-between mb-0"> 
+                <h4 class="px-2"> {{session.name | upper}} </h4>
+                <p class='text-dark badge fw-bold'> ... </p>
             </div>
-            <div class="card-body">
-                <div class='d-flex'>
-                    <b class='text-muted'>
-                        {% trans 'Access pin' %}: 
-                    </b>
-                    {% if session.random_group %}
-                        {% for g_pin in session.grouppin_set.all  %}
-                            <span class='mr-2'> 
-                                {{ g_pin.pin }} 
-                            </span>
-                        {% endfor %}
-                    {% else %}
-                        {% for g_pin in session.grouppin_set.all  %}
-                            <span class='mr-2'> 
-                                {% trans 'Group' %}-{{forloop.counter}}: {{ g_pin.pin }} 
-                            </span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <p>
-                    <b class='text-muted'>
-                        {% trans 'No. of groups:' %} 
-                    </b> {{ session.groups }} 
-                    <br/>
-                    <b class='text-muted'>
-                        {% trans 'Language:' %} 
-                    </b>{{ session.language }} 
-                    <br/>
-                    <b class='text-muted'>
-                        {% trans 'Duration:' %} 
-                    </b>{{ session.duration }} 
-                    <br/>
-                    <b class='text-muted'>
-                        {% trans 'Created:' %} 
-                    </b>{{ session.created_at }} 
-                    <br/>
-                    <p class="card-text pt-2">
-                        <b class='text-muted'>
-                            {% trans 'Etherpad:' %}
-                        </b> 
-                        {% if session.useEtherpad %} 
-                            {% trans 'Yes' %} 
-                        {% else %} 
-                            {% trans 'No' %} 
-                        {% endif %}
-                    </p>
-                    <!-- For future versions to include audio/video chat
-                    <p class="card-text pt-2">
-                        <b class='text-muted'>
-                            {% trans 'Audio & Video chat:' %}
-                        </b> 
-                        {% if session.useAVchat %}
-                            {% trans 'Yes' %} 
-                        {% else %} 
-                            {% trans 'No' %} 
-                        {% endif %}
-                    </p>-->
-                    <p class="card-text pt-2">
-                        <b class='text-muted'>
-                            {% trans 'Record audio:' %}
-                        </b> 
-                        {% if session.record_audio or all_data.record_audio_video %} 
-                            {% trans 'Yes' %} 
-                        {% else %} 
-                            {% trans 'No' %} 
-                        {% endif %}</p>
-                    <p class="card-text pt-2">
-                        <b class='text-muted'>
-                            {% trans 'Record video:' %}
-                        </b> 
-                        {% if session.record_audio_video %} 
-                            {% trans 'Yes' %} 
-                        {% else %} 
-                            {% trans 'No' %} 
-                        {% endif %}
-                    </p>
-                    <a href="" target='_blank'>
-                        {% trans 'Activity monitoring' %}
-                    </a>
+            <p class="px-2 mt-0 small fw-lighter"> Created on: {{session.created_at}} </p>
+            <div class="px-3 d-flex fs-5">
+                <p class="badge bg-white text-dark p-1 mx-2 fw-light">
+                    Groups: {{session.groups}} 
                 </p>
+                <p class="badge bg-white text-dark p-1 mx-2  fw-light">
+                    Time: {{session.duration}} 
+                </p>
+                <p class="badge bg-white text-dark   p-1 mx-2  fw-light">
+                    Langauge: {{session.language}} 
+                </p>
+                <br/>
+            </div>
+            <div class="px-3 d-flex">
+                {% if session.conf_vad %} 
+                    <p class='badge bg-danger text-white  mx-2 fw-light'> 
+                        seapking activity detection 
+                    </p>
+                {% endif %}
+                {% if session.conf_speech %} 
+                    <p class='badge bg-danger  text-white mx-2 fw-light'> 
+                        speech-to-text 
+                    </p>
+                {% endif %}
+            </div>
+            <div class="px-3 d-flex">
+                {% if session.record_audio %} 
+                    <p class='badge bg-danger text-white mx-2 fw-light'> 
+                        audio recording 
+                    </p>
+                {% endif %}
+                {% if session.record_audio_video %} 
+                    <p class='badge bg-light text-dark mx-2'> 
+                        video recording 
+                    </p>
+                {% endif %}
+            </div>
+            <div class="pb-2 px-2">
+                <a href="#" class='small btn btn-sm btn-primary fw-light small rounded-pill py-1 px-3'> Check Dashboard </a>
             </div>
         </div>
         <br/>
@@ -121,7 +58,6 @@
             $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' });
             });
         </script>
-
     {% endfor%}
         
     {% if object_list.count == 0 %}
