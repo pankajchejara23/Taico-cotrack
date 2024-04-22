@@ -3,11 +3,14 @@ from .models import Session, GroupPin, SessionGroupMap
 from django.views import View
 from django.contrib import messages
 from django.views.generic import ListView, DetailView
-from .forms import SessionCreateForm
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
 from django.db import transaction
+import jwt
+import datetime
+from django.conf import settings
 # Create your views here.
 
 class SessionListView(ListView):
@@ -16,6 +19,22 @@ class SessionListView(ListView):
     """
     model = Session
     template_name = 'list_session.html'
+
+
+class SessionDetailView(DetailView):
+    """View for displaying dashboard for the session
+
+    """
+    model = Session
+    template_name = 'detail_session.html'
+
+    def get_context_data(self, **kwargs):
+        """Function to expand the context data
+
+        """
+        context = super().get_context_data(**kwargs)
+        context["no_groups"] = list(range(self.object.groups))
+        return context
 
 
 class SessionCreateView(View):
@@ -103,3 +122,86 @@ class SessionCreateView(View):
         else:
             print(form)
             print('Form is not valid')
+
+
+class SessionEnterView(View):
+    """View for displaying entry page for students
+
+    """
+    form_class = SessionEnterForm
+    template_name = 'enter_session.html'
+    pad_template_name = 'student_pad.html'
+
+    def get(self, request, *args, **kwargs):
+        """This function displays form to take access pin
+
+        Args:
+            request (HttpRequest): request parameter
+
+        """
+        form = self.form_class()
+        return render(request, self.template_name, {'form':form})
+    
+    def post(self, request, *args, **kwargs):
+        """This function process submitted form's input.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            input_pin = form.cleaned_data.get('pin')
+
+            # check if the pin exists
+            valid_pin_objects = GroupPin.objects.all().filter(pin=input_pin)
+            if valid_pin_objects.count() == 0:
+                messages.error(request, 'Entered pin is invalid.')
+                form = self.form_class()
+                # redisplaying the enter form with error message
+                return render(request, self.template_name, {'form':form})
+            else:
+                # getting associated session object
+                session_object = valid_pin_objects[0].session
+
+                group_number = valid_pin_objects[0].group
+
+                # create a corresponding etherpad user if it does not exists already
+                authorid = ep_views.create_etherpad_user({'authorMapper':self.request.user.id,
+                                                          'name':self.request.user.first_name}) 
+
+                # access sessiongroupmap 
+                session_group_object = SessionGroupMap.objects.get(session=session_object)     
+
+                # access Etherpad groupID associated with the session
+                groupid = session_group_object.eth_groupid
+
+                # creating timestamp until when the etherpad will be accessible
+                end_timestamp = datetime.datetime.today() + session_object.duration
+
+                # calling etherpad api to generate link to access the writing pad in Etherpad
+                sessionID = ep_views.create_session({'authorID':authorid,
+                                                     'groupID':groupid,
+                                                     'validUntil':end_timestamp.timestamp()})
+                # storing sessionID in session object, so that user did not need to enter the pin again
+                self.request.session['ethsid'] = sessionID
+
+                # preparing context params 
+                audio_form = AudioflForm()
+
+                # pad name
+                pad_name = f'session_{session_object.id}_group_{group_number-1}'
+
+                context_data = {'group':groupid,
+                                'session':session_object,
+                                'form':audio_form,
+                                'pad_name':pad_name,
+                                'sessionid':sessionID,
+                                'etherpad_url':settings.ETHERPAD_URL,
+                                'protocol':'http'}
+
+                return render(request, self.pad_template_name, context_data)
+        else:
+            messages.error(request, 'Form is invalid.')
+            form = self.form_class()
+            # redisplaying the enter form with error message
+            return render(request, self.template_name, {'form':form})

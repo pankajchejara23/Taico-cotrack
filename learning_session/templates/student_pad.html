@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+{% load i18n %}
+{%block title%} {% trans 'Session'%}-{{sessionj.name}} <hr/>{%endblock%}
+{%block content%}
+
+    <span id='teacher_msg'>
+    </span>
+    <div class='row' id='record_status'>
+    </div>
+    <div class="d-flex flex-row-reverse">
+      <button id='exit'  class="btn btn-success btn-lg m-2">Finished</button>
+      <a class="btn btn-warning btn-lg m-2" id='notify'> <span class="fa fa-hand-paper-o"></span> {% trans 'Ask teacher for help'%}</a>
+      <a id="task" class="btn btn-primary btn-lg m-2" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
+        {% trans 'Hide task'%}
+      </a>
+    </div>
+    <form action="" method="post">
+      {% csrf_token %}
+      {{form}}
+    </form>
+    <div class="row">
+      <div class="col">
+        <div class="collapse show" id="collapseExample">
+          <div class="card card-body">
+          {{session.learning_problem | safe}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" >
+      <div id='etherpad' class="col  shadow-lg p-5 col-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+          <div class='card' id='space'>
+            <h3 class='card-header text-white bg-info border-info'>
+              {% trans 'Write solution here'%}
+            </h3>
+            <div class='cardbody'>
+              <iframe id="demo" onload='autoResizeDiv()' allow="camera https://www.etherpad.website;microphone https://www.etherpad.website"  style="width:100%; height: 100%; position:relative; overflow:hidden; " frameBorder='0' src="http://localhost:9001/auth_session?sessionID={{sessionid}}&padName={{pad_name}}" allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        </div>
+    </div>
+    <br/><br/>
+    <script type="text/javascript">
+
+      data = [];
+      var recorder; // globally accessible
+      var blobcount = 0;
+
+      var record_status = false;
+      var use_etherpad = {{sessionj.useEtherpad | lower}};
+      var audio_video_chat = {{sessionj.useAVchat | lower}};
+      var record_audio ={{sessionj.record_audio | lower}};
+      var record_audio_video ={{sessionj.record_audio_video | lower}};
+      var lang = "{{sessionj.language}}";
+
+      var conf_vad = {{sessionj.conf_vad | lower}};
+      var conf_speech = {{sessionj.conf_speech | lower}};
+
+      var startRecordingTime;
+      user = {{request.user.id}};
+      var video_stream, audio_stream;
+
+      // code to change text of hide button
+      $('#task').click(function(){
+        if ($('#collapseExample').hasClass('show')) {
+          $(this).text('Show task');
+        } else {
+          $(this).text('Hide task');
+        }
+
+      });
+
+      //vad.js start
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+      //window.onunload = function (event) { alert('Do you want to save file');console.log('CAlling unload function');if (record_status){stopRecording();}};
+      /*
+      const chatSocket = new WebSocket(
+        'wss://'
+        + window.location.host
+        + '/ws/chat/'
+        + '{{room}}'
+        + '/'
+      );
+
+      chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        document.querySelector('#chat-log').value += (data.message + '\n');
+      };
+
+      chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+      };
+      */
+      // variable for voice activity detection
+      //var voice_start_timestamp;
+      //  var voice_activity_duration;
+      var voice_data = {};
+
+      function notifyRecording() {
+        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Recording started!'%}</strong> {% trans 'Recording has been started.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+        $('#teacher_msg').html(notification);
+      }
+      function notifyAlertSent() {
+        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Notification sent!'%}</strong> {% trans 'A notification has been sent to the teacher. Teacher will join soon.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+        $('#teacher_msg').html(notification);
+      }
+
+      $("#notify").click(function(e){
+        e.preventDefault();
+        var fd = new FormData();
+        fd.append('csrfmiddlewaretoken', "{{ csrf_token }}");
+        fd.append('session',{{session.id}});
+        fd.append('user',{{request.user.id}});
+        fd.append('group',{{group}});
+        var xhr = new XMLHttpRequest();
+        console.log('============================>Help Notification sent');
+        console.log(fd);
+        xhr.open('POST', '/help_upload/', true);
+        xhr.send(fd);
+        notifyAlertSent();
+      });
+
+      // Web Speech API code
+      var final_transcript = '';
+      var recognizing = false;
+      var recognition;
+      if (!('webkitSpeechRecognition' in window)) {
+        console.log('Speech to Text is not supported');
+      } else {
+        console.log('Speech to Text is supported');
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        if (lang == 'Et') {
+          recognition.lang = 'et';
+        }
+
+        recognition.onstart = function() {
+          console.log('Started Speech to Text');
+          recognizing = true;
+        };
+
+        recognition.onerror = function(event) {
+          if (event.error == 'no-speech') {
+          }
+          if (event.error == 'audio-capture') {
+          }
+          if (event.error == 'not-allowed') {
+          }
+        };
+
+        recognition.onend = function() {
+          recognition.start();
+        };
+
+        recognition.onspeechstart = function() {
+          console.log('Speech Start Event fired');
+        };
+        recognition.onspeechend = function() {
+          console.log('Speech End Event fired');
+        };
+        recognition.onsoundstart = function() {
+          console.log('Audio Start Event fired');
+        };
+        recognition.onsoundend = function() {
+          console.log('Audio End Event fired');
+        };
+
+        recognition.onresult = function(event) {
+          var interim_transcript = '';
+          for (var i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              //final_transcript += event.results[i][0].transcript;
+              uploadSpeech(event.results[i][0].transcript);
+              console.log('Uploading...');
+              //console.log(event.results[i][0].transcript);
+            } else {
+              interim_transcript += event.results[i][0].transcript;
+            }
+          }
+        };
+        if (conf_speech) {
+          recognition.start();
+        }
+      }
+
+      function toLink(href){
+        console.log('Time delay');
+      }
+
+      $('#exit').click(function(event){
+        var button_text = $('#exit').text();
+        if (button_text == 'Finished') {
+          notification = "<div class='alert alert-info alert-dismissible fade show' role='alert'><strong>{% trans 'Saving data'%}</strong> {% trans 'Your data is being saved on server. It will take few seconds to save all the data.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+          $('#teacher_msg').html(notification);
+          if (record_status) {
+            stopRecording();
+          }
+          else {
+            $('#exit').html('Exit');
+          }
+        } 
+      });
+
+      if (! use_etherpad ) {
+        console.log('-------------> Hiding etherpad');
+        $("#etherpad").hide();
+        $("#avchat").attr('class', '');
+        $("#avchat").addClass("col  card  shadow-lg col-12");
+        $("#jitsi").addClass(" min-vh-100")
+      }
+
+      if (! audio_video_chat ) {
+        console.log('removing div');
+        $("#avchat").hide();
+        $("#etherpad").attr('class', '');
+        $("#etherpad").addClass("col  card  shadow-lg col-12");
+
+        $("#container").attr('class', '');
+        $("#container").addClass("container min-vh-100");
+      }
+
+
+      if (audio_video_chat || record_audio_video) {
+        console.log('Caputing media');
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({audio: true, video:true}, getStream, function(e) {
+                console.log("No live audio input in this browser: " + e);
+        });
+      }
+
+      function getStream(stream) {
+        console.log('Capturing video stream');
+        video_stream = stream;
+
+        if (record_audio_video){
+          record_status = true;
+          startRecording(video_stream);
+          notifyRecording();
+        }
+
+        // vad detection if configure
+        if (conf_vad) {
+          audio_stream = new MediaStream(stream.getAudioTracks());
+          startVAD(audio_stream);
+        }
+
+        if (typeof recognition != 'undefined') {
+          //Speech to text if configured
+          if (conf_vad) {
+           recognition.start();
+         }
+        }
+      }
+
+      function getAudioStream(stream) {
+        console.log('Capturing audio stream');
+        audio_stream = stream;
+        if (record_audio && ! record_status){
+          record_status = true;
+          startRecording(audio_stream);
+          notifyRecording();
+        }
+        if (conf_vad) {
+          startVAD(new MediaStream(audio_stream));
+        }
+
+        if (typeof recognition != 'undefined') {
+          if (conf_vad) {
+           recognition.start();
+         }
+        }
+      }
+
+      if (typeof audio_stream == 'undefined' && (record_audio || conf_vad || conf_speech )){
+        console.log('Chat is disabled and capturing media for audio');
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({audio: true}, getAudioStream, function(e) {
+                console.log("No live audio input in this browser: " + e);
+        });
+      }
+
+      function startVAD(stream)
+      {
+        console.log('Running VAD');
+        // Create MediaStreamAudioSourceNode
+        var audioContext = new AudioContext();
+        var source = audioContext.createMediaStreamSource(stream);
+
+        // Setup options
+        var options = {
+         source: source,
+         voice_stop: function() {
+           console.log('Voice Stop');
+           var speak_time = ServerDate.now() - voice_data.voice_start_time;
+           voice_data.voice_activity_duration = speak_time;
+           console.log('Voice Stop');
+         },
+         voice_start: function() {
+           console.log('Voice start');
+           voice_data.voice_start_time = ServerDate.now();
+          console.log(ServerDate.now(),ServerDate(),new Date());
+
+         }
+        };
+        // Create VAD
+        var vad = new VAD(options);
+      }
+
+      function uploadSpeech(text)
+      {
+        //console.log('uploadSpeech called');
+        var fd = new FormData();
+        fd.append('csrfmiddlewaretoken', "{{ csrf_token }}");
+        fd.append('session',{{session.id}});
+        fd.append('user',{{request.user.id}});
+        fd.append('group',{{group}});
+        fd.append('strDate',voice_data.voice_start_time);
+        fd.append('activity',voice_data.voice_activity_duration);
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', '/vad_upload/', true);
+        xhr.send(fd);
+        console.log(voice_data);
+        console.log('VAD start time:',voice_data.voice_start_time);
+        console.log('Sending VAD data, duration:',voice_data.voice_activity_duration);
+
+        /*
+        chatSocket.send(JSON.stringify({
+          'session':{{session.id}},
+          'user': {{request.user.id}},
+          'group': {{group}},
+          'strDate': voice_data.voice_start_time,
+          'activity':voice_data.voice_activity_duration,
+          'speech': text,
+        }));
+        */
+          if (conf_speech)
+          {
+            var fd = new FormData();
+            fd.append('csrfmiddlewaretoken', "{{ csrf_token }}");
+            fd.append('session',{{session.id}});
+            fd.append('user',{{request.user.id}});
+            fd.append('group',{{group}});
+            fd.append('strDate',ServerDate.now());
+            fd.append('TextField',text);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/speech_upload/', true);
+            xhr.send(fd);
+            console.log(' ===> Speech data sent:',text);
+          }
+      }
+
+      function captureMicrophone(callback) {
+        console.log('capturing camera ...');
+        //navigator.getUserMedia = navigator.getUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({audio: true, video:true}, callback, function(error) {
+          alert('Unable to access your camera.');
+          console.error(error);
+          });
+        }
+
+      function postBlob(blob,blobcount){
+        console.log('postBlob called');
+        var fd = new FormData();
+        fd.append('csrfmiddlewaretoken', "{{ csrf_token }}");
+
+        description = '' + Math.floor(ServerDate.now());
+        if (blobcount ==-1) {
+          console.log(blob.type);
+          fd.append('data_blob', blob, + {{session.id}} + '_' + {{group}}+'_'+ user + '_Final_file_' + description +'.' + blob.type.split('/')[1]);
+          fd.append('description', description);
+        }
+        else {
+          fd.append('data_blob', blob, + {{session.id}} + '_' + {{group}}+'_'+ user + '_' + blobcount + '_' + description +'.' + blob.type.split('/')[1]);
+          fd.append('description', description);
+        }
+        fd.append('session',{{session.id}});
+        fd.append('user',{{request.user.id}});
+        fd.append('group',{{group}});
+        fd.append('sequence',blobcount);
+        fd.append('strDate',ServerDate.now());
+        //console.log( {{session}} + '_' + {{group}}+'_'+ user + '.' + blob.type.split('/')[1]);
+        //console.log(fd);
+        var xhr = new XMLHttpRequest();
+        console.log('opening connection');
+        xhr.open('POST', '/upload/', true);
+        console.log('data sending')
+        xhr.send(fd);
+        console.log('data sent');
+        }
+
+        function stopRecordingCallback() {
+          var blob = recorder.getBlob();
+          var blob = new File(data,'video.webm',{type:'vide/webm'})
+          console.log('Final file sending...');
+          postBlob(blob,-1);
+          console.log('Sending final file');
+          recorder.microphone.stop();
+        }
+
+        function startRecording(stream)
+        {
+         this.disabled = true;
+         microphone = stream;
+         console.log('start recording');
+         recorder = RecordRTC(microphone, {
+           recorderType: MediaStreamRecorder,
+           mimeType: 'video/webm',
+           timeSlice: 60000, // Upload for every 1 minutes
+           ondataavailable: function(blob) {
+             blobcount =  blobcount + 1;
+             console.log('sending data:'+ blobcount);
+             data.push(blob);
+             var blob = new File([blob],'video.webm',{type:'vide/webm'})
+             postBlob(blob,blobcount);
+           }
+         });
+        console.log('start recording');
+        recorder.startRecording();
+        recorder.microphone = microphone;
+        console.log('function executed');
+         }
+
+         function stopRecording(_callback) {
+           recorder.stopRecording(stopRecordingCallback);
+           console.log('waiting to finish');
+           $('#exit').html('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Saving ');
+           $('#exit').prop("disabled",true);
+           notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Saved !'%}</strong> {% trans 'Saving your data on server. Please be patient as it will take around 30 seconds to save your data.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+           $('#teacher_msg').html(notification);
+           setTimeout(changeToExit,30000);
+         };
+
+         function changeToExit(){
+           notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Saved !'%}</strong> {% trans 'Your data is saved on the server. You can now exit the session.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+           $('#teacher_msg').html(notification);
+           $('#exit').html('Exit');
+           $('#exit').prop("disabled",false);
+         }
+    </script>
+
+{%endblock %}

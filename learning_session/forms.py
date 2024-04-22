@@ -221,7 +221,7 @@ class SessionCreateForm(forms.Form):
                                     initial=True)
 
 
-class consentForm(forms.Form):
+class ConsentForm(forms.Form):
     """This form stores user's input on the consent form. 
     @todo: extends the form for opt-out case.
     """
@@ -230,3 +230,16 @@ class consentForm(forms.Form):
             attrs={'class': "form-check-input"}
         ),
         initial=False,required=True)
+    
+
+class SessionEnterForm(forms.Form):
+    """This form takes a pin as input and allows access to learning space.
+
+    """
+
+    # form field to get session pin
+    pin = forms.CharField(label=_('Enter access pin'),
+                           widget=forms.TextInput(
+                               attrs={
+                                   'class':'form-control'
+                                   }))

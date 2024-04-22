@@ -7,7 +7,36 @@ from .models import PadGroup, Pad, AuthorMap
 from .models import call
 import datetime
 # Create your views here.
+def create_etherpad_user(mapping):
+    """This function creates a new user in Etherpad if it doesn't exists.
 
+    Args:
+        mapping (dict): this mapping used to create a new user in Etherpad correspoding
+                         to a specified user in CoTrack. Each user in CoTrack has a corresponding user
+                         in Etherpad.
+                         The mapping contains two information: 'authorMapper' which is unique is of the user, and 
+                         'name' that is name of the user.
+    """
+    res = call('createAuthorIfNotExistsFor', mapping)
+    if 'authorID' in res['data']:
+        return res['data']['authorID']
+    else:
+        return None
+
+
+def create_session(mapping):
+    """This function generate a link to a pad in the Etherpad for specified groupid
+
+    Args:
+        mapping (dict): This mapping contains 'authorID' about the user for whom the pad
+                        link is generated, 'groupID' that is Etherpad group id associated with the pad,
+                        and 'validUntil' which contains timestamp until when the pad is accessible.
+    """
+    result = call('createSession', mapping)
+    if 'sessionID' in result['data']:
+        return result['data']['sessionID']
+    else:
+        return None
 
 def create_pads(pad_number, group_name):
     """This function creates n pads in Etherpad with a Etherpad group with the specified name
