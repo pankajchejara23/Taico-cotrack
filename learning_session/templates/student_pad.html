@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_form.html" %}
 {% load i18n %}
 {%block title%} {% trans 'Session'%}-{{sessionj.name}} <hr/>{%endblock%}
 {%block content%}
@@ -34,7 +34,7 @@
               {% trans 'Write solution here'%}
             </h3>
             <div class='cardbody'>
-              <iframe id="demo" onload='autoResizeDiv()' allow="camera https://www.etherpad.website;microphone https://www.etherpad.website"  style="width:100%; height: 100%; position:relative; overflow:hidden; " frameBorder='0' src="http://localhost:9001/auth_session?sessionID={{sessionid}}&padName={{pad_name}}" allowfullscreen>
+              <iframe id="demo" onload='autoResizeDiv()' allow="camera"  style="width:100%; height: 100%; position:relative; overflow:hidden; " frameBorder='0' src="http://127.0.0.1:9001/auth_session?sessionID={{sessionid}}&padName={{pad_name}}" allowfullscreen>
               </iframe>
             </div>
           </div>
@@ -61,7 +61,7 @@
       user = {{request.user.id}};
       var video_stream, audio_stream;
 
-      // code to change text of hide button
+      /* code to change text of hide button
       $('#task').click(function(){
         if ($('#collapseExample').hasClass('show')) {
           $(this).text('Show task');
@@ -69,7 +69,7 @@
           $(this).text('Hide task');
         }
 
-      });
+      }); */
 
       //vad.js start
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -106,7 +106,7 @@
         notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Notification sent!'%}</strong> {% trans 'A notification has been sent to the teacher. Teacher will join soon.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
         $('#teacher_msg').html(notification);
       }
-
+      /*
       $("#notify").click(function(e){
         e.preventDefault();
         var fd = new FormData();
@@ -121,6 +121,7 @@
         xhr.send(fd);
         notifyAlertSent();
       });
+      */
 
       // Web Speech API code
       var final_transcript = '';
@@ -190,7 +191,7 @@
         console.log('Time delay');
       }
 
-      $('#exit').click(function(event){
+      /*$('#exit').click(function(event){
         var button_text = $('#exit').text();
         if (button_text == 'Finished') {
           notification = "<div class='alert alert-info alert-dismissible fade show' role='alert'><strong>{% trans 'Saving data'%}</strong> {% trans 'Your data is being saved on server. It will take few seconds to save all the data.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
@@ -202,25 +203,9 @@
             $('#exit').html('Exit');
           }
         } 
-      });
+      });*/
 
-      if (! use_etherpad ) {
-        console.log('-------------> Hiding etherpad');
-        $("#etherpad").hide();
-        $("#avchat").attr('class', '');
-        $("#avchat").addClass("col  card  shadow-lg col-12");
-        $("#jitsi").addClass(" min-vh-100")
-      }
 
-      if (! audio_video_chat ) {
-        console.log('removing div');
-        $("#avchat").hide();
-        $("#etherpad").attr('class', '');
-        $("#etherpad").addClass("col  card  shadow-lg col-12");
-
-        $("#container").attr('class', '');
-        $("#container").addClass("container min-vh-100");
-      }
 
 
       if (audio_video_chat || record_audio_video) {
@@ -385,10 +370,10 @@
         fd.append('sequence',blobcount);
         fd.append('strDate',ServerDate.now());
         //console.log( {{session}} + '_' + {{group}}+'_'+ user + '.' + blob.type.split('/')[1]);
-        //console.log(fd);
+        console.log(fd);
         var xhr = new XMLHttpRequest();
         console.log('opening connection');
-        xhr.open('POST', '/upload/', true);
+        xhr.open('POST', '/audio_upload/', true);
         console.log('data sending')
         xhr.send(fd);
         console.log('data sent');
@@ -411,7 +396,7 @@
          recorder = RecordRTC(microphone, {
            recorderType: MediaStreamRecorder,
            mimeType: 'video/webm',
-           timeSlice: 60000, // Upload for every 1 minutes
+           timeSlice: 5000, // Upload for every 1 minutes
            ondataavailable: function(blob) {
              blobcount =  blobcount + 1;
              console.log('sending data:'+ blobcount);

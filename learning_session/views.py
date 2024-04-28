@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import Session, GroupPin, SessionGroupMap
+from django.http import HttpResponse
+from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl
 from django.views import View
 from django.contrib import messages
+from django.core.files.base import File
 from django.views.generic import ListView, DetailView
-from .forms import SessionCreateForm, SessionEnterForm, AudioflForm
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -182,17 +184,20 @@ class SessionEnterView(View):
                 sessionID = ep_views.create_session({'authorID':authorid,
                                                      'groupID':groupid,
                                                      'validUntil':end_timestamp.timestamp()})
+                
+                print('Session Etherpad:',sessionID)
                 # storing sessionID in session object, so that user did not need to enter the pin again
                 self.request.session['ethsid'] = sessionID
 
                 # preparing context params 
-                audio_form = AudioflForm()
+                audio_form = AudioflForm()  # this form used to store audio data on server
 
                 # pad name
                 pad_name = f'session_{session_object.id}_group_{group_number-1}'
 
-                context_data = {'group':groupid,
+                context_data = {'group':group_number,
                                 'session':session_object,
+                                'sessionj':session_object,
                                 'form':audio_form,
                                 'pad_name':pad_name,
                                 'sessionid':sessionID,
@@ -205,3 +210,119 @@ class SessionEnterView(View):
             form = self.form_class()
             # redisplaying the enter form with error message
             return render(request, self.template_name, {'form':form})
+        
+
+class UploadVADView(View):
+    """View for handling audio data processing and storing on server
+
+    """
+    form_class = VADForm
+    def post(self, request, *args, **kwargs):
+        """This function stores voice activity detection data on server.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # fetch data from submitted form
+            session = form.cleaned_data.get("session")
+            user = form.cleaned_data.get("user")
+            group = form.cleaned_data.get("group")
+
+            # start time of voice activity in milliseconds
+            strDate = form.cleaned_data.get("strDate")
+
+            # duration of the voice activity
+            activity = form.cleaned_data.get("activity")
+
+            # start time converstion to seconds
+            strDate = (int)(float(strDate)/1000)
+
+            # converting timestamp from seconds to date and time
+            dt = datetime.datetime.fromtimestamp(strDate)
+
+            print(form)
+            
+            # saving voice activity detection data in database
+            VAD.objects.create(session=session,user=user,group=group,timestamp=dt,activity=activity)
+            print('Vad object saved')
+            return HttpResponse('Done')
+        else:
+            return HttpResponse('Error')
+
+
+class UploadSpeechView(View):
+    """View for handling speech-to-text conversion and storing on server
+
+    """
+    form_class = SpeechForm
+    def post(self, request, *args, **kwargs):
+        """This function stores speech-to-text data on server.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # fetch data from submitted form
+            session = form.cleaned_data.get("session")
+            user = form.cleaned_data.get("user")
+            group = form.cleaned_data.get("group")
+
+            # start time of voice activity in milliseconds
+            strDate = form.cleaned_data.get("strDate")
+
+            # speech-to-text data
+            speech = form.cleaned_data.get("TextField")
+
+            # start time converstion to seconds
+            strDate = (int)(float(strDate)/1000)
+
+            # converting timestamp from seconds to date and time
+            dt = datetime.datetime.fromtimestamp(strDate)
+            
+            # saving voice activity detection data in database
+            Speech.objects.create(session=session,user=user,group=group,timestamp=dt,TextField=speech)
+            print('Speech object saved')
+            return HttpResponse('Done')
+        
+
+class UploadAudioView(View):
+    """View for handling audio files storing on server
+
+    """
+    form_class = AudioflForm
+    def post(self, request, *args, **kwargs):
+        """This function stores audio data files on server.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            # timestamp in milliseconds
+            strDate = form.cleaned_data.get("strDate")
+
+            # timestamp in seconds
+            strDate = (int)(float(strDate)/1000)
+
+            # timestamp in datetime format
+            dt = datetime.datetime.fromtimestamp(strDate)
+
+            # changing default saving of the form
+            newform = form.save(commit=False)
+
+            # assigning start time
+            newform.started_at = dt
+
+            # fetching audio (or audio/video) file content
+            djfile = File(request.FILES['data_blob'])
+
+            # saving the file on the server
+            newform.fl.save(request.FILES['data_blob'].name,djfile)
+
+            # saving the form's data
+            newform.save()
+
+            return HttpResponse('Done')
