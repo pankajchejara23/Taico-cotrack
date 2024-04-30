@@ -9,6 +9,7 @@
                 <p class='text-dark badge fw-bold'> ... </p>
             </div>
             <p class="px-2 mt-0 small fw-lighter"> Created on: {{session.created_at}} </p>
+            <!-- Displaying basic information about the learning session -->
             <div class="px-3 d-flex fs-5">
                 <p class="badge bg-white text-dark p-1 mx-2 fw-light">
                     Groups: {{session.groups}} 
@@ -19,9 +20,25 @@
                 <p class="badge bg-white text-dark   p-1 mx-2  fw-light">
                     Langauge: {{session.language}} 
                 </p>
+                <p class="badge bg-white text-dark   p-1 mx-2  fw-light">
+                    Langauge: {{session.language}} 
+                </p>
+
                 <br/>
             </div>
-            <div class="px-3 d-flex">
+            <!-- Displaying group pins -->
+            <div class="px-3 mx-2 d-flex fw-light">
+                <!-- Accessing all related group pins objects-->
+                {% trans 'Access Pins'%}:
+                <div id="pins" class='mx-4'>
+                    {% for gp_object in session.grouppin_set.all %}
+                    {% trans 'Group'%}-{{gp_object.group}}:{{gp_object.pin}}
+                    {% endfor %}
+                </div>
+           </div>
+
+            <!-- Displaying data processing/recording related information -->
+            <div class="px-3 mt-3 d-flex">
                 {% if session.conf_vad %} 
                     <p class='badge bg-danger text-white  mx-2 fw-light'> 
                         seapking activity detection 
