@@ -32,6 +32,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_REDIRECT_URL = "/session/list"
 
 # CKeditor settings
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
@@ -191,3 +192,5 @@ EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_PASSWORD'))
 # Etherpad config
 ETHERPAD_URL = str(os.getenv('ETHERPAD_URL'))
 ETHERPAD_KEY = str(os.getenv('ETHERPAD_KEY'))
+
+PROTOCOL = 'http'

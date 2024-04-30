@@ -1,0 +1,31 @@
+{% load i18n %}
+<style>
+  .btn {
+        width: 100%;
+    }
+    a {
+        text-decoration: none;
+    }
+</style>
+<div class=" px-sm-2">
+    <div class="d-flex flex-column align-items-start">
+        <ul class="nav nav-pills flex-column mb-sm-auto mt-3 mb-2 align-items-start " id="menu">
+            <li class="btn btn-light  rounded-3 py-2 btn-pill btn-md btn-block">
+                <a href="{% url 'session_create' %}" class="px-0 text-dark  ">
+                    <i class="fa fa-plus pr-2"></i>  <span class="ms-1 d-sm-inline">{% translate 'Create a session'%}</span>
+                </a>
+            </li>
+            <li class="btn btn-light rounded-3  mt-4 py-2 btn-pill btn-md btn-block " class="text-dark ">
+                <a href="{% url 'session_list' %}" class="px-0 text-dark  ">
+                    <i class="fa fa-archive pr-2"></i>  <span class="ms-1 d-none d-sm-inline">{% translate 'All sessions'%}</span> 
+                </a>
+            </li>
+            <li class="btn btn-light rounded-3  mt-4 mb-5 py-2 btn-pill btn-md btn-block m-b-20">
+                <a href="{% url 'session_archive' %}" class="text-dark ">
+                    <i class="fa fa-save pr-2"></i>  <span class="ms-1 d-none d-sm-inline">{% translate 'Archived sessions'%}</span> 
+                </a>
+            </li>    
+        </ul>
+                
+    </div>
+</div>

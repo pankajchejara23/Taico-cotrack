@@ -1,4 +1,4 @@
- {% extends "base.html" %}
+ {% extends "teacher_base.html" %}
 {% load i18n %}
 {% block title %} {% trans 'Learning Sessions' %} {% endblock title%}
 {% block content %}
@@ -6,7 +6,16 @@
         <div class="p-2 border-1 rounded-3 m-3 border shadow bg-light" style="opacity:.8;">
             <div class="d-flex justify-content-between mb-0"> 
                 <h4 class="px-2"> {{session.name | upper}} </h4>
-                <p class='text-dark badge fw-bold'> ... </p>
+                <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           <i class="fa fa-cog"> </i> 
+          </a>
+          <ul class="dropdown-menu bg-white" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#"><i class="fa fa-edit"></i> Edit</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fa fa-copy"></i> Duplicate</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><i class="fa fa-archive"></i> Archive</a></li>
+          </ul>
+                
             </div>
             <p class="px-2 mt-0 small fw-lighter"> Created on: {{session.created_at}} </p>
             <!-- Displaying basic information about the learning session -->
@@ -75,24 +84,23 @@
             $('[data-toggle="tooltip"]').tooltip({ trigger: 'hover' });
             });
         </script>
-    {% endfor%}
-        
-    {% if object_list.count == 0 %}
-        <div class='text-center card'>
+    {% empty %}
+      <div class='text-center card p-2 m-3'>
             <div class='card-header'>  
                 <h4> {% trans 'No sessions' %} </h4> 
             </div>
             <div class='card-body'>
                 <p> 
-                    {% trans 'You do not have any active sessions.' %}
+                    {% trans 'You do not have any sessions.' %}
                     <br/><br/>
-                    <a href="" class='btn btn-success'>
+                    <a href="" class='btn btn-success rounded'>
                         <i class='fa fa-add'></i> {% trans 'Create Session' %} 
                     </a>
                 </p>
             </div>
         </div>
-        <br/>
-        </div><br/>
-    {% endif %}
+
+    {% endfor%}
+        
+
 {% endblock content%}

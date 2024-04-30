@@ -23,6 +23,19 @@ class SessionListView(ListView):
     template_name = 'list_session.html'
 
 
+class SessionArchiveView(ListView):
+    """View for listing out archived learning sessions
+
+    """
+    model=Session
+    template_name = 'list_session.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(status=False)
+        return queryset
+
+
 class SessionDetailView(DetailView):
     """View for displaying dashboard for the session
 
@@ -202,7 +215,7 @@ class SessionEnterView(View):
                                 'pad_name':pad_name,
                                 'sessionid':sessionID,
                                 'etherpad_url':settings.ETHERPAD_URL,
-                                'protocol':'http'}
+                                'protocol':settings.PROTOCOL}
 
                 return render(request, self.pad_template_name, context_data)
         else:

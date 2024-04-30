@@ -2,15 +2,13 @@
 {% load i18n %}
 {%block title%} {% trans 'Session'%}-{{sessionj.name}} <hr/>{%endblock%}
 {%block content%}
-
     <span id='teacher_msg'>
     </span>
     <div class='row' id='record_status'>
     </div>
     <div class="d-flex flex-row-reverse">
-      <button id='exit'  class="btn btn-success btn-lg m-2">Finished</button>
-      <a class="btn btn-warning btn-lg m-2" id='notify'> <span class="fa fa-hand-paper-o"></span> {% trans 'Ask teacher for help'%}</a>
-      <a id="task" class="btn btn-primary btn-lg m-2" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
+      <button id='exit'  class="btn btn-success m-2">Finished</button>
+      <a id="task" class="btn btn-primary m-2" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="true" aria-controls="collapseExample">
         {% trans 'Hide task'%}
       </a>
     </div>
@@ -30,11 +28,11 @@
     <div class="row" >
       <div id='etherpad' class="col  shadow-lg p-5 col-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
           <div class='card' id='space'>
-            <h3 class='card-header text-white bg-info border-info'>
+            <h4 class='card-header fw-light text-dark bg-light border-dark'>
               {% trans 'Write solution here'%}
-            </h3>
+            </h4>
             <div class='cardbody'>
-              <iframe id="demo" onload='autoResizeDiv()' allow="camera"  style="width:100%; height: 100%; position:relative; overflow:hidden; " frameBorder='0' src="http://127.0.0.1:9001/auth_session?sessionID={{sessionid}}&padName={{pad_name}}" allowfullscreen>
+              <iframe id="demo" onload='autoResizeDiv()' allow="camera"  style="width:100%; height: 100%; position:relative; overflow:hidden; " frameBorder='0' src="{{protocol}}://{{etherpad_url}}/auth_session?sessionID={{sessionid}}&padName={{pad_name}}" allowfullscreen>
               </iframe>
             </div>
           </div>
@@ -61,7 +59,7 @@
       user = {{request.user.id}};
       var video_stream, audio_stream;
 
-      /* code to change text of hide button
+      // code to change text of hide button
       $('#task').click(function(){
         if ($('#collapseExample').hasClass('show')) {
           $(this).text('Show task');
@@ -69,7 +67,7 @@
           $(this).text('Hide task');
         }
 
-      }); */
+      }); 
 
       //vad.js start
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -99,14 +97,14 @@
       var voice_data = {};
 
       function notifyRecording() {
-        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Recording started!'%}</strong> {% trans 'Recording has been started.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Recording started!'%}</strong> {% trans 'Recording has been started.'%}<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
         $('#teacher_msg').html(notification);
       }
       function notifyAlertSent() {
-        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Notification sent!'%}</strong> {% trans 'A notification has been sent to the teacher. Teacher will join soon.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+        notification = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>{% trans 'Notification sent!'%}</strong> {% trans 'A notification has been sent to the teacher. Teacher will join soon.'%}<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>";
         $('#teacher_msg').html(notification);
       }
-      /*
+      
       $("#notify").click(function(e){
         e.preventDefault();
         var fd = new FormData();
@@ -121,7 +119,6 @@
         xhr.send(fd);
         notifyAlertSent();
       });
-      */
 
       // Web Speech API code
       var final_transcript = '';
@@ -191,10 +188,10 @@
         console.log('Time delay');
       }
 
-      /*$('#exit').click(function(event){
+      $('#exit').click(function(event){
         var button_text = $('#exit').text();
         if (button_text == 'Finished') {
-          notification = "<div class='alert alert-info alert-dismissible fade show' role='alert'><strong>{% trans 'Saving data'%}</strong> {% trans 'Your data is being saved on server. It will take few seconds to save all the data.'%}<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>";
+          notification = "<div class='alert alert-info alert-dismissible fade show' role='alert'><strong>{% trans 'Saving data'%}</strong> {% trans 'Your data is being saved on server. It will take few seconds to save all the data.'%}<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
           $('#teacher_msg').html(notification);
           if (record_status) {
             stopRecording();
@@ -203,10 +200,7 @@
             $('#exit').html('Exit');
           }
         } 
-      });*/
-
-
-
+      });
 
       if (audio_video_chat || record_audio_video) {
         console.log('Caputing media');
