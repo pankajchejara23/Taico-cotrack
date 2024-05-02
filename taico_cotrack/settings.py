@@ -33,6 +33,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = "/session/list"
+LOGIN_URL = '/login'
 
 # CKeditor settings
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"

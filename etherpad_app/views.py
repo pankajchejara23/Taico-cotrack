@@ -38,6 +38,47 @@ def create_session(mapping):
     else:
         return None
 
+
+def update_pads(etherpad_groupid, group_name, org_groups, new_groups):
+    """This function updates the pads according to new number of groups.
+
+    Args:
+        etherpad_groupid (str): Etherpad Groupid
+        session_id(int): Session primary key
+        org_groups (int): number of groups before update
+        newgroups (int): number of groups after update
+    """
+    status = True
+    pad_group_object = PadGroup.objects.filter(groupID = etherpad_groupid)[0]
+    group_diff = new_groups - org_groups
+    if (group_diff > 0):
+        for g in range(group_diff):
+            g =  g +  org_groups + 1
+            pad_name = f'{group_name}_group_{g}'
+            print('Pad name:',pad_name)
+            # call to create pad
+            pad_create_response = call('createGroupPad',
+                                        {
+                                            'groupID':etherpad_groupid,
+                                            'padName':pad_name
+                                        })
+            print('Creating pad:', pad_create_response)
+            if pad_create_response["code"]==0:
+                pad_object = Pad.objects.create(eth_group=pad_group_object,
+                                                    eth_padid=pad_name)
+                print('Pad created')
+            else:
+                status = False
+    else:
+        group_diff = abs(group_diff)
+        for g in range(group_diff):
+            del_group = g + new_groups + 1
+            pad_name = f'{group_name}_group_{del_group}'
+            res = call('deletePad',{'padID':pad_name})
+            Pad.objects.filter(eth_group = pad_group_object).fitler(group=del_group).delete()
+    return status
+  
+
 def create_pads(pad_number, group_name):
     """This function creates n pads in Etherpad with a Etherpad group with the specified name
 

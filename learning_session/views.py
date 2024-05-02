@@ -16,6 +16,21 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 # Create your views here.
 
+def generate_pin(s, g):
+    """This function generates a unique pin code
+
+    Args:
+        s (Session): Session object
+        g (int): Group number
+
+    """
+    while True:
+        u_pin = uuid.uuid4().hex[:6].upper()
+        objs = GroupPin.objects.filter(pin = u_pin)
+        if objs.count() == 0:
+            break
+    sg = GroupPin.objects.create(session=s,pin=u_pin,group=g)
+    return
 
 
 class SessionUpdateView(UpdateView):
@@ -26,6 +41,34 @@ class SessionUpdateView(UpdateView):
     template_name = 'update_session.html'
     success_url = '/session/list'
     form_class = SessionUpdateForm
+
+    def update_group_pin(self, org_groups, new_groups):
+        """This function updates the group pins according to new value.
+
+        Args:
+            org_groups (int): number of groups before update
+            new_groups (int): number of groups after update
+        """
+
+        # don't do anything if the number of groups are not changed
+        if org_groups == new_groups:
+            return
+        
+        # computing difference between new and original number of groups
+        group_diff = new_groups - org_groups
+
+        # if the updated number of groups is higher than old value
+        if (group_diff > 0):
+            for g in range(group_diff):
+                g =  g +  org_groups + 1
+                generate_pin(self.object, g)
+        else:
+            group_diff = abs(group_diff)
+            for g in range(group_diff):
+                del_group = g + new_groups + 1
+                GroupPin.objects.filter(session=self.object,group=del_group).delete()
+        return 
+
     
     def get_initial(self):
         """This function adds initial values for duration days, hours, minutes.
@@ -34,6 +77,7 @@ class SessionUpdateView(UpdateView):
             dict: dictionary of initial values for the form
         """
         initial_values = super().get_initial()
+        initial_values['new'] = self.object.groups
         initial_values['duration_days'] = self.object.duration.days
         initial_values['duration_hours'] = self.object.duration.seconds // 3600
         initial_values['duration_minutes'] =  ( self.object.duration.seconds // 60) % 60
@@ -48,10 +92,23 @@ class SessionUpdateView(UpdateView):
             HttpResponseRedirect: redirect user to success url
         """
         self.object = form.save(False)
+        org_groups = form.cleaned_data.get('new')
+        new_groups = form.cleaned_data.get('groups')
         self.object.duration = timedelta(days=form.cleaned_data.get('duration_days'),
                                          hours=form.cleaned_data.get('duration_hours'),
                                          minutes=form.cleaned_data.get('duration_minutes'))
-        self.object.save()
+        
+        session_groupmap = SessionGroupMap.objects.filter(session = self.object)
+        group_name = f'session_{self.object.id}'
+        etherpad_groupid = session_groupmap[0].eth_groupid
+        self.update_group_pin(org_groups, new_groups)
+        status = ep_views.update_pads(etherpad_groupid, group_name, org_groups, new_groups)
+        if status:
+            self.object.save()
+            messages.success(self.request, _('Session is updated.'))
+        else:
+            messages.error(self.request, _('There are some errors while updating pads in Etherpad.'))
+            
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -113,18 +170,7 @@ class SessionDuplicateView(View):
         # generate a secure access pin for each pad in the group
         for group in range(groups):
             group += 1
-            # generate a random pin and check its existence in the database
-            while True:
-                group_pin = uuid.uuid4().hex[:6].upper()
-                group_pin_objects = GroupPin.objects.filter(pin=group_pin)
-
-                # if the newly generate pin is not in db then break
-                if group_pin_objects.count() == 0:
-                    break
-            # create an entry in GroupPin table
-            gp = GroupPin.objects.create(session=session_object,
-                                            pin=group_pin,
-                                            group=group)
+            generate_pin(self.object, g)
 
             
         # create equal number of pads in Etherpad (one for each group)
