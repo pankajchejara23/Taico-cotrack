@@ -7,30 +7,29 @@
             <div class="d-flex justify-content-between mb-0"> 
                 <h4 class="px-2"> {{session.name | upper}} </h4>
                 <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-           <i class="fa fa-cog"> </i> 
-          </a>
-          <ul class="dropdown-menu bg-white" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#"><i class="fa fa-edit"></i> Edit</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fa fa-copy"></i> Duplicate</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><i class="fa fa-archive"></i> Archive</a></li>
-          </ul>
-                
+                    <i class="fa fa-cog"> </i> 
+                </a>
+                <ul class="dropdown-menu bg-white" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'session_edit' session.id %}"><i class="fa fa-edit"></i> {% trans 'Edit' %}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'session_duplicate' session.id %}"><i class="fa fa-copy"></i> {% trans 'Duplicate' %}</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'session_archive' session.id %}"><i class="fa fa-archive"></i> {% trans 'Archive' %}</a></li>
+                </ul>    
             </div>
-            <p class="px-2 mt-0 small fw-lighter"> Created on: {{session.created_at}} </p>
+            <p class="px-2 mt-0 small fw-lighter"> {% trans 'Created on' %}: {{session.created_at}} </p>
             <!-- Displaying basic information about the learning session -->
             <div class="px-3 d-flex fs-5">
                 <p class="badge bg-white text-dark p-1 mx-2 fw-light">
-                    Groups: {{session.groups}} 
+                    {% trans 'Groups' %}: {{session.groups}} 
                 </p>
                 <p class="badge bg-white text-dark p-1 mx-2  fw-light">
-                    Time: {{session.duration}} 
+                    {% trans 'Time' %}: {{session.duration}} 
                 </p>
                 <p class="badge bg-white text-dark   p-1 mx-2  fw-light">
-                    Langauge: {{session.language}} 
+                    {% trans 'Langauge' %}: {{session.language}} 
                 </p>
                 <p class="badge bg-white text-dark   p-1 mx-2  fw-light">
-                    Langauge: {{session.language}} 
+                    {% trans 'Langauge' %}: {{session.language}} 
                 </p>
 
                 <br/>

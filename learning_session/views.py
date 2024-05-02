@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl
 from django.views import View
 from django.contrib import messages
 from django.core.files.base import File
-from django.views.generic import ListView, DetailView
-from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -13,7 +13,47 @@ from django.db import transaction
 import jwt
 import datetime
 from django.conf import settings
+from django.utils.translation import gettext as _
 # Create your views here.
+
+
+
+class SessionUpdateView(UpdateView):
+    """This view allows editing of Session objects.
+
+    """
+    model = Session
+    template_name = 'update_session.html'
+    success_url = '/session/list'
+    form_class = SessionUpdateForm
+    
+    def get_initial(self):
+        """This function adds initial values for duration days, hours, minutes.
+
+        Returns:
+            dict: dictionary of initial values for the form
+        """
+        initial_values = super().get_initial()
+        initial_values['duration_days'] = self.object.duration.days
+        initial_values['duration_hours'] = self.object.duration.seconds // 3600
+        initial_values['duration_minutes'] =  ( self.object.duration.seconds // 60) % 60
+        return initial_values
+    
+    def form_valid(self, form):
+        """This form executes when the submitted form is valid.
+
+        Args:
+            form (SessionUpdateForm): form object with submitted values
+        Returns:
+            HttpResponseRedirect: redirect user to success url
+        """
+        self.object = form.save(False)
+        self.object.duration = timedelta(days=form.cleaned_data.get('duration_days'),
+                                         hours=form.cleaned_data.get('duration_hours'),
+                                         minutes=form.cleaned_data.get('duration_minutes'))
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
 
 class SessionListView(ListView):
     """View for listing out learning sessions
@@ -22,8 +62,13 @@ class SessionListView(ListView):
     model = Session
     template_name = 'list_session.html'
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(status=True)
+        return queryset
 
-class SessionArchiveView(ListView):
+
+class SessionArchiveListView(ListView):
     """View for listing out archived learning sessions
 
     """
@@ -34,6 +79,69 @@ class SessionArchiveView(ListView):
         queryset = super().get_queryset()
         queryset = queryset.filter(status=False)
         return queryset
+
+
+class SessionArchiveView(View):
+    """This view handles archiving of sessions.
+
+    """
+    def get(self, request, *args, **kwargs):
+        id = self.kwargs['pk']
+        session_object = Session.objects.get(id=id)
+        # changing  status to False
+        session_object.status=False
+        session_object.save()
+        messages.success(self.request, _('Session is archived.'))
+        return redirect('session_list')
+
+
+class SessionDuplicateView(View):
+    """This view handles duplicate and archive actions.
+
+    """
+    def get(self, request, *args, **kwargs):
+        id = self.kwargs['pk']
+
+        session_object = Session.objects.get(id=id)
+
+        # setting primary key to None cause creation of a new object at save
+        session_object.id = None
+        session_object.save()
+
+        groups = session_object.groups
+
+        # generate a secure access pin for each pad in the group
+        for group in range(groups):
+            group += 1
+            # generate a random pin and check its existence in the database
+            while True:
+                group_pin = uuid.uuid4().hex[:6].upper()
+                group_pin_objects = GroupPin.objects.filter(pin=group_pin)
+
+                # if the newly generate pin is not in db then break
+                if group_pin_objects.count() == 0:
+                    break
+            # create an entry in GroupPin table
+            gp = GroupPin.objects.create(session=session_object,
+                                            pin=group_pin,
+                                            group=group)
+
+            
+        # create equal number of pads in Etherpad (one for each group)
+        group_name = f'session_{session_object.id}'
+        result = ep_views.create_pads(groups, group_name)
+
+        if result['status'] == 'success':
+            group_id = result['group_id']
+            sgm = SessionGroupMap.objects.create(session=session_object,
+                                                     eth_groupid=group_id,
+                                                     )
+            messages.success(self.request, _('Session is duplicated successfully !'))
+        else:
+                messages.error(self.request, _('Error occurred while duplicating the session !'))
+        return redirect('session_list')
+
+
 
 
 class SessionDetailView(DetailView):
@@ -130,12 +238,11 @@ class SessionCreateView(View):
                 sgm = SessionGroupMap.objects.create(session=s,
                                                      eth_groupid=group_id,
                                                      )
-                messages.success(self.request, 'Session is created successfully !')
+                messages.success(self.request, _('Session is created successfully !'))
             else:
-                messages.error(self.request, 'Error occurred while creating the session !')
+                messages.error(self.request, _('Error occurred while creating the session !'))
             return redirect('session_list')
         else:
-            print(form)
             print('Form is not valid')
 
 

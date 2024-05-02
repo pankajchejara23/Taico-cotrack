@@ -52,7 +52,7 @@ def user_directory_path(instance, filename):
     Returns:
         filename: complete filename containing session info
     """
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    # file will be uploaded to MEDIA_ROOT/session_<id>/group_<id>/user_<id>/<filename>
     return os.path.join(
       "session_%d" % instance.session.id,
       "group_%d" % instance.group, 

@@ -92,6 +92,135 @@ class SpeechForm(forms.ModelForm):
                    'group':forms.HiddenInput(),
                    'TextField':forms.HiddenInput()}
 
+class SessionUpdateForm(forms.ModelForm):
+    LANG_CHOICES = [('En',_('English')),('Et',_('Estonian'))]
+    STATUS_CHOICES=[(True,_('Enable')),(False,_('Disable'))]
+
+    # form field to get title info
+    name = forms.CharField(label=_('Learning session title'),
+                           widget=forms.TextInput(
+                               attrs={
+                                   'class':'form-control'
+                                   }))
+    # get number of groups
+    groups = forms.IntegerField(label=_('Number of groups'),
+                                widget=forms.NumberInput(
+                                    attrs={
+                                        'class':'form-control'
+                                        }))
+    # instruction language: this is used for deciding the language when using Google Speech-to-Text
+    language=forms.CharField(label=_('Language'),
+                             widget=forms.Select(
+                                 choices=LANG_CHOICES,
+                                 attrs={
+                                     'class':'form-control'
+                                     }))
+    # duration of the learning session (in days)
+    duration_days = forms.IntegerField(label=_('Days'),
+                                       widget=forms.NumberInput(
+                                           attrs={
+                                               'class':'form-control',
+                                               'placeholder':_('Days')
+                                               }))
+    # duration of the learning session (in hours)
+    duration_hours = forms.IntegerField(label=_('Hours'),
+                                        widget=forms.NumberInput(
+                                            attrs={
+                                                'class':'form-control',
+                                                'placeholder':_('Hours')
+                                                }))
+    # duration of the learning session (in minutes)
+    duration_minutes = forms.IntegerField(label=_('Minutes'),
+                                          widget=forms.NumberInput(
+                                              attrs={
+                                                  'class':'form-control',
+                                                  'placeholder':_('Minutes')
+                                                  }))
+    
+
+    # field to differentiate between create and edit operations
+    new = forms.IntegerField(widget=forms.HiddenInput(),
+                             required=False,initial=-1) # store -1 if session is new otherwise contains session id
+
+    ### LEARNING SPACE CONFIGURATION
+
+    # learning task for students
+    learning_problem = forms.CharField(required=False,
+                                       label=_('Learning activity'),
+                                       widget=CKEditorUploadingWidget(
+                                           attrs={
+                                               'class':'form-control'
+                                               })
+                                        )
+    # whether to use Etherpad for the learning task
+    useEtherpad = forms.BooleanField(required=False,
+                                     widget=DjangoToggleSwitchWidget(
+                                         klass="django-toggle-switch-dark-primary"
+                                         )
+                                     )
+    # whether to use audio/video chat for learning task
+    useAVchat = forms.BooleanField(required=False,
+                                   widget=DjangoToggleSwitchWidget(
+                                       klass="django-toggle-switch-dark-primary"
+                                       )
+                                  )
+    # whether to automatically group students
+    random_group = forms.BooleanField(required=False,
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                      )
+    
+    #### RECORDING CONFIGURATION 
+
+    # whether to record audio data
+    record_audio = forms.BooleanField(required=False, label=_('Audio recording'),
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                      )
+    # whether to record video data
+    record_audio_video = forms.BooleanField(required=False, label=_('Audio/Video recording'),
+                                            widget=DjangoToggleSwitchWidget(
+                                                klass="django-toggle-switch-dark-primary"
+                                                )
+                                            )
+    # whether to perform voice activity detection
+    conf_vad = forms.BooleanField(required=False,label=_('Capture speaking activity'),
+                                  widget=DjangoToggleSwitchWidget(
+                                      klass="django-toggle-switch-dark-primary"
+                                      )
+                                  )
+    # whether to perform speech-to-text
+    conf_speech = forms.BooleanField(required=False, label=_('Capture speech-to-text'),
+                                     widget=DjangoToggleSwitchWidget(
+                                         klass="django-toggle-switch-dark-primary"
+                                         )
+                                     )
+    # whether to add consent form
+    conf_consent = forms.BooleanField(required=False, label=_('Add consent form'),
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                     )
+    # content of consent
+    consent_content = forms.CharField(label=_('Consent form'),
+                                      widget=CKEditorUploadingWidget(
+                                          attrs={'class':'form-control'}
+                                      ),
+                                      required=False,
+                                      initial=default_consent_form_content)
+    # whether to activate the learning session now
+    allow_access = forms.ChoiceField(required=False,
+                                    choices=STATUS_CHOICES, 
+                                    widget=forms.RadioSelect(
+                                         attrs={'class': "custom-radio-list"}
+                                    ),
+                                    initial=True)
+    class Meta:
+        model = Session
+        exclude = ['creator','created_at','status','access_allowed','duration','assessment_score']
+
 
 class SessionCreateForm(forms.Form):
     """Form to create Session. 
