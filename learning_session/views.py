@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl
+from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest
 from django.views import View
 from django.contrib import messages
 from django.core.files.base import File
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView
-from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm, RoleRequestForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -188,8 +188,6 @@ class SessionDuplicateView(View):
         return redirect('session_list')
 
 
-
-
 class SessionDetailView(DetailView):
     """View for displaying dashboard for the session
 
@@ -305,7 +303,6 @@ class SessionEnterView(View):
 
         Args:
             request (HttpRequest): request parameter
-
         """
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
@@ -492,3 +489,39 @@ class UploadAudioView(View):
             newform.save()
 
             return HttpResponse('Done')
+        
+
+class RoleRequestView(View):
+    model = RoleRequest
+    form_class = RoleRequestForm
+    template_name = 'role_request.html'
+    success_url = '/session/list'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        
+        # save only if the request does not exists alredy
+        roles = RoleRequest.objects.filter(user=self.request.user)
+        if roles.count() !=0:
+            messages.error(request, 'You already made a request.')
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return render(request, self.template_name, {'form':form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            role = form.save(commit=False)
+            role.user = self.request.user
+            role.decision = False
+            role.pending = True
+            role.save()
+            messages.success(request, 'Your request have been registered.')
+            return HttpResponseRedirect(self.success_url)
+        else:
+            return render(request, self.template_name, {'form':form})
+
+
+class RoleRequestListView(ListView):
+    model = RoleRequest
+    template_name = 'role_list.html'

@@ -34,6 +34,19 @@ class Session(models.Model):
     conf_consent = models.BooleanField(default=False)           #whether to show consent form
     
 
+# Model for storing requests for getting teacher's role
+class RoleRequest(models.Model):
+    """This model stores request made by users for gaining teacher's role.
+    """
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    school =  models.TextField(blank=True)
+    class_size = models.IntegerField()
+    subject = models.TextField(blank=True)
+    decision =  models.BooleanField(default=False)
+    pending =  models.BooleanField(default=True)
+
+
 # Model for storing Etherpad session id
 class SessionGroupMap(models.Model):
     """Model to mapping between Etherpad pads and learning session
@@ -138,3 +151,4 @@ admin.site.register(VAD)
 admin.site.register(Speech)
 admin.site.register(GroupPin)
 admin.site.register(Consent)
+admin.site.register(RoleRequest)

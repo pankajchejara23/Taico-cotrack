@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView
-from .views import UploadVADView, UploadSpeechView, UploadAudioView
+from .views import UploadVADView, UploadSpeechView, UploadAudioView, RoleRequestView, RoleRequestListView
 urlpatterns = [
     path('session/create', login_required(SessionCreateView.as_view()), name='session_create'),
     path('session/edit/<int:pk>/', login_required(SessionUpdateView.as_view()), name='session_edit'),
@@ -15,4 +15,6 @@ urlpatterns = [
     path('vad_upload/', UploadVADView.as_view(), name='upload_vad'),
     path('speech_upload/', UploadSpeechView.as_view(), name='upload_speech'),
     path('audio_upload/', UploadAudioView.as_view(), name='upload_audio'),
+    path('request/send', RoleRequestView.as_view(), name='request_send'),
+    path('request/list', RoleRequestListView.as_view(), name='request_list'),
 ]

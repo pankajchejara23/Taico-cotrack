@@ -1,0 +1,68 @@
+{% extends "base.html" %} 
+{% load static %} 
+{% load i18n %} 
+{% block title %} {% trans 'Create Learning Session' %} {% endblock title%} 
+{% block content %}
+<div class='container'>
+<h3 class='fw-light my-3 text-white'>Request for Teacher's Role </h3>
+<p class='lead text-white'> You can make a request to CoTrack's administrator for the privileges required for creating learning activities in CoTrack.  </p>
+<div class="form-content text-white my-1 p-2">
+  <div class="border-0 rounded-lg mt-0 mb-3">
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible  fade show" role="alert">
+      <div id="form_errors">
+        {% for key, value in form.errors.items %}
+        <strong class='lead'>{{key | upper}}</strong> {{ value }}
+        {% endfor %}
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <div class="">
+      <form method="POST">
+        {{form.media}} {% csrf_token %}
+        <fieldset class="form-group border rounded px-4 py-2 pb-4">
+          <legend class="float-none w-auto p-2">Basic Info</legend>
+          <div class="form-row px-2">
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.school.label}} </label>
+
+                {{ form.school }}
+              </div>
+            </div>
+          </div>
+          <div class="row form-row p-2">
+            <div class="col-lg-4">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.class_size.label}} </label>
+                {{ form.class_size }}
+              </div>
+            </div>
+            <div class="col-lg-8 lg-offset-1">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.subject.label}} </label>
+                {{ form.subject }}
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div class="form-row mt-4">
+          <div class="col-md-12">
+            <div class="form-group mt-0 mb-1">
+              <button
+                name="create"
+                class="col-md-12 btn btn-warning"
+                id="login"
+              >
+                {% trans 'Send Request' %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  {% endblock content %}
+

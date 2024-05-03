@@ -2,7 +2,7 @@ from django import forms
 from django_toggle_switch_widget.widgets import DjangoToggleSwitchWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.utils.translation import gettext as _
-from .models import Session, VAD, Speech, Audiofl
+from .models import Session, VAD, Speech, Audiofl, RoleRequest
 
 
 
@@ -372,3 +372,16 @@ class SessionEnterForm(forms.Form):
                                attrs={
                                    'class':'form-control'
                                    }))
+
+
+class RoleRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = RoleRequest
+        fields = ['school', 'class_size', 'subject']
+        widgets= {
+            'school':forms.TextInput(attrs = {'class':'form-control'}),
+            'class_size':forms.NumberInput(attrs = {'class':'form-control'}),
+            'subject':forms.TextInput(attrs = {'class':'form-control'}),
+
+        }
