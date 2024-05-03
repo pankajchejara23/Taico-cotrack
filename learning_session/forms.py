@@ -3,7 +3,7 @@ from django_toggle_switch_widget.widgets import DjangoToggleSwitchWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.utils.translation import gettext as _
 from .models import Session, VAD, Speech, Audiofl, RoleRequest
-
+from django.contrib.auth.models import User
 
 
 default_consent_form_content = """<h3>Dear Participant </h3>
@@ -375,7 +375,6 @@ class SessionEnterForm(forms.Form):
 
 
 class RoleRequestForm(forms.ModelForm):
-
     class Meta:
         model = RoleRequest
         fields = ['school', 'class_size', 'subject']
@@ -385,3 +384,39 @@ class RoleRequestForm(forms.ModelForm):
             'subject':forms.TextInput(attrs = {'class':'form-control'}),
 
         }
+
+
+class GrantTeacherRoleForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
+    staff = forms.BooleanField(required=False, label=_('Audio recording'),
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                      )
+    
+
+class UserCreateForm(forms.Form):
+    name = forms.CharField(max_length=100,
+                                required=True,
+                                widget=forms.TextInput(attrs={
+                                    'placeholder': _('user name'),
+                                    'class': 'form-control'
+                                }))
+    
+    email = forms.EmailField(required=True,
+                             widget=forms.EmailInput(attrs={
+                                 'placeholder': _('email'),
+                                 'class': 'form-control'
+                             }))
+    
+    password = forms.CharField(required=True,
+                                widget=forms.PasswordInput(attrs={
+                                    'placeholder': _('password'),
+                                    'class': 'form-control',
+                                }))
+    staff = forms.BooleanField(required=False, label=_('Teacher role'),
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                      )
+    

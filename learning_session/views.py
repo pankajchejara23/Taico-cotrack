@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.models import User
 from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest
 from django.views import View
 from django.contrib import messages
 from django.core.files.base import File
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
-from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm, RoleRequestForm
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm, RoleRequestForm, GrantTeacherRoleForm, UserCreateForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -121,9 +122,26 @@ class SessionListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(status=True)
+        queryset = queryset.filter(status=True).filter(creator = self.request.user)
         return queryset
 
+
+class GrantTeacherRoleView(ListView):
+    template_name = 'user_list.html'
+    model = User
+
+
+class SessionListAdminView(ListView):
+    """View for listing out all learning sessions
+
+    """
+    model = Session
+    template_name = 'list_session.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(status=True)
+        return queryset
 
 class SessionArchiveListView(ListView):
     """View for listing out archived learning sessions
@@ -521,7 +539,58 @@ class RoleRequestView(View):
         else:
             return render(request, self.template_name, {'form':form})
 
-
 class RoleRequestListView(ListView):
     model = RoleRequest
     template_name = 'role_list.html'
+
+class GrantRoleView(View):
+    form_class = GrantTeacherRoleForm    
+    template_name = 'grant_request.html'
+    success_url = '/session/list/admin'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form':form})
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data.get('user')
+            staff = form.cleaned_data.get('staff')
+
+            user_object = User.objects.get(id=user.id)
+
+            # using is_active as a flag to determine teacher's role
+            user_object.is_active = staff
+            messages.success(request, f'User <strong>{user.email}</strong> has been assigned teacher role.')
+        else:
+            return render(request, self.template_name, {'form':form})
+        return HttpResponseRedirect(self.success_url)
+    
+
+class UserCreateView(View):
+    form_class = UserCreateForm  
+    template_name = 'create_user.html'
+    success_url = '/session/list/admin'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form':form})
+    
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data.get('name')
+            email = form.cleaned_data.get('email')
+            pwd = form.cleaned_data.get('password')
+            staff = form.cleaned_data.get('staff')
+            print(user, email, pwd, staff)
+            user_object = User.objects.create_user(username = user,email = email,password = pwd)
+
+            user_object.is_active = staff
+            user_object.save()
+            messages.success(request, f'User acocunt for <strong>{user_object.email}</strong> has been created.')
+        else:
+            return render(request, self.template_name, {'form':form})
+        return HttpResponseRedirect(self.success_url)
+    

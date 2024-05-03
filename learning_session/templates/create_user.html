@@ -1,0 +1,243 @@
+{% extends "teacher_base.html" %} 
+{% load static %} 
+{% load i18n %} 
+{% block title %} {% trans 'Create Learning Session' %} {% endblock title%} 
+{% block content %}
+<style>
+    Django toggle switch class did not work properly.
+        That's why style was added in the file for toggle effect.
+        */
+  label.django-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 28px;
+    padding: 0;
+  }
+  @media (max-width: 767px) {
+    .aligned label.django-toggle-switch {
+      width: 56px;
+      padding: 0;
+    }
+  }
+
+  .aligned label.django-toggle-switch + .vCheckboxLabel {
+    line-height: 28px;
+  }
+
+  label.django-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .django-toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  .django-toggle-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  .django-toggle-switch-primary input:checked + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #79aec8;
+  }
+  .django-toggle-switch-primary
+    input:focus
+    + .django-toggle-switch-slider
+    input:focus
+    + .django-toggle-switch-slider {
+    box-shadow: 0 0 1px #79aec8;
+  }
+
+  .django-toggle-switch-dark-primary
+    input:checked
+    + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #417690;
+  }
+  .django-toggle-switch-dark-primary
+    input:focus
+    + .django-toggle-switch-slider
+    input:focus
+    + .django-toggle-switch-slider {
+    box-shadow: 0 0 1px #417690;
+  }
+
+  .django-toggle-switch-danger input:checked + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #ba2121;
+  }
+  .django-toggle-switch-danger
+    input:focus
+    + .django-toggle-switch-slider
+    input:focus
+    + .django-toggle-switch-slider {
+    box-shadow: 0 0 1px #ba2121;
+  }
+
+  .django-toggle-switch-warning input:checked + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #ff6a00;
+  }
+  .django-toggle-switch-warning
+    input:focus
+    + .django-toggle-switch-slider
+    input:focus
+    + .django-toggle-switch-slider {
+    box-shadow: 0 0 1px #ff6a00;
+  }
+
+  .django-toggle-switch-success input:checked + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #06ad3d;
+  }
+  .django-toggle-switch-success
+    input:focus
+    + .django-toggle-switch-slider
+    input:focus
+    + .django-toggle-switch-slider {
+    box-shadow: 0 0 1px #06ad3d;
+  }
+
+  input:checked + .django-toggle-switch-slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+
+  /* Rounded sliders */
+  .django-toggle-switch-slider.round {
+    border-radius: 28px;
+  }
+
+  .django-toggle-switch-slider.round:before {
+    border-radius: 50%;
+  }
+
+  /* Fix help_text display problem */
+  form .aligned .django-toggle-switch + div.help {
+    margin-left: 160px;
+    padding-left: 10px;
+  }
+
+  .django-toggle-switch-success input:checked + .django-toggle-switch-slider,
+  input:checked + .django-toggle-switch-slider {
+    background-color: #06ad3d;
+    boarder-radius: 25px;
+  }
+  .django-toggle-switch-slider::before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    border-radius: 10px;
+  }
+  .django-toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    border-radius: 25px;
+  }
+</style>
+<div class='container'>
+<h3 class='fw-light my-3 text-white'>Create user </h3>
+<p class='lead text-white'> Here, you can create new users with/without teacher's role.  </p>
+<div class="form-content text-white my-1 p-2">
+  <div class="border-0 rounded-lg mt-0 mb-3">
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible  fade show" role="alert">
+      <div id="form_errors">
+        {% for key, value in form.errors.items %}
+        <strong class='lead'>{{key | upper}}</strong> {{ value }}
+        {% endfor %}
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <div class="">
+      <form method="POST">
+        {{form.media}} {% csrf_token %}
+        <fieldset class="form-group border rounded px-4 py-2 pb-4">
+          <legend class="float-none w-auto p-2">User</legend>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.name.label}} </label>
+                {{ form.name }}
+              </div>
+            </div>
+          </div>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.email.label}} </label>
+                {{ form.email }}
+              </div>
+            </div>
+          </div>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.password.label}} </label>
+                {{ form.password }}
+              </div>
+            </div>
+          </div>
+          <div class="row form-row p-2">
+            <div class="col-lg-4">
+              <div class="form-group">
+                <label class="small mb-1"> Teacher role </label> <br/>
+                {{ form.staff }}
+              </div>
+            </div>
+            
+          </div>
+        </fieldset>
+        <div class="form-row mt-4">
+          <div class="col-md-12">
+            <div class="form-group mt-0 mb-1">
+              <button
+                name="create"
+                class="col-md-12 btn btn-warning"
+                id="login"
+              >
+                {% trans 'Create User' %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  {% endblock content %}
+
