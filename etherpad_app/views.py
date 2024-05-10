@@ -115,12 +115,61 @@ def create_pads(pad_number, group_name):
             print(pad_create_response)
             if pad_create_response["code"]==0:
                 pad_object = Pad.objects.create(eth_group=pad_group_object,
-                                                    eth_padid=pad_name)
+                                                    eth_padid=pad_create_response['data']['padID'])
                 print('Pad created')
         result['status'] = 'success'
         result['group_id'] = eth_group_id
     return result
-        
+
+
+def download_logs(etherpad_group_id):
+    """This function downloads logs of all pads associated with etherpad_group_id.
+
+    Args:
+        etherpad_group_id (str): Etherpad group id
+    Returns:
+        HttpResponse: download a csv file on client
+    """
+    pad_groups = PadGroup.objects.filter(groupID = etherpad_group_id)
+    if pad_groups.count() == 0:
+        return None
+    else:
+        logs = []
+        pad_group = pad_groups[0]
+        pads = Pad.objects.filter(eth_group = pad_group)
+
+        for pad in pads:
+            padid = pad.eth_padid
+            params = {'padID':padid}
+            print('Params:',params)
+            rev_count = call('getRevisionsCount', params)
+
+            total_revisions = rev_count['data']['revisions']
+
+            for revision in range(total_revisions):
+                params = {'padID':padid,'rev':revision+1}
+
+                rev = call('getRevisionChangeset',params)
+                ath = call('getRevisionAuthor',params)
+
+                d = call('getRevisionDate',params)
+                t = call('getText',params)
+                try:
+                    cs = changeset_parse(rev['data'])
+                    tp = int(d['data'])
+                    text = t['data']['text']['text']
+                    char_bank = cs['bank']
+
+                    char_bank = "<br/>".join(char_bank.split("\n"))
+                    text = "<br/>".join(text.split("\n"))
+
+                    #print(datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'))
+                    #print('   ',datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'));
+                    logs.append([datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],p.group,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text])
+                except:
+                    continue
+        return logs
+   
 
 class PadCreateFormView(View):
     form_class = PadCreateForm
@@ -172,3 +221,111 @@ class PadDetailView(DetailView):
 
         context['sessionid'] = auth_session
         return context
+
+
+# Etherpad changeset processing code
+
+################### Etherpad Changeset Processing ######################
+def changeset_parse (c) :
+    changeset_pat = re.compile(r'^Z:([0-9a-z]+)([><])([0-9a-z]+)(.+?)\$')
+    op_pat = re.compile(r'(\|([0-9a-z]+)([\+\-\=])([0-9a-z]+))|([\*\+\-\=])([0-9a-z]+)')
+
+    def parse_op (m):
+        g = m.groups()
+        if g[0]:
+            if g[2] == "+":
+                op = "insert"
+            elif g[2] == "-":
+                op = "delete"
+            else:
+                op = "hold"
+            return {
+                'raw': m.group(0),
+                'op': op,
+                'lines': int(g[1], 36),
+                'chars': int(g[3], 36)
+            }
+        elif g[4] == "*":
+            return {
+                'raw': m.group(0),
+                'op': 'attr',
+                'index': int(g[5], 36)
+            }
+        else:
+            if g[4] == "+":
+                op = "insert"
+            elif g[4] == "-":
+                op = "delete"
+            else:
+                op = "hold"
+            return {
+                'raw': m.group(0),
+                'op': op,
+                'chars': int(g[5], 36)
+            }
+
+    m = changeset_pat.search(c)
+    bank = c[m.end():]
+    g = m.groups()
+    ops_raw = g[3]
+    op = None
+
+    ret = {}
+    ret['raw'] = c
+    ret['source_length'] = int(g[0], 36)
+    ret['final_op'] = g[1]
+    ret['final_diff'] = int(g[2], 36)
+    ret['ops_raw'] = ops_raw
+    ret['ops'] = ops = []
+    ret['bank'] = bank
+    ret['bank_length'] = len(bank)
+    for m in op_pat.finditer(ops_raw):
+        ops.append(parse_op(m))
+    return ret
+
+def perform_changeset_curline (text, c):
+    textpos = 0
+    curline = 0
+    curline_charpos = 0
+    curline_insertchars = 0
+    bank = c['bank']
+    bankpos = 0
+    newtext = ''
+    current_attributes = []
+
+    # loop through the operations
+    # rebuilding the final text
+    for op in c['ops']:
+        if op['op'] == "attr":
+            current_attributes.append(op['index'])
+        elif op['op'] == "insert":
+            newtextposition = len(newtext)
+            insertion_text = bank[bankpos:bankpos+op['chars']]
+            newtext += insertion_text
+            bankpos += op['chars']
+            if 'lines' in op:
+                curline += op['lines']
+                curline_charpos = 0
+            else:
+                curline_charpos += op['chars']
+                curline_insertchars = op['chars']
+            # todo PROCESS attributes
+            # NB on insert, the (original/old/previous) textpos does *not* increment...
+        elif op['op'] == "delete":
+            newtextposition = len(newtext) # is this right?
+            # todo PROCESS attributes
+            textpos += op['chars']
+
+        elif op['op'] == "hold":
+            newtext += text[textpos:textpos+op['chars']]
+            textpos += op['chars']
+            if 'lines' in op:
+                curline += op['lines']
+                curline_charpos = 0
+            else:
+                curline_charpos += op['chars']
+
+    # append rest of old text...
+    newtext += text[textpos:]
+    return newtext, curline, curline_charpos, curline_insertchars
+###############################################################

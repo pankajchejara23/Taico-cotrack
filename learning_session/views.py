@@ -12,6 +12,7 @@ from datetime import date, timedelta
 import uuid
 from django.db import transaction
 import jwt
+import csv
 import datetime
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -594,3 +595,100 @@ class UserCreateView(View):
             return render(request, self.template_name, {'form':form})
         return HttpResponseRedirect(self.success_url)
     
+
+
+# Download data views
+
+class DownloadVadView(View): 
+    def get(self, request, *args, **kwargs):
+        session_id = kwargs['pk']
+        sessions = Session.objects.all().filter(id=session_id)
+        if sessions.count() == 0:
+            messages.error(request, _('Invalid session id'))
+            return HttpResponseRedirect('/session/list')
+        else:
+            session = Session.objects.get(id=session_id)
+
+            # Preparing csv data File
+            fname = session.name + '_vad.csv'
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename="' + fname +'"'
+
+            # csv writer object
+            writer = csv.writer(response)
+            writer.writerow(['timestamp','user','group','speaking_time(sec.)'])
+
+            # fetching vad objects for specified session
+            vads = VAD.objects.filter(session=session).distinct().order_by('timestamp')
+
+            # writing data from vad objects into csv file
+            for v in vads:
+                writer.writerow([v.timestamp,
+                                 v.user.authormap.authorid,
+                                 v.group,(v.activity/1000)])
+
+            return response
+        
+
+class DownloadSpeechView(View): 
+    def get(self, request, *args, **kwargs):
+        session_id = kwargs['pk']
+        sessions = Session.objects.all().filter(id=session_id)
+        if sessions.count() == 0:
+            messages.error(request, _('Invalid session id'))
+            return HttpResponseRedirect('/session/list')
+        else:
+            session = Session.objects.get(id=session_id)
+
+            # Preparing csv data File
+            fname = session.name + '_speech.csv'
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename="' + fname +'"'
+
+            # csv writer object
+            writer = csv.writer(response)
+            writer.writerow(['timestamp','user','group','speech'])
+
+            # fetching vad objects for specified session
+            objs = Speech.objects.all().filter(session=session).distinct()
+            for obj in objs:
+                writer.writerow([obj.timestamp,
+                                 obj.user.authormap.authorid,
+                                 obj.group,obj.TextField])
+
+            return response
+
+class DownloadLogsView(View): 
+    def get(self, request, *args, **kwargs):
+        session_id = kwargs['pk']
+        sessions = Session.objects.all().filter(id=session_id)
+        if sessions.count() == 0:
+            messages.error(request, _('Invalid session id'))
+            return HttpResponseRedirect('/session/list')
+        else:
+            session = Session.objects.get(id=session_id)
+            session_map = SessionGroupMap.objects.get(session=session)
+
+            # Preparing csv data File
+            fname = session.name + '_logs.csv'
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename="' + fname +'"'
+
+            # csv writer object
+            writer = csv.writer(response)
+            writer.writerow(['timestamp',
+                             'author',
+                             'group',
+                             'char_bank',
+                             'changeset',
+                             'source_length',
+                             'operation',
+                             'difference',
+                             'text'])
+
+            # access all associated pad objects
+            logs = ep_views.download_logs(session_map.eth_groupid)
+            for log in logs:
+                writer.writerow(log)
+            return response
+
