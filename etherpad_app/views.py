@@ -6,6 +6,7 @@ from .forms import PadCreateForm
 from .models import PadGroup, Pad, AuthorMap
 from .models import call
 import datetime
+import re
 # Create your views here.
 def create_etherpad_user(mapping):
     """This function creates a new user in Etherpad if it doesn't exists.
@@ -115,7 +116,8 @@ def create_pads(pad_number, group_name):
             print(pad_create_response)
             if pad_create_response["code"]==0:
                 pad_object = Pad.objects.create(eth_group=pad_group_object,
-                                                    eth_padid=pad_create_response['data']['padID'])
+                                                    eth_padid=pad_create_response['data']['padID'],
+                                                    group_number = num)
                 print('Pad created')
         result['status'] = 'success'
         result['group_id'] = eth_group_id
@@ -139,35 +141,51 @@ def download_logs(etherpad_group_id):
         pads = Pad.objects.filter(eth_group = pad_group)
 
         for pad in pads:
-            padid = pad.eth_padid
+            padid = pad.eth_padid.split('$')[1]
             params = {'padID':padid}
-            print('Params:',params)
-            rev_count = call('getRevisionsCount', params)
+            print('call params:',params)
 
-            total_revisions = rev_count['data']['revisions']
+            # change in etherpad 1.9.7 (previously:getRevisionsCount, new:getSavedRevisionsCount)
+            rev_count = call('getRevisionsCount', params)
+            print('response:',rev_count)
+
+            if rev_count is None:
+                continue
+            if rev_count and rev_count['data']:
+                total_revisions = rev_count['data']['revisions']
+            else:
+                total_revisions = 0
 
             for revision in range(total_revisions):
-                params = {'padID':padid,'rev':revision+1}
-
-                rev = call('getRevisionChangeset',params)
-                ath = call('getRevisionAuthor',params)
-
-                d = call('getRevisionDate',params)
-                t = call('getText',params)
                 try:
+                    print('Revision:',revision)
+
+                    params = {'padID':padid,'rev':revision+1}
+                    rev = call('getRevisionChangeset',params)
+                    print('rev pankaj:',rev)
+                    ath = call('getRevisionAuthor',params)
+                    print('ath:',ath)
+                    d = call('getRevisionDate',params)
+                    print('d:',d)
+                    t = call('getText',params)
                     cs = changeset_parse(rev['data'])
                     tp = int(d['data'])
-                    text = t['data']['text']['text']
+                    text = t['data']['text']
                     char_bank = cs['bank']
-
                     char_bank = "<br/>".join(char_bank.split("\n"))
                     text = "<br/>".join(text.split("\n"))
 
+                    print('Char bank:', char_bank)
+                    print('Text:', text)
+
                     #print(datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'))
                     #print('   ',datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'));
-                    logs.append([datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],p.group,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text])
-                except:
-                    continue
+                    print('Entry: ---->')
+                    print('Data:',datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],pad.group_number,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text)
+                    logs.append([datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],pad.group_number,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text])
+                except Exception as error:
+                    print('Error:',error)
+                
         return logs
    
 

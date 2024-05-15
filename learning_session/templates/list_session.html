@@ -12,8 +12,12 @@
                 <ul class="dropdown-menu bg-white" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="{% url 'session_edit' session.id %}"><i class="fa fa-edit"></i> {% trans 'Edit' %}</a></li>
                     <li><a class="dropdown-item" href="{% url 'session_duplicate' session.id %}"><i class="fa fa-copy"></i> {% trans 'Duplicate' %}</a></li>
-                    <li><hr class="dropdown-divider"></li>
+                    
                     <li><a class="dropdown-item" href="{% url 'session_archive' session.id %}"><i class="fa fa-archive"></i> {% trans 'Archive' %}</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'download_vad' session.id %}"><i class="fa fa-download"></i> {% trans 'Download VAD' %}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'download_speech' session.id %}"><i class="fa fa-comments"></i> {% trans 'Download Speech' %}</a></li>
+                    <li><a class="dropdown-item" href="{% url 'download_logs' session.id %}"><i class="fa fa-file"></i> {% trans 'Download Logs' %}</a></li>
                 </ul>    
             </div>
             <p class="px-2 mt-0 small fw-lighter"> {% trans 'Created on' %}: {{session.created_at}} </p>

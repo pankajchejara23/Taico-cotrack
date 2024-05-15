@@ -16,7 +16,7 @@ def call(function, arguments=None, request=None):
         request (): request params
     """
     try:
-        url = settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
+        url = settings.PROTOCOL +"://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
         response = requests.post(url,arguments)
 
         # response object
@@ -79,6 +79,8 @@ class Pad(models.Model):
     """
     eth_padid = models.CharField(max_length=50)
     eth_group = models.ForeignKey(PadGroup, on_delete=models.CASCADE)
+    group_number = models.IntegerField()
+
 
 admin.site.register(Pad)
 admin.site.register(PadGroup)

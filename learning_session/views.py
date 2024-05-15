@@ -11,6 +11,7 @@ from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
 from django.db import transaction
+from django.urls import reverse
 import jwt
 import csv
 import datetime
@@ -540,6 +541,7 @@ class RoleRequestView(View):
         else:
             return render(request, self.template_name, {'form':form})
 
+
 class RoleRequestListView(ListView):
     model = RoleRequest
     template_name = 'role_list.html'
@@ -594,11 +596,33 @@ class UserCreateView(View):
         else:
             return render(request, self.template_name, {'form':form})
         return HttpResponseRedirect(self.success_url)
+
+
+class RoleRequestAction(View):
+    """View to handle role request actions
     
+    """
+    def get(self, request, *args, **kwargs):
+        action = kwargs['action']
+        role_request_id = kwargs['pk']
+        if request.user.is_superuser:
+            role_request_object = RoleRequest.objects.get(id=role_request_id)
+            if action == 'grant':
+                user = role_request_object.user
+                user.is_staff = True
+                user.save()
+                role_request_object.pending = False
+                messages.success(request, _('Request has been approved.'))
+                role_request_object.save()
+            if action == 'reject':
+                role_request_object.pending = False
+                role_request_object.save()
+                messages.success(request, _('Request has been declined.'))
+        return HttpResponseRedirect(reverse('request_list'))
+
 
 
 # Download data views
-
 class DownloadVadView(View): 
     def get(self, request, *args, **kwargs):
         session_id = kwargs['pk']
