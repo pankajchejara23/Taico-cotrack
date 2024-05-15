@@ -25,8 +25,8 @@
         <td>{{obj.subject}}</td>
         <td>{{obj.class_size}}</td>
         <td>
-          <a href="#" class=""><i title="Grant the permission" class='fa fa-check text-success'></i></a>
-          <a href="#" class="px-3"><i title="Reject the permission" class='fa fa-ban text-danger'></i></a>
+          <a href="{% url 'role_request_action' obj.id 'grant'%}" class=""><i title="Grant the permission" class='fa fa-check text-success'></i></a>
+          <a href="{% url 'role_request_action' obj.id 'reject'%}"  class="px-3"><i title="Reject the permission" class='fa fa-ban text-danger'></i></a>
         </td>
       </tr>
       {% endfor %}
