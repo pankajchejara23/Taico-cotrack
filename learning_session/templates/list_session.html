@@ -75,7 +75,7 @@
                 {% endif %}
             </div>
             <div class="pb-2 px-2">
-                <a href="#" class='small btn btn-sm btn-primary fw-light small rounded-pill py-1 px-3'> Check Dashboard </a>
+                <a href="{% url 'session_detail' session.id %}" class='small btn btn-sm btn-primary fw-light small rounded-pill py-1 px-3'> Check Dashboard </a>
             </div>
         </div>
         <br/>
@@ -96,7 +96,7 @@
                 <p> 
                     {% trans 'You do not have any sessions.' %}
                     <br/><br/>
-                    <a href="" class='btn btn-success rounded'>
+                    <a href="{% url 'session_create' %}" class='btn btn-success rounded'>
                         <i class='fa fa-add'></i> {% trans 'Create Session' %} 
                     </a>
                 </p>
