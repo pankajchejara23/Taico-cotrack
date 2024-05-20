@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
-from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest
+from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent
 from django.views import View
 from django.contrib import messages
 from django.core.files.base import File
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
-from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm, RoleRequestForm, GrantTeacherRoleForm, UserCreateForm
+from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm 
+from .forms import ConsentForm, RoleRequestForm, GrantTeacherRoleForm, UserCreateForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -350,50 +351,125 @@ class SessionEnterView(View):
 
                 group_number = valid_pin_objects[0].group
 
-                # create a corresponding etherpad user if it does not exists already
-                authorid = ep_views.create_etherpad_user({'authorMapper':self.request.user.id,
-                                                          'name':self.request.user.first_name}) 
+                # adding information about session and group
+                payload = {'session': session_object.id,
+                           'group':group_number}
+                encoded_payload = jwt.encode(payload, settings.JW_SEC, algorithm='HS256')
+                request.session['payload'] = encoded_payload
 
-                # access sessiongroupmap 
-                session_group_object = SessionGroupMap.objects.get(session=session_object)     
-
-                # access Etherpad groupID associated with the session
-                groupid = session_group_object.eth_groupid
-
-                # creating timestamp until when the etherpad will be accessible
-                end_timestamp = datetime.datetime.today() + session_object.duration
-
-                # calling etherpad api to generate link to access the writing pad in Etherpad
-                sessionID = ep_views.create_session({'authorID':authorid,
-                                                     'groupID':groupid,
-                                                     'validUntil':end_timestamp.timestamp()})
-                
-                print('Session Etherpad:',sessionID)
-                # storing sessionID in session object, so that user did not need to enter the pin again
-                self.request.session['ethsid'] = sessionID
-
-                # preparing context params 
-                audio_form = AudioflForm()  # this form used to store audio data on server
-
-                # pad name
-                pad_name = f'session_{session_object.id}_group_{group_number-1}'
-
-                context_data = {'group':group_number,
-                                'session':session_object,
-                                'sessionj':session_object,
-                                'form':audio_form,
-                                'pad_name':pad_name,
-                                'sessionid':sessionID,
-                                'etherpad_url':settings.ETHERPAD_URL,
-                                'protocol':settings.PROTOCOL}
-
-                return render(request, self.pad_template_name, context_data)
+                return redirect('session_consent')
         else:
             messages.error(request, 'Form is invalid.')
             form = self.form_class()
             # redisplaying the enter form with error message
             return render(request, self.template_name, {'form':form})
         
+
+class StudentPadView(View):
+    template_name = 'student_pad.html'
+    def get(self, request, *args, **kwargs):
+        """This function forward the user to the etherpad view
+
+        Args:
+            request (HttpRequest): HttpRequest object
+            session (Session): Session object
+            group (int): Group number
+            audio_form (AudioForm): Audio form to collect audio data during group activity
+            pad_name (str): Name of the pad
+            eth_sessionid (str): Etherpad session id
+        """
+        if 'payload' not in request.session.keys():
+            return redirect('session_enter')
+
+
+        decoded_payload = jwt.decode(self.request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
+        session_id = decoded_payload['session']
+        group_number = decoded_payload['group']
+
+        session_object = Session.objects.filter(id=session_id).first()
+        authorid = ep_views.create_etherpad_user({'authorMapper':self.request.user.id,
+                                                                'name':self.request.user.first_name}) 
+
+        # access sessiongroupmap 
+        session_group_object = SessionGroupMap.objects.get(session=session_object)     
+
+        # access Etherpad groupID associated with the session
+        groupid = session_group_object.eth_groupid
+
+        # creating timestamp until when the etherpad will be accessible
+        end_timestamp = datetime.datetime.today() + session_object.duration
+
+        # calling etherpad api to generate link to access the writing pad in Etherpad
+        sessionID = ep_views.create_session({'authorID':authorid,
+                                                            'groupID':groupid,
+                                                            'validUntil':end_timestamp.timestamp()})
+                        
+        print('Session Etherpad:',sessionID)
+        # storing sessionID in session object, so that user did not need to enter the pin again
+        self.request.session['ethsid'] = sessionID
+
+        # preparing context params 
+        audio_form = AudioflForm()  # this form used to store audio data on server
+
+        # pad name
+        pad_name = f'session_{session_object.id}_group_{group_number-1}'
+
+        context_data = {'group':group_number,
+                                        'session':session_object,
+                                        'sessionj':session_object,
+                                        'form':audio_form,
+                                        'pad_name':pad_name,
+                                        'sessionid':sessionID,
+                                        'etherpad_url':settings.ETHERPAD_URL,
+                                        'protocol':settings.PROTOCOL}
+
+        return render(request, self.template_name, context_data)
+
+
+class ConsentView(View):
+    form_class = ConsentForm
+    template_name = 'consent.html'
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if 'payload' in request.session.keys():
+            decoded_payload = jwt.decode(request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
+            session_id = decoded_payload['session']
+            group_number = decoded_payload['group']
+
+            session_objects = Session.objects.filter(id=session_id)
+            if session_objects.count() == 0:
+                del request.sesssion['payload']
+                return redirect('session_enter')
+            else:
+                session_object = Session.objects.get(id=session_id)
+                if form.is_valid():
+                    consent = form.cleaned_data.get('permission')
+                    Consent.objects.create(session = session_object, user = request.user, permission=consent)
+                    # create a corresponding etherpad user if it does not exists already
+                    return redirect('session_student')
+                else:
+                    form = self.form_class()
+                    consent_content = session_object.consent_content
+                    return render(request, self.template_name, {'form':form, 'consent_content':consent_content})
+                
+    def get(self, request, *args, **kwargs):
+        if 'payload' in request.session.keys():
+            decoded_payload = jwt.decode(request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
+            session_id = decoded_payload['session']
+            group_number = decoded_payload['group']
+
+            session_object = Session.objects.filter(id=session_id).first()
+
+            if session_object.conf_consent:
+                form = self.form_class()
+                consent_content = session_object.consent_content
+                return render(request, self.template_name, {'form':form, 'consent_content':consent_content})
+            else:
+                return redirect('session_student')
+        else:
+            return redirect('session_enter')
+
 
 class UploadVADView(View):
     """View for handling audio data processing and storing on server

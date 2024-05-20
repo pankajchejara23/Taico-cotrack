@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+{% load static%}
+{% load i18n %}
+{% block content %}
+    <div class="container shadow bg-light border shadow-lg rounded-3">
+        <div>
+            <p class='display-5 p-3'> {% trans 'Informed consent for participant'%} </p>
+        </div>
+        <hr/>
+        <form method="POST">
+            {{ form.media }} 
+            {% csrf_token %}
+            <div class='px-4 py-2'>
+                {{ consent_content | safe}}
+            </div>
+            <div class="form-check pb-5 d-flex align-items-center">
+
+                    {{form.permission}}
+                
+                    <label class="p-4 small" for="exampleCheck1">
+                      {% blocktrans %} 
+                        I confirm that I have read and understood the explanation provided to me.<br/>
+                        I have had all my questions answered to my satisfaction, and I voluntarily agree to participate in this study. 
+                      {% endblocktrans %}
+                    </label><br/>
+                  </div>
+            <input type="submit" class="btn btn-success mb-4" value="{% trans 'Submit' %}"/>
+        </form>
+        
+    </div>
+  <style>
+    .order-card {
+    color: #fff;
+}
+table th:first-child{
+  border-radius:5px 0 0 5px;
+}
+
+table th:last-child{
+  border-radius:0 5px 5px 0;
+}
+.bg-c-blue {
+    background: linear-gradient(45deg,#4099ff,#73b4ff);
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+}
+
+.bg-c-yellow {
+    background: linear-gradient(45deg,#FFB64D,#ffcb80);
+}
+
+.bg-c-pink {
+    background: linear-gradient(45deg,#FF5370,#ff869a);
+}
+
+
+.card {
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    border: none;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.card .card-block {
+    padding: 25px;
+}
+
+.order-card i {
+    font-size: 26px;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
+}
+  </style>
+
+<script>
+  function normalize_array(arr) {
+    // Function to normalize writing contribution across groups
+    normalize = function(val, max) { 
+                  return(val) / (max); 
+                };
+    max = Math.max.apply(null, arr);
+    hold_normed_values=[];
+    arr.forEach(function(this_num) {
+                  hold_normed_values.push(Math.ceil(5 * normalize(this_num, max)))
+                });   
+    return(hold_normed_values)
+  }
+
+  async function main() {
+  
+  var revs = [396,1085,214];
+  var groups = [1,2,3];
+  var group_list = {{no_group}};
+  console.log('Dataset--------');
+  console.log(group_list);
+ 
+
+  revs_updated = normalize_array(revs);
+  for (var i=0; i<revs.length; i++) {
+    group = '#write-' + i;
+    size = parseInt(revs_updated[i]);
+
+    if (size==0) {
+      innerHTML = "";
+    } else {
+      innerHTML = "<i class='fa fa-edit fa-"+size+"x'></i>";
+
+    $(group).html(innerHTML);
+
+    }
+  }
+
+}
+main()
+
+</script>
+
+{% endblock %}  

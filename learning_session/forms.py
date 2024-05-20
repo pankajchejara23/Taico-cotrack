@@ -354,11 +354,11 @@ class ConsentForm(forms.Form):
     """This form stores user's input on the consent form. 
     @todo: extends the form for opt-out case.
     """
-    permission = forms.BooleanField(
-        widget=forms.CheckboxInput(
-            attrs={'class': "form-check-input"}
-        ),
-        initial=False,required=True)
+    permission = forms.BooleanField(required=False,
+                                      widget=DjangoToggleSwitchWidget(
+                                          klass="django-toggle-switch-dark-primary"
+                                          )
+                                      )
     
 
 class SessionEnterForm(forms.Form):

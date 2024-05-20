@@ -124,6 +124,7 @@ class Consent(models.Model):
     """
     session = models.ForeignKey(Session,on_delete=models.CASCADE)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
+    permission = models.BooleanField(default=False)
     given_at = models.DateTimeField(auto_now_add=True)
 
 
