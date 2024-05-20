@@ -200,6 +200,10 @@
             $('#exit').html('Exit');
           }
         } 
+        else 
+        {
+        window.location.href = "{% url 'session_exit'%}";
+        }
       });
 
       if (audio_video_chat || record_audio_video) {

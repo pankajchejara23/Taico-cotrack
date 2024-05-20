@@ -363,7 +363,13 @@ class SessionEnterView(View):
             form = self.form_class()
             # redisplaying the enter form with error message
             return render(request, self.template_name, {'form':form})
-        
+
+class SessionLeaveView(View):
+    def get(self, request, *args, **kwargs):
+        if 'payload' in self.request.session.keys():
+            del self.request.session['payload']
+        return redirect('session_enter')
+    
 
 class StudentPadView(View):
     template_name = 'student_pad.html'
