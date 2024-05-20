@@ -203,4 +203,9 @@ EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_PASSWORD'))
 ETHERPAD_URL = str(os.getenv('ETHERPAD_URL'))
 ETHERPAD_KEY = str(os.getenv('ETHERPAD_KEY'))
 
+# JWT config
+JW_SEC = str(os.getenv('JW_SEC'))
+JW_APP = str(os.getenv('JW_APP'))
+
+
 PROTOCOL = 'http'
