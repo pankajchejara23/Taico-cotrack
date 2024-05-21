@@ -18,6 +18,7 @@ def create_etherpad_user(mapping):
                          The mapping contains two information: 'authorMapper' which is unique is of the user, and 
                          'name' that is name of the user.
     """
+    # make a call to etherpad using http api for creating a new user
     res = call('createAuthorIfNotExistsFor', mapping)
     if 'authorID' in res['data']:
         return res['data']['authorID']
@@ -33,6 +34,7 @@ def create_session(mapping):
                         link is generated, 'groupID' that is Etherpad group id associated with the pad,
                         and 'validUntil' which contains timestamp until when the pad is accessible.
     """
+    # make a call to etherpad using http api for creating a new session
     result = call('createSession', mapping)
     if 'sessionID' in result['data']:
         return result['data']['sessionID']
@@ -52,26 +54,29 @@ def update_pads(etherpad_groupid, group_name, org_groups, new_groups):
     status = True
     pad_group_object = PadGroup.objects.filter(groupID = etherpad_groupid)[0]
     group_diff = new_groups - org_groups
+
+    # check if need to create more pads or delete them
     if (group_diff > 0):
         for g in range(group_diff):
             g =  g +  org_groups + 1
             pad_name = f'{group_name}_group_{g}'
-            print('Pad name:',pad_name)
-            # call to create pad
+            # call to create a group pad in etherpad
             pad_create_response = call('createGroupPad',
                                         {
                                             'groupID':etherpad_groupid,
                                             'padName':pad_name
                                         })
-            print('Creating pad:', pad_create_response)
             if pad_create_response["code"]==0:
+
+                # saving group pad data
                 pad_object = Pad.objects.create(eth_group=pad_group_object,
                                                     eth_padid=pad_name)
-                print('Pad created')
             else:
                 status = False
     else:
         group_diff = abs(group_diff)
+
+        # delete pads according to new number of groups
         for g in range(group_diff):
             del_group = g + new_groups + 1
             pad_name = f'{group_name}_group_{del_group}'
@@ -91,9 +96,8 @@ def create_pads(pad_number, group_name):
         str: Etherpad group id
     """
     result = {'status':'failure'}
-    # call to create etherpad group
+    # call to create etherpad group, all pads in etherpad are associated with a group
     group_create_response = call('createGroup')
-    print(group_create_response)
     eth_group_id = None
             
     # check for successful execution of the call
@@ -102,7 +106,7 @@ def create_pads(pad_number, group_name):
         pad_group_object = PadGroup.objects.create(group=group_name,
                                                     groupID=eth_group_id)
 
-        # create n pads
+        # create n pads in etherpad
         for num in range(int(pad_number)):
             #prepare pad name
             pad_name = f'{group_name}_group_{num}'
@@ -113,12 +117,10 @@ def create_pads(pad_number, group_name):
                                             'groupID':eth_group_id,
                                             'padName':pad_name
                                         })
-            print(pad_create_response)
             if pad_create_response["code"]==0:
                 pad_object = Pad.objects.create(eth_group=pad_group_object,
                                                     eth_padid=pad_create_response['data']['padID'],
                                                     group_number = num)
-                print('Pad created')
         result['status'] = 'success'
         result['group_id'] = eth_group_id
     return result
@@ -140,70 +142,98 @@ def download_logs(etherpad_group_id):
         pad_group = pad_groups[0]
         pads = Pad.objects.filter(eth_group = pad_group)
 
+        # iterate for each pad associated with pad_group
         for pad in pads:
             padid = pad.eth_padid.split('$')[1]
             params = {'padID':padid}
-            print('call params:',params)
 
+            # call to get number of revisions made in the pad
             # change in etherpad 1.9.7 (previously:getRevisionsCount, new:getSavedRevisionsCount)
             rev_count = call('getRevisionsCount', params)
-            print('response:',rev_count)
 
+            # pad has not bee used (means no revision data)
             if rev_count is None:
                 continue
+
+            # get the number of revisions
             if rev_count and rev_count['data']:
                 total_revisions = rev_count['data']['revisions']
             else:
                 total_revisions = 0
 
+            # for each revision get information, i.e., author, time, changeset.
             for revision in range(total_revisions):
                 try:
-                    print('Revision:',revision)
-
                     params = {'padID':padid,'rev':revision+1}
+
+                    # call to get the revision changeset; changeset is a way of etherpad to keep information about the update
                     rev = call('getRevisionChangeset',params)
-                    print('rev pankaj:',rev)
+   
+                    # call to get author info who made the update
                     ath = call('getRevisionAuthor',params)
-                    print('ath:',ath)
+
+                    # call to get timestamp of update
                     d = call('getRevisionDate',params)
-                    print('d:',d)
+
+                    # call to get text in the etherpad
                     t = call('getText',params)
+
+                    # process changeset to extract information about the udpate (what operation, what was added/deleted, etc.)
                     cs = changeset_parse(rev['data'])
                     tp = int(d['data'])
                     text = t['data']['text']
                     char_bank = cs['bank']
+
+                    # adding <br/> for new lines
                     char_bank = "<br/>".join(char_bank.split("\n"))
+
+                    # adding <br/> for new lines
                     text = "<br/>".join(text.split("\n"))
 
-                    print('Char bank:', char_bank)
-                    print('Text:', text)
-
-                    #print(datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'))
-                    #print('   ',datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'));
-                    print('Entry: ---->')
-                    print('Data:',datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],pad.group_number,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text)
-                    logs.append([datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),ath['data'],pad.group_number,char_bank,rev['data'].replace('\n','<br/>'),cs['source_length'],cs['final_op'],cs['final_diff'],text])
+                    # adding log data to the list
+                    logs.append([datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),
+                                 ath['data'],
+                                 pad.group_number,
+                                 char_bank,rev['data'].replace('\n','<br/>'),
+                                 cs['source_length'],
+                                 cs['final_op'],
+                                 cs['final_diff'],
+                                 text])
                 except Exception as error:
                     print('Error:',error)
-                
+        # return the list 
         return logs
    
 
 class PadCreateFormView(View):
+    """View to display and handle pad creation
+
+    """
     form_class = PadCreateForm
     template_name ='create_pad.html'
     success_template = 'success.html'
 
     def get(self, request, *args, **kwargs):
+        """This function renders pad creation form
+
+        """
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        """This function processes pad creation form submission.
+
+        """
+        # populating form with input data
         form = self.form_class(request.POST)
+
+        # form validity check
         if form.is_valid():
             pad_number = form.cleaned_data.get('pad_number')
             group_name = form.cleaned_data.get('group_name')
+
+            # call to make pads in etherpad
             result = create_pads(pad_number, group_name)
             if result['status'] == 'failure':
                 #@todo: failure message showing
@@ -212,36 +242,45 @@ class PadCreateFormView(View):
     
 
 class PadListView(ListView):
+    """This view shows a list of all created pads.
+
+    """
     model = Pad
     template_name = 'pad_list.html'
 
 
 class PadDetailView(DetailView):
+    """This view creates a session for etherpad and displays the pad.
+    """
     template_name = 'pad_detail.html'
     model = Pad
     """
-    NOTE: Make sure your etherpad version has ep_auth_session module installed 
+    Important: Make sure your etherpad version has ep_auth_session module installed 
     https://github.com/Kurounin/ep_auth_session
     """
     def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        groupID = self.object.eth_group.groupID
-        print('User:',self.request.user.id)
-        author = AuthorMap.objects.all().filter(user=self.request.user.id)
-        print('Author:',author)
-        authorID = author[0].authorid
-        print('Author:', authorID)
+        """This function adds additional data to the context.
 
-        # @createe session just for the duration of the activity
+        """
+        # get the context data
+        context = super().get_context_data(**kwargs)
+
+        # get groupid
+        groupID = self.object.eth_group.groupID
+
+        # get etherpad user-id for the current user
+        author = AuthorMap.objects.all().filter(user=self.request.user.id)
+        authorID = author[0].authorid
+
+        # createe session just for the duration of the activity
         NextDay_Date = datetime.datetime.today() + datetime.timedelta(days=1)
         res2 = call('createSession',{'authorID':authorID,'groupID':groupID,'validUntil':NextDay_Date.timestamp()})
         auth_session = res2['data']['sessionID']
 
+        # adding session id 
         context['sessionid'] = auth_session
         return context
 
-
-# Etherpad changeset processing code
 
 ################### Etherpad Changeset Processing ######################
 def changeset_parse (c) :

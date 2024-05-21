@@ -37,7 +37,7 @@ class AuthorMap(models.Model):
     authorid = models.CharField(max_length=20)
 
 
-# Function to execute when a used is created
+# Function to execute whenever a new user is created
 @receiver(post_save, sender=User)
 def createAuthor(sender,instance,created,**kwargs):
     """Function to create a author id for every new user

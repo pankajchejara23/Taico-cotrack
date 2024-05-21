@@ -1,26 +1,29 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %} Etherpad Interface {% endblock title%}
+{% block title %} {% trans 'Etherpad Interface'%} {% endblock title%}
+
+<!-- Populating content block in base template -->
 {% block content %}
-   <h3 class='p-2 m-5 text-white'> Pads </h3>
+   <h3 class='p-2 m-5 text-white'> {% trans 'Pads'%} </h3>
    <div class='p-3'>
     <table class='table text-white'>
         <thead>
             <tr>
-                <th scope='col'>Group</th>
-                <th scope='col'>Pad</th>
-                <th scope='col'>Link</th>
+                <th scope='col'>{% trans 'Group'%}</th>
+                <th scope='col'>{% trans 'Pad'%}</th>
+                <th scope='col'>{% trans 'Link'%}</th>
             </tr>
         </thead>
         <tbody>
+        <!-- Iterate for each group and its pad -->
         {% for pad in object_list %}
             <tr>
                 <td> {{pad.eth_group.group}} </td>
                 <td> {{pad.eth_padid }} </td>
-                <td> <a class='text-whites' href="{%url 'pad_show' pad.id %}"> link </a> </td>
+                <td> <a class='text-whites' href="{%url 'pad_show' pad.id %}"> {% trans 'link'%} </a> </td>
             </tr>
         {% empty %}
-            No pads 
+            {% trans 'No pads' %}
         {% endfor %}
         </tbody>
     </table>

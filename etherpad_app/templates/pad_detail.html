@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %} Etherpad Interface {% endblock title%}
+{% block title %} {% trans 'Etherpad Interface'%} {% endblock title%}
+
+<!-- Populating content block in base template. This is just for demonstration-->
 {% block content %}
-   <h3 class='p-2 m-5 text-white'> Pad in Iframe </h3>
+   <h3 class='p-2 m-5 text-white'> {% trans 'Pad in Iframe'%} </h3>
    <div class='p-3 bg-white rounded'>
         <iframe id="demo" onload='autoResizeDiv()'  frameBorder='0' src="http://localhost:9001/auth_session?sessionID={{sessionid}}&padName={{object.eth_padid}}" style="width: 100%; height: 100%; "  allowfullscreen>
         </iframe>
