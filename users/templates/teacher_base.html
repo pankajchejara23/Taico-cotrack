@@ -12,6 +12,8 @@
 
     <!--Font awesome icons -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+  
+  <!-- jQuery as some of the functionalities are not available with the jQuery loaded by the following bootstrap bundle -->
   <script
 			  src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
 			  integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
@@ -23,11 +25,17 @@
     <!-- Clipboard js -->
     <script src="{% static 'clipboard.min.js' %}"></script>
 
+    <!-- Alpine js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  <title>{% block title %} {% endblock %} </title>
+  <title>
+    {% block title %} 
+    {% endblock %} 
+  </title>
 </head>
 <body  style="background-image: linear-gradient(to right, #8e2de2, #4a00e0);">
+  
+  <!-- Including navbar html -->
   {% include 'navbar.html' %}
   <script>
     function autoResizeDiv()
@@ -51,9 +59,11 @@
     </div>
     <div class="row" x-data="{open:''}">
       <div class="col col-lg-3 col-md-4 col-sm-4">
+        <!-- Including side menu  -->
         {% include 'side_menu.html' %}
       </div>
       <div class="col col-lg-9 col-md-8 col-sm-8">
+        <!-- Content to populate in Django template  -->
         {%block content%}
         {% endblock %}
       </div>

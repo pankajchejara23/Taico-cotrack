@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %} Login Page {% endblock title%}
+{% block title %} {% trans 'Login Page' %} {% endblock title%}
+
+<!-- Populating content block in base template -->
 {% block content %}
     <div class="form-content my-5 p-3">
         <div class="container my-5">
@@ -10,8 +12,10 @@
                         <div class="card-header justify-content-center">
                           <h3 class="font-weight-light my-1 text-center">{% trans 'Sign In' %}</h3>
                         </div>
+
+                        <!-- Form errors -->
                         {% if form.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
+                            <div class="alert alert-danger alert-dismissible  fade show" role="alert">
                                 <div id="form_errors">
                                     {% for key, value in form.errors.items %}
                                         <strong>{{ value }}</strong>
@@ -22,17 +26,26 @@
                                 </button>
                             </div>
                         {% endif %}
+
+                        <!-- Login form -->
                         <div class="card-body">
                             <form method="POST">
                                 {% csrf_token %}
                                 <div class="form-row p-2">
                                     <div class="col-md-10 offset-md-1">
-                                        {{ form.username.as_field_group}}
+                                        <div class="form-group">
+		                                    <label class="small mb-1">{% trans 'Username' %}</label>
+		                                    {{ form.username }}
+		                            </div>
                                     </div>
                                 </div>
                                 <div class="form-row p-2">
                                     <div class="col-md-10 offset-md-1">
-                                        {{ form.password.as_field_group}}
+                                        <div class="form-group">
+                                            <label class="small mb-1">{% trans 'Password' %}</label>
+                                            {{ form.password }}
+                                            {{ form.errors.password }}
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="form-row p-2">

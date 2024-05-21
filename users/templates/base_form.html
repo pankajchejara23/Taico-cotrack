@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Font awesome icons 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">  -->
     
     <link rel="stylesheet" href="{% static 'chart.css'%}">
 
@@ -38,17 +39,20 @@
     <!-- Audio/video recording library -->
     <script src="{% static 'RecordRTC.js'%}"></script>
 
-
     <!-- Chart library  -->
     <script src="{% static 'chart.min.js'%}"></script>
     <script src="{% static 'chartjs-plugin-colorschemes.js' %}"></script>
 
     <title>{% block title %} {% endblock %} </title>
+
+    <!-- Including form media if any  -->
     {% if form.media %}
       {{ form.media }}
     {% endif %}
 </head>
 <body  style="background-image: linear-gradient(to right, #8e2de2, #4a00e0);">
+
+  <!-- Including navbar html -->
   {% include 'navbar.html' %}
   <script>
     function autoResizeDiv()
@@ -56,12 +60,11 @@
         document.getElementById('demo').style.height = window.innerHeight- 10 +'px';
       }
   </script>
-  <div class="container-fluid p-5 m-0">
-    <div class="ro text-center">
-      <p class='h2 text-white'> App Name </p>
-    </div>
+
+  <div class="container">
     <div class="row">
       <div class="col-md-12 ">
+
         <!--Any flash messages pop up in any page because this is the base template-->
         {% if messages %}
           <div class="alert alert-dismissible fade show" role="alert">
@@ -71,6 +74,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endif %}
+
+        <!-- Content to populate in Django templates -->
         {% block content %}{% endblock %}
       </div>
     </div>

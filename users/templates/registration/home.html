@@ -1,18 +1,24 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
-{% block title %} Home Page {% endblock title%}
+{% block title %} Home {% endblock title%}
+
+<!-- Populating content block in base template -->
 {% block content %}
     <div class="text-white container h-100 pt-3">
         <div class='d-flex align-items-center row p-2 my-auto mt-4'>
             <div class='col col-lg-7 col-md-8 p-4'>
-                <h1 class="display-6">Create & monitor <br/> collaborative  learning activity</h1>
+                <h1 class="display-6">  {% trans 'Create & monitor <br/> collaborative  learning activity' %}</h1>
                 <p class="fs-5">
+
+                    <!-- Block translated for translations -->
+                    {% blocktrans %}
                     CoTrack is a Learning Analytics tool which allows monitoring of collaborative learning activity in classrooms. The tool has been developed over the period of 5 years by the researchers at the Center of Education Technology, Tallinn University, Estonia. <br/><br/>
                     
                     The tool has got international recognition, winning "<i class='fa fa-award'></i> <b> Best Education Technology Demonstration Award </b>" at the presigious confernce of <b> Learning Analytics & Knowledge </b> in the year of 2023 in the <b> USA </b>. <br/> <br/>
 
                     CoTrack can be used for to <b>conduct group activities</b> in classroom using an environment similar to Google Doc, to <b>monitor</b> group dynamics & participation level of each individual or to <b>collect</b> data (e.g., audio, video, logs) <br/>for research purposes.
-
+                    {% endblocktrans%}
                     <!--
                     different purposes listing below..
                     <ul class='fw-light fs-5 my-3'>
@@ -36,6 +42,8 @@
                     {% endif %}
                 </p>
             </div>
+
+            <!-- Image carousel -->
             <div class='col col-lg-5 col-md-5 bg-light border rounded border-white py-3'>
                 <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
@@ -48,21 +56,18 @@
                     <img src="{% static 'images/list.png'%}" class="border shadow d-block w-100 rounded" style="opacity:.7" alt="...">
                     <div class="position-relative text-center">
                         <h5 class='text-dark pt-3'>Easy to use interface</h5>
-                        
                     </div>
                     </div>
                     <div class="carousel-item" data-bs-interval="2000">
                     <img src="{% static 'images/create.png'%}" class="border shadow d-block w-100 rounded" style="opacity:.7" alt="...">
                     <div class="position-relative text-center">
                         <h5 class='text-dark pt-3' >Create group activity</h5>
-                        
                     </div>
                     </div>
                     <div class="carousel-item">
                     <img src="{% static 'images/configure.png'%}" class="border shadow d-block w-100 rounded" style="opacity:.7" alt="...">
                     <div class="position-relative text-center">
                         <h5 class='text-dark pt-3' >Easy to configure tracking </h5>
-                        
                     </div>
                     </div>
                 </div>
@@ -77,9 +82,5 @@
                 </div>
             </div>
         </div>
-        
-        
-        
     </div>
-
 {% endblock content %}

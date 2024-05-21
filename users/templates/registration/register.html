@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %} Register Page {% endblock title%}
+{% block title %} {% trans 'Register Page' %} {% endblock title%}
+
+<!-- Populating content block in base template -->
 {% block content %}
     <div class="form-content my-3 p-3">
 		<div class="container">
@@ -10,9 +12,11 @@
                         <div class="card-header justify-content-center">
                         	<h3 class="font-weight-light my-4 text-center">{% trans 'Create Account' %}</h3>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-5">
                             <form method="POST">
                                 {% csrf_token %}
+
+                                <!-- Form errors -->
                                 {% if form.errors %}
                                     <div class="alert alert-danger alert-dismissible" role="alert">
                                         <div id="form_errors">
@@ -25,6 +29,8 @@
                                         </button>
                                     </div>
                                 {% endif %}
+
+                                <!-- Registration form -->
                                 <div class="form-row">                                    
                                     <div class="form-group">
                                         <label class="small mb-1">{% trans 'First Name' %}</label>
@@ -34,7 +40,6 @@
                                         <label class="small mb-1">{% trans 'Last Name' %}</label>
                                         {{ form.last_name }}
                                     </div>
-                                    
                                 </div>
                                 <div class="form-row">
 		                            <div class="form-group">
