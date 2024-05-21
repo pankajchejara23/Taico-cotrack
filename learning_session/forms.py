@@ -35,8 +35,6 @@ default_consent_form_content = """<h3>Dear Participant </h3>
 class AudioflForm(forms.ModelForm):
     """Form to save audio/video file on server
 
-    Args:
-        forms (_type_): _description_
     """
     strDate = forms.CharField(max_length=50,required=False,
                               widget=forms.HiddenInput())
@@ -92,7 +90,11 @@ class SpeechForm(forms.ModelForm):
                    'group':forms.HiddenInput(),
                    'TextField':forms.HiddenInput()}
 
+
 class SessionUpdateForm(forms.ModelForm):
+    """Form to udpate session
+
+    """
     LANG_CHOICES = [('En',_('English')),('Et',_('Estonian'))]
     STATUS_CHOICES=[(True,_('Enable')),(False,_('Disable'))]
 
@@ -375,6 +377,9 @@ class SessionEnterForm(forms.Form):
 
 
 class RoleRequestForm(forms.ModelForm):
+    """Form to make a request for teacher's role
+
+    """
     class Meta:
         model = RoleRequest
         fields = ['school', 'class_size', 'subject']
@@ -387,8 +392,13 @@ class RoleRequestForm(forms.ModelForm):
 
 
 class GrantTeacherRoleForm(forms.Form):
+    """Form to get user's teacher role status
+
+    Args:
+        forms (_type_): _description_
+    """
     user = forms.ModelChoiceField(queryset=User.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
-    staff = forms.BooleanField(required=False, label=_('Audio recording'),
+    staff = forms.BooleanField(required=False, label=_('Permission'),
                                       widget=DjangoToggleSwitchWidget(
                                           klass="django-toggle-switch-dark-primary"
                                           )
@@ -396,6 +406,9 @@ class GrantTeacherRoleForm(forms.Form):
     
 
 class UserCreateForm(forms.Form):
+    """Form to create a user
+
+    """
     name = forms.CharField(max_length=100,
                                 required=True,
                                 widget=forms.TextInput(attrs={

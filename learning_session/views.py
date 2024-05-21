@@ -28,9 +28,16 @@ def generate_pin(s, g):
         g (int): Group number
 
     """
+
+    # iterate until a unique group pin (which is not already used) is generated.
     while True:
+        # generate a unique identifier and use 6 chars
         u_pin = uuid.uuid4().hex[:6].upper()
+
+        # check if the generated pin already used or not
         objs = GroupPin.objects.filter(pin = u_pin)
+
+        # if not used then break
         if objs.count() == 0:
             break
     sg = GroupPin.objects.create(session=s,pin=u_pin,group=g)
@@ -113,7 +120,7 @@ class SessionUpdateView(UpdateView):
         else:
             messages.error(self.request, _('There are some errors while updating pads in Etherpad.'))
             
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse(self.get_success_url()))
 
 
 class SessionListView(ListView):
@@ -124,18 +131,26 @@ class SessionListView(ListView):
     template_name = 'list_session.html'
 
     def get_queryset(self):
+        """This function update the queryset which returns the objects for listview.
+
+        Returns:
+            queryset: queryset containing objects
+        """
         queryset = super().get_queryset()
         queryset = queryset.filter(status=True).filter(creator = self.request.user)
         return queryset
 
 
 class GrantTeacherRoleView(ListView):
+    """View for displaying role requests
+
+    """
     template_name = 'user_list.html'
     model = User
 
 
 class SessionListAdminView(ListView):
-    """View for listing out all learning sessions
+    """View for listing out all learning sessions (which are not archived)
 
     """
     model = Session
@@ -145,6 +160,7 @@ class SessionListAdminView(ListView):
         queryset = super().get_queryset()
         queryset = queryset.filter(status=True)
         return queryset
+
 
 class SessionArchiveListView(ListView):
     """View for listing out archived learning sessions
@@ -164,10 +180,19 @@ class SessionArchiveView(View):
 
     """
     def get(self, request, *args, **kwargs):
+        """This function archives the learning session.
+
+        """
+        # id of session to archive
         id = self.kwargs['pk']
+
+        # fetch the session
         session_object = Session.objects.get(id=id)
-        # changing  status to False
+
+        # changing  status to False 
         session_object.status=False
+
+        # save the session
         session_object.save()
         messages.success(self.request, _('Session is archived.'))
         return redirect('session_list')
@@ -178,22 +203,28 @@ class SessionDuplicateView(View):
 
     """
     def get(self, request, *args, **kwargs):
+        """This function create a duplicate session.
+
+        Args:
+            request (HttpRequest): request parameter
+
+        """
+        # id of the session to be duplicated
         id = self.kwargs['pk']
 
+        # fetcht the session
         session_object = Session.objects.get(id=id)
 
-        # setting primary key to None cause creation of a new object at save
+        # setting the primary key to None causes creation of a new object at save
         session_object.id = None
         session_object.save()
 
         groups = session_object.groups
-
         # generate a secure access pin for each pad in the group
         for group in range(groups):
             group += 1
             generate_pin(self.object, g)
 
-            
         # create equal number of pads in Etherpad (one for each group)
         group_name = f'session_{session_object.id}'
         result = ep_views.create_pads(groups, group_name)
@@ -219,8 +250,12 @@ class SessionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         """Function to expand the context data
 
+        Args:
+            request (HttpRequest): request parameter
         """
         context = super().get_context_data(**kwargs)
+
+        # adding number of groups
         context["no_groups"] = list(range(self.object.groups))
         return context
 
@@ -233,13 +268,22 @@ class SessionCreateView(View):
     template_name = 'create_session.html'
 
     def get(self, request, *args, **kwargs):
+        """Function to render session create form
+            
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        # populate the form with submittted response
         form = self.form_class(request.POST)
+
+        # form validity check
         if form.is_valid():
+            # fetching data
             name = form.cleaned_data.get('name')
             groups = form.cleaned_data.get('groups')
             learning_problem = form.cleaned_data.get('learning_problem')
@@ -256,9 +300,9 @@ class SessionCreateView(View):
             conf_vad = form.cleaned_data.get('conf_vad')
             conf_speech = form.cleaned_data.get('conf_speech')
             conf_consent = form.cleaned_data.get('conf_consent')
-
             consent_content = form.cleaned_data.get('consent_content')
 
+            # create a session object
             s = Session.objects.create(
                 creator = request.user,
                 name=name,
@@ -364,6 +408,7 @@ class SessionEnterView(View):
             # redisplaying the enter form with error message
             return render(request, self.template_name, {'form':form})
 
+
 class SessionLeaveView(View):
     def get(self, request, *args, **kwargs):
         if 'payload' in self.request.session.keys():
@@ -372,6 +417,9 @@ class SessionLeaveView(View):
     
 
 class StudentPadView(View):
+    """This view shows etherpad to student.
+
+    """
     template_name = 'student_pad.html'
     def get(self, request, *args, **kwargs):
         """This function forward the user to the etherpad view
@@ -384,15 +432,20 @@ class StudentPadView(View):
             pad_name (str): Name of the pad
             eth_sessionid (str): Etherpad session id
         """
+
+        # check if request has a session data stored in the key 'payload'
         if 'payload' not in request.session.keys():
             return redirect('session_enter')
 
-
+        # access the payload and decode it to get session id and group number.
         decoded_payload = jwt.decode(self.request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
         session_id = decoded_payload['session']
         group_number = decoded_payload['group']
 
+        # fetch the corresponding session object
         session_object = Session.objects.filter(id=session_id).first()
+
+        # call to fetch the etherpad user's id for the corresponding user (create if doesn't exists)
         authorid = ep_views.create_etherpad_user({'authorMapper':self.request.user.id,
                                                                 'name':self.request.user.first_name}) 
 
@@ -409,8 +462,7 @@ class StudentPadView(View):
         sessionID = ep_views.create_session({'authorID':authorid,
                                                             'groupID':groupid,
                                                             'validUntil':end_timestamp.timestamp()})
-                        
-        print('Session Etherpad:',sessionID)
+
         # storing sessionID in session object, so that user did not need to enter the pin again
         self.request.session['ethsid'] = sessionID
 
@@ -433,17 +485,32 @@ class StudentPadView(View):
 
 
 class ConsentView(View):
+    """This view shows the consent form and handles student's response.
+
+    """
     form_class = ConsentForm
     template_name = 'consent.html'
 
     def post(self, request, *args, **kwargs):
+        """This function handles user's response to consent.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class(request.POST)
+
+        # check if payload is in session dict
         if 'payload' in request.session.keys():
+
+            # decode payload and access session id and group number
             decoded_payload = jwt.decode(request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
             session_id = decoded_payload['session']
             group_number = decoded_payload['group']
 
+            # fetch corresponding session object
             session_objects = Session.objects.filter(id=session_id)
+
+            # check if session object exists
             if session_objects.count() == 0:
                 del request.sesssion['payload']
                 return redirect('session_enter')
@@ -451,22 +518,33 @@ class ConsentView(View):
                 session_object = Session.objects.get(id=session_id)
                 if form.is_valid():
                     consent = form.cleaned_data.get('permission')
+
+                    # save user's response to consent form
                     Consent.objects.create(session = session_object, user = request.user, permission=consent)
-                    # create a corresponding etherpad user if it does not exists already
                     return redirect('session_student')
                 else:
+                    # if form is not valid then returnt the user to consent again.
                     form = self.form_class()
                     consent_content = session_object.consent_content
                     return render(request, self.template_name, {'form':form, 'consent_content':consent_content})
+        else:
+            return redirect('session_enter')
                 
     def get(self, request, *args, **kwargs):
+        """This function displays form to take user's input on the consent form.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         if 'payload' in request.session.keys():
+            # decode payload and access session id and group number
             decoded_payload = jwt.decode(request.session['payload'], settings.JW_SEC, algorithms=["HS256"])
             session_id = decoded_payload['session']
             group_number = decoded_payload['group']
 
             session_object = Session.objects.filter(id=session_id).first()
 
+            # return consent if it is configured in the session otherwise redirect to the pad.
             if session_object.conf_consent:
                 form = self.form_class()
                 consent_content = session_object.consent_content
@@ -589,19 +667,26 @@ class UploadAudioView(View):
 
             # saving the form's data
             newform.save()
-
             return HttpResponse('Done')
         
 
 class RoleRequestView(View):
+    """View for displaying and hanlding role request form
+
+    """
     model = RoleRequest
     form_class = RoleRequestForm
     template_name = 'role_request.html'
     success_url = '/session/list'
 
     def get(self, request, *args, **kwargs):
+        """This function shows the form to make a request for teacher's role.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class()
-        
+
         # save only if the request does not exists alredy
         roles = RoleRequest.objects.filter(user=self.request.user)
         if roles.count() !=0:
@@ -611,6 +696,11 @@ class RoleRequestView(View):
             return render(request, self.template_name, {'form':form})
 
     def post(self, request, *args, **kwargs):
+        """This function handles the role request form submission.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class(request.POST)
         if form.is_valid():
             role = form.save(commit=False)
@@ -618,31 +708,49 @@ class RoleRequestView(View):
             role.decision = False
             role.pending = True
             role.save()
-            messages.success(request, 'Your request have been registered.')
+            messages.success(request, _('Your request have been registered.'))
             return HttpResponseRedirect(self.success_url)
         else:
             return render(request, self.template_name, {'form':form})
 
 
 class RoleRequestListView(ListView):
+    """View for displaying all role requests.
+
+    """
     model = RoleRequest
     template_name = 'role_list.html'
 
+
 class GrantRoleView(View):
+    """View for granting teacher's role to the users.
+
+    """
     form_class = GrantTeacherRoleForm    
     template_name = 'grant_request.html'
     success_url = '/session/list/admin'
 
     def get(self, request, *args, **kwargs):
+        """This function displays form to take admin's action.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
     
     def post(self, request, *args, **kwargs):
+        """This function performs role granting action.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.cleaned_data.get('user')
             staff = form.cleaned_data.get('staff')
 
+            # get corresponding user object
             user_object = User.objects.get(id=user.id)
 
             # using is_active as a flag to determine teacher's role
@@ -654,24 +762,40 @@ class GrantRoleView(View):
     
 
 class UserCreateView(View):
+    """View for creating new user accounts.
+
+    """
     form_class = UserCreateForm  
     template_name = 'create_user.html'
     success_url = '/session/list/admin'
 
     def get(self, request, *args, **kwargs):
+        """This function shows user creation form.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class()
         return render(request, self.template_name, {'form':form})
     
     def post(self, request, *args, **kwargs):
+        """This function handles submission of user creation form.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
         form = self.form_class(request.POST)
         if form.is_valid():
+            # fetching submitted data
             user = form.cleaned_data.get('name')
             email = form.cleaned_data.get('email')
             pwd = form.cleaned_data.get('password')
             staff = form.cleaned_data.get('staff')
-            print(user, email, pwd, staff)
+
+            # create a new user
             user_object = User.objects.create_user(username = user,email = email,password = pwd)
 
+            # set is_staff status
             user_object.is_active = staff
             user_object.save()
             messages.success(request, f'User acocunt for <strong>{user_object.email}</strong> has been created.')
@@ -685,18 +809,36 @@ class RoleRequestAction(View):
     
     """
     def get(self, request, *args, **kwargs):
+        """This function handles role request action.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        # type of action (grant or reject)
         action = kwargs['action']
+
+        # id of role request
         role_request_id = kwargs['pk']
+
+        # only if the current user is admin
         if request.user.is_superuser:
+            # fetch corresponding role request object
             role_request_object = RoleRequest.objects.get(id=role_request_id)
+
+            # grant action
             if action == 'grant':
                 user = role_request_object.user
                 user.is_staff = True
                 user.save()
+
+                # setting the request status as processed
                 role_request_object.pending = False
                 messages.success(request, _('Request has been approved.'))
                 role_request_object.save()
+            
+            # reject action
             if action == 'reject':
+                # setting the request status as processed
                 role_request_object.pending = False
                 role_request_object.save()
                 messages.success(request, _('Request has been declined.'))
@@ -706,9 +848,22 @@ class RoleRequestAction(View):
 
 # Download data views
 class DownloadVadView(View): 
+    """View to download VAD data
+    
+    """
     def get(self, request, *args, **kwargs):
+        """This function fetches vad data and prepares a CSV file.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        # get session id
         session_id = kwargs['pk']
+
+        # filter session on id
         sessions = Session.objects.all().filter(id=session_id)
+
+        # if session exists
         if sessions.count() == 0:
             messages.error(request, _('Invalid session id'))
             return HttpResponseRedirect('/session/list')
@@ -737,9 +892,22 @@ class DownloadVadView(View):
         
 
 class DownloadSpeechView(View): 
+    """View to download Speech data
+    
+    """
     def get(self, request, *args, **kwargs):
+        """This function fetches speech data and prepares a CSV file.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        # get session id
         session_id = kwargs['pk']
+
+        # filter session on id
         sessions = Session.objects.all().filter(id=session_id)
+
+        # if session exists
         if sessions.count() == 0:
             messages.error(request, _('Invalid session id'))
             return HttpResponseRedirect('/session/list')
@@ -755,7 +923,7 @@ class DownloadSpeechView(View):
             writer = csv.writer(response)
             writer.writerow(['timestamp','user','group','speech'])
 
-            # fetching vad objects for specified session
+            # fetching speech objects for specified session
             objs = Speech.objects.all().filter(session=session).distinct()
             for obj in objs:
                 writer.writerow([obj.timestamp,
@@ -765,9 +933,22 @@ class DownloadSpeechView(View):
             return response
 
 class DownloadLogsView(View): 
+    """View to download Logs data
+    
+    """
     def get(self, request, *args, **kwargs):
+        """This function fetches logs data and prepares a CSV file.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        # get session id
         session_id = kwargs['pk']
+
+        # filter session on id
         sessions = Session.objects.all().filter(id=session_id)
+
+        # if session exists
         if sessions.count() == 0:
             messages.error(request, _('Invalid session id'))
             return HttpResponseRedirect('/session/list')
@@ -792,7 +973,7 @@ class DownloadLogsView(View):
                              'difference',
                              'text'])
 
-            # access all associated pad objects
+            # access all associated pads' logs
             logs = ep_views.download_logs(session_map.eth_groupid)
             for log in logs:
                 writer.writerow(log)
