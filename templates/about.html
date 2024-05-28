@@ -1,0 +1,176 @@
+{% extends "base.html" %} {% load i18n %} {% load static %} {% block title %}
+About Us {% endblock title%}
+
+<!-- Populating content block in base template -->
+{% block content %}
+<style>
+  .author {
+    left: 275px;
+    top: 1127px;
+    border: 2px solid #fff;
+
+    -moz-box-shadow: 20px -20px #ebf5ff;
+    -webkit-box-shadow: 20px -20px #ebf5ff;
+    box-shadow: 20px -20px #ebf5ff;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+  }
+
+  @media (max-width: 991px) {
+    .author {
+      left: 75px;
+      top: 112px;
+      border: 2px solid #fff;
+
+      -moz-box-shadow: 20px -20px #ebf5ff;
+      -webkit-box-shadow: 20px -20px #ebf5ff;
+      box-shadow: 20px -20px #ebf5ff;
+      -moz-border-radius: 15px;
+      -webkit-border-radius: 15px;
+      border-radius: 15px;
+    }
+  }
+
+  .table td {
+    text-align: center;
+  }
+
+  .card {
+    border: none;
+    border-radius: 8px;
+
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 32px;
+
+    /* or 200% */
+    letter-spacing: 0.2px;
+  }
+  .nav-tabs {
+    border-bottom: 0px solid transparent;
+  }
+
+  .contact-area {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(/static/assets/images/email_bg.png);
+    background-position: center center;
+    background-size: cover;
+    height: 40vh;
+    padding-top: 99px;
+  }
+
+  .team {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<div class="min-vh-100">
+  <div class="container justify-center px-5 py-2">
+    <h3 class="text-white display-4 lead" style="text-align: center">
+      {% trans 'Meet our team' %}
+    </h3>
+    <p class="lead text-white" style="text-align: center">
+      {%blocktrans%}
+      CoTrack is being developed by research teams from school of digital
+      technology and school of educational sciences, Tallinn university, Estonia
+      and GSIC research group, University of Valladolid, Spain.
+      {%endblocktrans%}
+    </p>
+
+    <br /><br />
+    <div class="row pl-5">
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/pankaj.jpg'%}" />
+        <br />
+        <b class="text-white"> Pankaj Chejara </b>
+        <p class="text-white small">
+          {% trans 'Researcher & CoTrack Developer' %}, <br />{% trans 'Tallinn University' %}
+        </p>
+      </div>
+
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/reet.jpg'%}" />
+        <br />
+        <b class="text-white"> Reet kasepalu </b>
+        <p class="text-white small">{% trans 'Researcher' %}, <br />{% trans 'Tallinn University' %}</p>
+      </div>
+
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/luis.jpg'%}" />
+        <br />
+        <b class="text-white"> Luis Pablo Prieto </b>
+        <p class="text-white small">{% trans 'Researcher' %}, <br />{% trans 'Tallinn University' %}</p>
+      </div>
+    </div>
+    <br />
+    <div class="row pl-5">
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/adolfo.jpg'%}" />
+        <br />
+        <b class="text-white"> Adolfo Ruiz-Calleja </b> <br />
+        <p class="text-white small">
+          {% trans 'Researcher' %},<br />
+          {% trans 'GSIC group,<br />University of Valladolid' %}
+        </p>
+      </div>
+
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/chus.png'%}" />
+        <br />
+        <b class="text-white"> María Jesús Rodríguez-Triana</b>
+        <p class="text-white small">
+          {% trans 'Researcher' %}, <br />
+          {% trans 'Tallinn University' %}
+        </p>
+      </div>
+
+      <div class="col col-4 mt-3" style="padding: 5px">
+        <img class="img author" src="{% static 'images/shashik.png'%}" />
+        <br />
+        <b class="text-white"> Shashi kant shankar </b>
+        <p class="text-white small">
+          {% trans 'Assistant Professor' %}, <br />Amrita Vishwa Vidyapeetham
+        </p>
+      </div>
+    </div>
+    <!-- end -->
+  </div>
+
+  <div class="container">
+    <div class="row pl-5">
+      <div class="col col-3">
+        <img
+          src="{% static 'images/email.png' %}"
+          class="rounded img-fluid d-block mx-auto text-white"
+          alt="App"
+        />
+      </div>
+      <div class="col col-9">
+        <h5 class="text-white">{% trans 'Contact us' %}</h5>
+        <br />
+        <p class="text-white">
+          <span class="text-white fa fa-envelope pr-3"></span> pankajch@tlu.ee
+        </p>
+        <br />
+        <p class="text-white">
+          <span class="text-white fa fa-map-marker pr-3"></span>
+          {%blocktrans%}
+          Tallinn University, School of Digital Technologies <br />
+          Narva rd. 29, 10120 Tallinn, Estonia
+          {%endblocktrans%}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

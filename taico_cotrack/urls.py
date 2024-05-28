@@ -19,11 +19,15 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from django.views.generic import TemplateView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("users.urls")),
     path("", include("etherpad_app.urls")),
     path("", include("learning_session.urls")),
+    path('about/',TemplateView.as_view(template_name="about.html"), name='about'),
+    path('features/',TemplateView.as_view(template_name="features.html"), name='features'),
     path("ckeditor/", include('ckeditor_uploader.urls')),
 ]
 

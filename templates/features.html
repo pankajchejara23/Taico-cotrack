@@ -1,0 +1,87 @@
+{% extends "base.html" %} {% load i18n %} {% load static %} {% block title %}
+About Us {% endblock title%}
+
+<!-- Populating content block in base template -->
+{% block content %}
+<div class="min-vh-100">
+  <div class="container justify-center py-2 px-5 text-white">
+    <h4 class="display-4 text-center"><b> CoTrack</b></h4>
+    <br />
+    {% blocktrans %}
+    <p class='lead'>
+      CoTrack is a web-based tool to conduct collaborative activity in online
+      space as well as physical space. It uses
+      <a href="https://etherpad.org/" target="_blank">Etherpad</a> to offer a
+      collaborative writing space. In addition to offering collaboration space,
+      CoTrack also allows capturing of participants' activities, happening in
+      digital and physical spaces (e.g., speaking time, turn-taking, number of
+      characters written/deleted, etc.).
+    </p>
+    <p  class='lead'>
+      The primary stakeholders of CoTrack are Teachers and Computer-supported
+      collaborative learning(CSCL) Researchers. Teachers can use CoTrack to
+      conduct group activities with monitoring facility, which enable teachers
+      to identify groups who are in need of help or not participating well.
+      <br />
+      CSCL Researchers can also use CoTrack to collect data for their study to
+      understand aspects of collaborative learning (e.g., regulation,
+      collaboration process). The use of CoTrack benefits researchers by saving
+      their time otherwise invested in developing/setting up data collection
+      tools. CoTrack offers researchers pre-processed data from the
+      group-activity in CSV (Comma Seperated Value) file for further analysis.
+    </p>
+    <p><br /></p>
+    <h3 class='display-5'>CoTrack benefits</h3>
+    <ul class='lead'>
+      <li class='display-7'>Custom activity design</li>
+      CoTrack allows teachers/researchers to cusomize the group activity and
+      data recording. For example, CoTrack supports three different types of
+      group activities: first, which only involves use of collaborative text
+      editor; second, which only involves use of audio/video communication
+      channels; third, which invovles both.
+      The recording can also be customized, e.g., record only audio or video.
+      
+
+      <li><b>Multimodal data collection</b></li>
+      CoTrack captures following types of data
+      <ol>
+        <li>
+          <i>Voice activity detection (VAD)</i>: Data indicating whether someone
+          speaks or not.
+        </li>
+       
+        <li>
+          <i>Speech to text</i>: Transcript from audio data using Google
+          speech-to-text api in real time (only supported in chrome browser).
+        </li>
+        <!--
+        <li>
+          <i>Head movement</i>: Data approximating head movement in 3D with
+          coordinates X,Y,Z (In development).
+        </li>
+        <li>
+          <i>Body pose</i>: Data approximating body pose movement using
+          open-source machine learning models for web (In development).
+        </li>
+        -->
+        <li>
+          <i>Writing logs</i>: Log data of participants' writing in
+          collaborative text editor.
+        </li>
+      </ol>
+      <li><b>Activity monitoring</b></li>
+      CoTracks offers a real-time dashboard (updates every 30 seconds)
+      presenting a social network (who is talking after whom network) and
+      groups' writing activities in terms of number of revisions made.
+
+      <li><b>Downloading data</b></li>
+      CoTrack also facilitates downloading of captured data e.g., VAD,
+      Speech-to-text, writing logs, in CSV format for later analysis.
+
+      <li><b>Collaboration quality estimation</b></li>
+      CoTrack also offers automated estimation of collaboration quality and potential intervention strategy from learning sciences literature.
+    </ul>
+    {% endblocktrans %}
+  </div>
+</div>
+{% endblock content %}
