@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
+from . import views
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView, SessionListAdminView
 from .views import UploadVADView, UploadSpeechView, UploadAudioView, RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView
@@ -28,5 +29,12 @@ urlpatterns = [
     path('download/vad/<int:pk>', DownloadVadView.as_view(), name='download_vad'),
     path('download/speech/<int:pk>', DownloadSpeechView.as_view(), name='download_speech'),
     path('download/logs/<int:pk>', DownloadLogsView.as_view(), name='download_logs'),
+
+    # REST APIs EndPoints
+    path("getStats/<padid>", views.getGroupPadStats),
+    path("sessions/word_cloud/<session_id>/<group_id>", views.getWordCloud, name='group_word_cloud'),
+    path("getRevCount/<padid>", views.getRevCount, name='getRevisionCount'),
+    path("getSpeakingStats/<session_id>", views.getSpeakingStats),
+    path("getText/<session_id>/<group_id>",views.getText),
 
 ]

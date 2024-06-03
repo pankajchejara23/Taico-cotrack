@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "etherpad_app.apps.EtherpadAppConfig",
     "learning_session.apps.LearningSessionConfig",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [

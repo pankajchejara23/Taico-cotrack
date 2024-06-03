@@ -11,14 +11,31 @@ from .forms import ConsentForm, RoleRequestForm, GrantTeacherRoleForm, UserCreat
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
+import numpy as np
 from django.db import transaction
 from django.urls import reverse
 import jwt
+import io
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import urllib, base64
+from io import StringIO
 import csv
 import datetime
 from django.conf import settings
 from django.utils.translation import gettext as _
-# Create your views here.
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework import permissions
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+
+VAD_OBJECTS = []
+SPEECH_OBJECTS = []
 
 def generate_pin(s, g):
     """This function generates a unique pin code
@@ -979,3 +996,475 @@ class DownloadLogsView(View):
                 writer.writerow(log)
             return response
 
+
+#### REST API START ###############
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getRevCount(request,padid):
+    """This function returns number of revisions made in the pad of given padid.
+
+    Args:
+        request (HttpRequest): request object
+        padid (str): Etherpad pad id
+
+    Returns:
+        Response: number of revision counts
+    """
+    params = {'padID':padid}
+    rev_count = call('getRevisionsCount',params)
+    return Response({'revisions':rev_count['data']['revisions']})
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getWordCloud(request,session_id,group_id):
+    """
+    This function returns word-cloud for a given group of a session.
+
+    Args:
+        request (HttpRequest): request object
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        Response: image of word-cloud
+    
+    """
+    stopwords = set(STOPWORDS)
+    session = Session.objects.get(id=session_id)
+    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
+    speeches = " ".join(speech for speech in speeches)
+    print(speeches)
+    if len(speeches) == 0:
+        data = {'data':'empty'}
+    else:
+        wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
+        """
+        new code
+        """
+        fig2, ax = plt.subplots(1,1,figsize=(6,8))
+        ax.imshow(img)
+        ax.spines['top'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        cloud = wc.generate(speeches)
+        print('Word cloud generated')
+        ax.imshow(wc,interpolation ='bilinear')
+
+        """
+        fig = plt.figure(figsize=(6,8))
+        cloud = wc.generate(speeches)
+        print('Word cloud generated')
+        plt.imshow(wc,interpolation ='bilinear')
+        plt.axis('off')
+        """
+        image = io.BytesIO()
+        fig2.savefig(image,format="png")
+        image.seek(0)
+        string = base64.b64encode(image.read())
+        #image_64 =  urllib.parse.quote(string)
+    data = {'data':str(string.decode())}
+    print('Returning:',data)
+    return Response(data)
+
+# for building edge list with weight
+def edgeExist(edge_list,edge):
+    for e in edge_list:
+        if e[0] == edge[0] and e[1] == edge[1]:
+            return True
+        #if e[0] == edge[1] and e[1] == edge[0]:
+        #    return True
+    return False
+
+def updateWeight(edge_list, edge):
+    updated = list()
+    for i,e in enumerate(edge_list):
+        if edgeExist([edge],e):
+            w = edge_list[i][2] + 1
+            updated.append((e[0],e[1],w))
+        else:
+            updated.append(e)
+    return updated
+
+def getEdgeWidth(edge_weight, total_weight):
+    percentage = int(edge_weight * 100/total_weight)
+    if percentage >= 90:
+        return 24
+    elif percentage >= 80:
+        return 22
+    elif percentage >= 70:
+        return 19
+    elif percentage >= 60:
+        return 15
+    elif percentage >= 50:
+        return 13
+    elif percentage >= 40:
+        return 11
+    elif percentage >= 30:
+        return 10
+    elif percentage >= 20:
+        return 8
+    elif percentage >= 10:
+        return 5
+    elif percentage >= 6:
+        return 4
+    elif percentage >= 4:
+        return 3
+    else:
+        return 1
+
+# function to get elements for cytoscape.js to draw network
+def generateElements(user_sequence,speaking_data,session,group):
+
+    try:
+        color_mapping,t = getUsers(session,group)
+    except:
+        color_mapping = {}
+
+    total_speaking = sum(speaking_data.values())
+    avg_speaking = 0
+    if len(speaking_data.values()) != 0:
+        avg_speaking = total_speaking/len(speaking_data.values())
+    if sum(speaking_data.values()) == 0:
+        total_speaking = 1
+
+    per_speaking = [float(i)/total_speaking for i in speaking_data]
+    #### create edge list_files
+    edge_list = list()
+
+    total_weight = 0
+    # Create two variable node1 and node2 and set them to zero.
+    node1=node2=0
+    # Iterate over resultant users sequences
+    for i in range(len(user_sequence)):
+        # For the first element
+        if node1==0:
+            # set node1 to the first element
+            node1=user_sequence[i]
+        # For rest of the elements
+        else:
+            # Set the current element to node2
+            node2=user_sequence[i]
+            if node1 != node2:
+                total_weight = total_weight +  1
+                # Append the edge node1, node2 to the edge list
+                if edgeExist(edge_list,(node1,node2)):
+                    edge_list = updateWeight(edge_list,(node1,node2))
+
+                else:
+
+                    edge_list.append((node1,node2,5))
+            node1=node2
+    ele_nodes=[]
+    total_edges = len(edge_list)
+
+    for n in set(user_sequence):
+        user_obj = User.objects.get(pk = n)
+        #speak_ratio = 200*sp_time[n]/total_sp
+        ratio = float(speaking_data[n]/total_speaking)
+        node_width = 10 + 100 * ratio
+
+        if len(color_mapping) !=0:
+            t = {'id':n,'name':user_obj.first_name,'color':color_mapping[n],'size':node_width,'ratio':ratio}
+        else:
+            t = {'id':n,'name':user_obj.first_name,'size':node_width,'ratio':ratio}
+        ele_nodes.append(t)
+    ele_edges = []
+    for e in edge_list:
+        edge_width = getEdgeWidth(e[2],total_weight)
+        t = {'source':e[0],'to':e[1],'weight':edge_width}
+        ele_edges.append(t)
+    elements = {'nodes':ele_nodes,'edges':ele_edges}
+    return elements
+
+
+def gini(array):
+    """Calculate the Gini coefficient of a numpy array."""
+    # based on bottom eq: http://www.statsdirect.com/help/content/image/stat0206_wmf.gif
+    # from: http://www.statsdirect.com/help/default.htm#nonparametric_methods/gini.htm
+    if array.size == 0:
+        return '--'
+
+    array = array.flatten() #all values are treated equally, arrays must be 1d
+    if np.amin(array) < 0:
+        array -= np.amin(array) #values cannot be negative
+    array += 0.0000001 #values cannot be 0
+    array = np.sort(array) #values must be sorted
+    index = np.arange(1,array.shape[0]+1) #index per array element
+    n = array.shape[0]#number of array elements
+    gini_coef =  ((np.sum((2 * index - n  - 1) * array)) / (n * np.sum(array))) #Gini coefficient
+    # Alarming level from this paper: https://arxiv.org/pdf/1409.3979.pdf
+    if gini_coef > .3:
+        return 'Low'
+    else:
+        return 'High'
+
+
+def dummyGroupDashboard(request,session_id,group_id):
+    session = Session.objects.get(id=session_id)
+    session_group = SessionGroupMap.objects.get(session=session)
+    eth_group = session_group.eth_groupid
+    context_data = {'group':group_id,'session':session,'eth_group':eth_group}
+
+    return render(request,'teacher_group_analytics_dummy.html',context_data)
+
+
+def dummySessionDashboard(request,session_id):
+    session = Session.objects.get(id=session_id)
+    context_data = {'session':session,'no_group':list(range(session.groups)),'protocol':settings.PROTOCOL}
+    return render(request,'session_main_redesign_dummy.html',context_data)
+
+
+def getUsers(session_id,group_id):
+    """This function returns color mapping for users
+
+    Args:
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        dict, dict: two dictionaries, one with user id to color mapping, and another for author id to color mapping
+    """
+    s = Session.objects.get(id=session_id)
+    tmp_users = VAD.objects.filter(session=s,group = group_id).values('user').distinct()
+    sp_users = [user['user'] for user in tmp_users]
+    et_users = []
+    pad = Pad.objects.filter(session=s).filter(group=group_id)
+    padid =  pad[0].eth_padid
+    params = {'padID':padid}
+
+    author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
+
+    id_to_author = {}
+
+    for author in author_list:
+        author_mapping = AuthorMap.objects.filter(authorid=author)
+        id_to_author[author_mapping[0].user.id] = author
+        et_users.append(author_mapping[0].user.id)
+
+    final_list = list(set(sp_users + et_users))
+
+    user_to_color = {}
+    author_to_color = {}
+
+    for index,user in enumerate(final_list):
+        user_to_color[user] = COLORS[index]
+        try:
+            author_to_color[id_to_author[user]] = COLORS[index]
+        except:
+            print('')
+    return user_to_color,author_to_color
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getText(request,session_id,group_id):
+    """This function returns the text produced by a group in a session.
+
+    Args:
+        request (HttpRequest): request object
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        Response: text from the pad of the specified group
+    """
+    pad = Pad.objects.all().filter(session=session_id,group=group_id)
+    padid =  pad[0].eth_padid
+    params = {'padID':padid}
+    t = call('getHTML',params)
+    content = t['data']['html']
+    return Response({'data':content})
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getSpeakingStats(request,session_id):
+    """This function returns speaking statistics and group-dynamics data for each group for a specified session.
+
+    Args:
+        request (HttpRequest): request object
+        session_id (int): Session id
+
+    Returns:
+        Response: return speaking time, network data, and other details
+    """
+    global VAD_OBJECTS
+    global SPEECH_OBJECTS
+    if len(VAD_OBJECTS) > 0:
+        objs = VAD.objects.bulk_create(VAD_OBJECTS)
+        VAD_OBJECTS = []
+
+    if len(SPEECH_OBJECTS) > 0:
+        objs = Speech.objects.bulk_create(SPEECH_OBJECTS)
+        SPEECH_OBJECTS = []
+
+    s = Session.objects.get(id=session_id)
+    groups = s.groups
+    groups_speaking = []
+    for group in range(groups):
+        group = group + 1
+        vads = VAD.objects.all().filter(session=session_id)
+
+        try:
+            color_mapping,t = getUsers(session_id,group)
+        except:
+            color_mapping = {}
+
+        group_speaking = {}
+        group_speaking['group'] = group
+
+        tmp_users = vads.filter(group = group).values('user').distinct()
+        users = [user['user'] for user in tmp_users]
+        user_sequence = vads.filter(group = group).values_list('user',flat=True)
+        data = []
+        speaking_data = {}
+        gini_data = []
+        for user in users:
+            user_vads = vads.filter(group = group).filter(user = user).aggregate(Sum('activity'))
+            time_condition = datetime.datetime.now() - datetime.timedelta(seconds=120)
+            user_vads_last_minute = vads.filter(group = group).filter(user = user,timestamp__gte = time_condition).aggregate(Sum('activity'))
+            speak_data = {}
+            user_obj = User.objects.get(pk = user)
+            speak_data['id'] = user
+            speak_data['name'] = user_obj.first_name if user_obj.first_name else user_obj.username
+            speak_data['speaking'] = user_vads['activity__sum'] * .001
+            if len(color_mapping) != 0:
+                speak_data['color'] = color_mapping[user]
+            speaking_data[user] = user_vads['activity__sum'] * .001
+            data.append(speak_data)
+            if not user_vads_last_minute['activity__sum'] is None:
+                last_minute_activity = user_vads_last_minute['activity__sum'] * .001
+                gini_data.append(last_minute_activity)
+
+        group_speaking['data'] = data
+        group_speaking['graph'] = generateElements(user_sequence,speaking_data,session_id,group)
+        group_speaking['quality'] = gini(np.array(gini_data))
+        groups_speaking.append(group_speaking)
+
+    return Response({'speaking_data':groups_speaking})
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getWordCloud(request,session_id,group_id):
+    stopwords = set(STOPWORDS)
+    session = Session.objects.get(id=session_id)
+    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
+    speeches = " ".join(speech for speech in speeches)
+    print(speeches)
+    if len(speeches) == 0:
+        data = {'data':'empty'};
+    else:
+        wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
+        cloud = wc.generate(speeches)
+        plt.imshow(wc,interpolation ='bilinear')
+        plt.axis('off')
+
+        image = io.BytesIO()
+        plt.savefig(image,format="png")
+        image.seek(0)
+        string = base64.b64encode(image.read())
+        #image_64 =  urllib.parse.quote(string)
+    data = {'data':str(string.decode())}
+    return Response(data)
+
+
+def getLogDf(session_id,group_id):
+    """This function returns logs data for a particular group in the form of Pandas DataFrame.
+
+    Args:
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        DataFrame: A dataframe of logs data
+    """
+    pad = Pad.objects.all().filter(session=session_id,group=group_id)
+    log = pd.DataFrame(columns=['timestamp','author','operation','difference'])
+    if len(pad) == 0:
+        return log
+    padid =  pad[0].eth_padid
+    params = {'padID':padid}
+    rev_count = call('getRevisionsCount',params)
+
+    for r in range(rev_count['data']['revisions']):
+        params = {'padID':padid,'rev':r+1}
+        rev = call('getRevisionChangeset',params)
+        ath = call('getRevisionAuthor',params)
+        d = call('getRevisionDate',params)
+        t = call('getText',params)
+
+        try:
+            cs = changeset_parse(rev['data'])
+            tp = int(d['data'])
+            text = t['data']['text']['text']
+            char_bank = cs['bank']
+            char_bank = "<br/>".join(char_bank.split("\n"))
+            text = "<br/>".join(text.split("\n"))
+            #print(datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'))
+            #print('   ',datetime.datetime.fromtimestamp(tp/1000).strftime('%H:%M:%S %d-%m-%Y'));
+            log = log.append({'timestamp':datetime.datetime.fromtimestamp(d["data"]/1000).strftime('%H:%M:%S %d-%m-%Y'),'author':ath['data'],'operation':cs['final_op'],'difference':cs['final_diff']},ignore_index=True)
+        except:
+            continue
+    log.timestamp = pd.to_datetime(log.timestamp,format="%H:%M:%S %d-%m-%Y")
+    return log
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getGroupPadStats(request,padid):
+    """This function returns group-wise statistics for writing.
+
+    Args:
+        request (HttpRequest): request object
+        padid (str): Etherpad padid
+    Returns:
+        Response: writing statistics
+    """
+
+    pad = Pad.objects.filter(eth_padid = padid)[0]
+    session = pad.session
+    group = pad.group
+    t,color_mapping = getUsers(session.id,group)
+
+    params = {'padID':padid}
+    rev_count = call('getRevisionsCount',params)
+    # get user wise Info
+    print(call('padUsersCount',params))
+    print(call('listAuthorsOfPad',params))
+    author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
+    addition = {}
+    deletion = {}
+    author_names = {}
+    for author in author_list:
+        print('Author',author)
+        addition[author] = 0
+        deletion[author] = 0
+        author_names[author] = call('getAuthorName',{'authorID':author})['data']
+    for r in range(rev_count['data']['revisions']):
+        params = {'padID':padid,'rev':r+1}
+        rev = call('getRevisionChangeset',params)
+        ath = call('getRevisionAuthor',params)
+        cs = changeset_parse(rev['data'])
+        if (cs['final_op'] == '>'):
+            addition[ath['data']] += cs['final_diff']
+        if (cs['final_op'] == '<'):
+            deletion[ath['data']] += cs['final_diff']
+
+    call_response = {}
+    author_count = len(author_names.keys())
+    for i,v in enumerate(author_names.keys()):
+        call_response[i] = {
+            'authorid': v,
+            'name':author_names[v],
+            'addition':addition[v],
+            'deletion':deletion[v],
+            'color':color_mapping[v]
+        }
+    return Response(call_response)
+#### REST API END   ###############
