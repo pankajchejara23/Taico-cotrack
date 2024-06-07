@@ -1,0 +1,645 @@
+{% extends "dashboard_base.html" %}
+{% load i18n %}
+{% block content %}
+
+  <div class="container">
+    <a href="{% url 'session_detail' session.id %}" class="p-0 btn btn-link text-white"><i class='fas fa-arrow-left'></i> {% trans 'Back' %}</a>
+    <div>
+        <p class="h3 text-left"><span class="text-white">{% trans 'Group' %}-{{group}}</p>
+        <p class="h5 text-left"> <span class="text-white">{% trans 'Session' %}:</span> {{session.name | upper}} <br/> </p>
+        <p class="h5 text-left"> <span class="text-white">{% trans 'Participants' %}:</span> <span id="members"></span> </p>
+        <a  data-bs-toggle="collapse" href="#collapseExample" aria-expanded="true" aria-controls="collapseExample"> 
+            <p class="h6 text-right btn btn-sm btn-warning"> 
+                <span class="text-dark"> <i class="fa fa-sliders-h" aria-hidden="true"></i> {% trans 'Configure Dashboard' %} 
+            </p>
+        </a>
+        <div class="collapse h6 shadow border border-white rounded p-4 text-white" id="collapseExample">
+            <p class='small'> {% trans 'Here, you can configure your dashboard.'%} </p>
+            <label class="font-bold lead"> {% trans 'Speaking analytics' %} </label>
+            <div class="form-check">
+                <input checked  class="form-check-input" type="checkbox" value="" id="group_show">
+                <label class="form-check-label" for="flexCheckDefault">
+                    {% trans 'Group dynamics' %}
+                </label>
+            </div>
+            <div class="form-check">
+                <input checked class="form-check-input" type="checkbox" value="c" id="speak_show">
+                <label class="form-check-label" for="flexCheckDefault2">
+                    {% trans 'Speaking time' %}
+                </label>
+            </div>
+            <br/>
+            <label class="font-bold lead"> {% trans 'Writing analytics' %} </label>
+            <div class="form-check">
+                <input checked  class="form-check-input" type="checkbox" value="" id="write_show">
+                <label class="form-check-label" for="flexCheckDefault">
+                    {% trans 'Writing stats' %}
+                </label>
+            </div>
+            <div class="form-check">
+                <input checked  class="form-check-input" type="checkbox" value="" id="ind_show">
+                 <label class="form-check-label" for="flexCheckDefault2">
+                    {% trans 'Individual writing contribution' %}
+                </label>
+            </div>
+            <br/>
+            <label class="font-bold lead"> {% trans 'Predictive analytics' %} </label>
+            <div class="form-check">
+                <input checked  class="form-check-input" type="checkbox" value="" id="pred_show">
+                <label class="form-check-label" for="flexCheckDefault">
+                    {% trans 'Automated estimation of collaboration quality' %}
+                </label>
+            </div>
+            
+        </div>
+
+    <div class="row mt-4">
+        <div class="col-sm-12 col-md-12 col-xl-4">
+            <div class="card  order-card boder-0">
+                <div class="card-header text-dark lead">{% trans 'Speaking analytics'%}</div>
+                <div class="card-block d-flex flex-column">
+                    <div id="group_div">
+                        <p class="fw-light text-secondary">{% trans 'Group dynamics' %}</p>
+                        <div id="speak-dynamics" class="m-0 pr-5" style="min-width:200px;min-height:200px;"></div>
+                    </div>
+                    <div id="speak_div">
+                        <p class="text-secondary mb-3 fw-light">{% trans 'Speaking time' %}</p>
+                        <div class="m-0 p-0" style="min-width:200px;min-height:200px;">
+                            <canvas id="speak-bar"></canvas>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#word-cloud" data-whatever="{{group}}">
+                        <i class="far fa-comments fa-xs" aria-hidden="true"> </i>  {% trans 'Speech text' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-12 col-xl-4">
+            <div class="card  order-card">
+                <div class="card-header text-dark lead">{% trans 'Writing analytics'%}</div>
+                <div class="card-block  d-flex flex-column">
+                    <div id="write_div">
+                        <p class="text-secondary fw-light">{% trans 'Writing stats' %}</p>
+                        <div id="write-stats" style="min-width:200px;min-height:200px;"></div>
+                    </div>
+                    <div id="ind_div">
+                        <p class="text-secondary mb-3">{% trans 'Individual contribution' %}</p>
+                        <div class="m-0 p-0" style="min-width:200px;min-height:200px;">
+                            <canvas style="min-width:200px;min-height:150px;" id="write-contri"></canvas>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#text" data-bs-whatever="{{group}}">
+                        <i class="far fa-file" aria-hidden="true"> </i>  {% trans 'Group Document' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+      <div class="col-sm-12 col-md-12 col-xl-4">
+        <div class="card  order-card"   id="pred_div">
+            <div class="card-header text-dark lead">{% trans 'Prediction'%}</div>
+            <div class="card-block  d-flex flex-column">
+              <p class="text-secondary mb-3 fw-light">{% trans 'Collaboration quality' %}</p>
+              <div class="m-0 d-flex flex-column" style="min-width:200px;min-height:200px;">
+
+                <div>
+                  {% if group == '1' %}
+                  <p class="display-3 text-success text-center" style='font-family: "Tahoma", Times, serif;'>83%</p>
+
+                </div>
+                <div class="mt-2"> {% blocktrans %} <p class="h5 text-dark"> chance of <span class="badge bg-success">High</span> level of collaboration quality {% endblocktrans %}</p></div>
+                  {% elif group == '2' %}
+                  <p class="display-3 text-warning text-center" style='font-family: "Tahoma", Times, serif;'>57%</p>
+
+                </div>
+                <div class="mt-2"> {% blocktrans %} <p class="h5 text-dark"> chance of <span class="badge bg-success ">High</span> level of collaboration quality {% endblocktrans %}</p></div>
+                  {% else %}
+                  <p class="display-3 text-danger text-center" style='font-family: "Tahoma", Times, serif;'>23%</p>
+
+                </div>
+                <div class="mt-2"> {% blocktrans %} <p class="h5 text-dark"> chance of <span class="badge bg-success ">High</span> level of collaboration quality {% endblocktrans %}</p></div>
+                  {% endif%}
+
+              </div>
+              <p class="fw-light text-secondary">{% trans 'Dimensions' %}</p>
+              <div class="m-0 p-0" style="min-width:200px;min-height:200px;">
+                <ul class="text-dark list-group border-0">
+
+                  {% if group == '1' %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+                    {% trans 'Argumentation' %}
+                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Cooperative orientation' %}
+                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Sustaining mutual understanding' %}
+                    <span class="badge bg-warning rounded-pill">{% trans 'Medium' %}</span>
+                  </li>
+                  {% elif group == '2' %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+                    {% trans 'Argumentation' %}
+                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Cooperative orientation' %}
+                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Sustaining mutual understanding' %}
+                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                  </li>
+                  {% else %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+                    {% trans 'Argumentation' %}
+                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Cooperative orientation' %}
+                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
+                    {% trans 'Sustaining mutual understanding' %}
+                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
+                  </li>
+                  {% endif %}
+
+                </ul>
+              </div>
+              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#suggestions" data-whatever="{{group}}"><i class="far fa-lightbulb" aria-hidden="true"> </i>  {% trans 'Intervention Suggestions' %}</button>
+
+            </div>
+        </div>
+      </div>
+    </div>
+	</div>
+  <div class="modal fade" id="word-cloud" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title" id="exampleModalLabel"><span>{% trans 'Word cloud'%}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          </button>
+        </div>
+        <div class='modal-content'>
+          <img class="img img-responsive" id="word_cloud_img"></img>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="text" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title" id="exampleModalLabel"><span>{% trans 'Group Document' %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          </button>
+        </div>
+        <div class='modal-body p-2'>
+
+          <div id="etherpad_text">
+            Hello
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="suggestions" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0">
+          <h5 class="modal-title" id="exampleModalLabel"><span>{% trans 'Intevenstion suggestions'%}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class='modal-content p-2'>
+           <br/>
+           {% trans 'You can use following strategies for the current state collaboration behavior'%}.
+            <br/><hr/>
+            <table class='table borderless'>
+              <thead>
+                <tr>
+                  <th scope="col">{% trans 'Dimension'%}</th>
+                  <th scope="col">{% trans 'Current state'%}</th>
+                  <th scope="col">{% trans 'Suggestions'%}</th>
+                </tr>
+              </thead>
+              {% if group == '1'%}
+              <tr>
+                <td> {% trans 'Argumentation'%} </td> <td><span class="badge badge-success rounded-pill">{% trans 'High'%}</span></td><td> {% trans 'Praise the students'%}</td>
+              </tr>
+              <tr>
+                <td> {% trans 'Sustaining mutual understanding'%} </td> <td><span class="badge badge-warning rounded-pill">{% trans 'Medium'%}</span></td><td> {% trans 'To promote, specify common rewards for the group, such as group marks'%}</td>
+              </tr>
+              {%elif group == '2' %}
+              <tr>
+                <td> {% trans 'Argumentation'%}</td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td>{% trans ' Make sure there is someone in the group with the role of orienting (raising questions with the direction of discussion)'%}</td>
+              </tr>
+              <tr>
+                <td> {% trans 'Cooperative orientation'%} </td> <td><span class="badge badge-success rounded-pill">{% trans 'High'%}</span></td><td> {% trans 'Praise the students'%}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td> {% trans 'Argumentation'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td> {% trans 'Make sure there is someone in the group with the role of orienting (raising questions with the direction of discussion)'%}</td>
+              </tr>
+              <tr>
+                <td> {% trans 'Cooperative orientation'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td> {% trans 'Go and talk to the group aabout the issue, guide them to solve their own problem; Ask about the role divisions, if possible assign a leader whose task is to make sure everyone has shared their thougts and feelings.'%}</td>
+              </tr>
+              <tr>
+                <td> {% trans 'Sustaining mutual understanding'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td>{% trans 'To promote, specify common rewards for the group, such as group marks'%}</td>
+              </tr>
+              {%endif%}
+            </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--
+  <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-body">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <img src="" class="imagepreview" style="width: 100%;" >
+        </div>
+      </div>
+    </div>
+  </div-->
+  <style>
+    .order-card {
+    color: #fff;
+    }
+    table th:first-child{
+    border-radius:5px 0 0 5px;
+    }
+
+    table th:last-child{
+    border-radius:0 5px 5px 0;
+    }
+    .bg-c-blue {
+        background: linear-gradient(45deg,#4099ff,#73b4ff);
+    }
+
+    .bg-c-green {
+        background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+    }
+
+    .bg-c-yellow {
+        background: linear-gradient(45deg,#FFB64D,#ffcb80);
+    }
+
+    .bg-c-pink {
+        background: linear-gradient(45deg,#FF5370,#ff869a);
+    }
+
+
+    .card {
+        border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+        box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+        border: none;
+        margin-bottom: 30px;
+        -webkit-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .card .card-block {
+        padding: 25px;
+    }
+
+    .order-card i {
+        font-size: 26px;
+    }
+
+    .f-left {
+        float: left;
+    }
+
+    .f-right {
+        float: right;
+    }
+  </style>
+
+<script>
+    $('#group_show').on('change', function() {
+  // From the other examples
+  if (!this.checked) {
+      $('#group_div').hide();
+  } else
+    {
+      $('#group_div').show();
+    }
+    });
+
+    $('#speak_show').on('change', function() {
+    // From the other examples
+    if (!this.checked) {
+        $('#speak_div').hide();
+    } else
+        {
+        $('#speak_div').show();
+        }
+    });
+
+    $('#write_show').on('change', function() {
+    // From the other examples
+    if (!this.checked) {
+        $('#write_div').hide();
+    } else
+        {
+        $('#write_div').show();
+        }
+    });
+
+    $('#ind_show').on('change', function() {
+    // From the other examples
+    if (!this.checked) {
+        $('#ind_div').hide();
+    } else
+        {
+        $('#ind_div').show();
+        }
+    });
+
+    $('#pred_show').on('change', function() {
+    // From the other examples
+    if (!this.checked) {
+        $('#pred_div').hide();
+    } else
+        {
+        $('#pred_div').show();
+        }
+    });
+
+    const modal = document.getElementById('text') ;
+            
+        modal.addEventListener('show.bs.modal', () => { 
+            console.log('show instance method called!'); 
+        }) ;
+
+
+    // This code attach a event listener to show group document button.
+    $('#text').on('show.bs.modal', function (event) {
+    console.log('Running function');
+    var button = $(event.relatedTarget); // Button that triggered the modal
+    var recipient = button.data('whatever');
+    console.log(recipient); // Extract info from data-* attributes
+    var URL = "http://localhost:8000/getText/38/1";
+    console.log(URL);
+    $.ajax(
+    {
+        type:"GET",
+        url: URL,
+        "headers": {
+                "accept": "application/json",
+                "Access-Control-Allow-Origin":"*"
+            },
+        success: function( data )
+        {
+            console.log(data.data);
+            if (data.data != "empty") {
+                console.log('Setting etherpad text');
+            $('#etherpad_text').html(data.data);
+            }
+        }
+    })
+    });
+
+    function makeGetRequest(path) {
+        /* 
+        This function makes request to REST APIs endpoint to fetch data.
+        Args:
+            path (str): url to the rest api 
+        */
+        return new Promise(function (resolve, reject) {
+        axios.get(path).then(
+            (response) => {
+            var result = response.data;
+            console.log('Processing Request');
+            resolve(result);
+            },
+            (error) => {
+            reject(error);
+            }
+        );
+        });
+    }
+
+    // Creating empty social network dynamics graph
+    cy_tmp = cytoscape({
+  	   container: document.getElementById("speak-dynamics"),
+       style: [
+          {
+            selector: 'node',
+            css: {
+                  'content': 'data(name)',
+                  'text-valign': 'bottom',
+            }
+          },
+          {
+            selector: '[color]',
+            css: {
+               'background-color': 'data(color)',
+
+            }
+          },
+          {
+            selector: 'edge',
+            css: {
+                  'curve-style': 'bezier',
+                  'target-arrow-shape': 'triangle',
+                  'line-color': '#abb2b9 ',
+                  'target-arrow-color': '#abb2b9 '
+                }
+          },
+  				{
+  					selector: '[size]',
+  					css: {
+                'width': 'data(size)',
+                'height': 'data(size)',
+  				  }
+  				},
+          {
+  					selector: '[weight]',
+  					css: {
+                'width':'data(weight)',
+                'color': 'black',
+  					}
+  				},
+        ],
+        layout: {
+            name: 'circle',
+  				  fit: true
+  				}
+  			});
+
+    // Creating empty bar chart for speaking time distribution
+    var ctx = document.getElementById('speak-bar').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Speaking time',
+                data: [],
+                borderWidth: 1,
+                backgroundColor:[],
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            plugins: {
+            colorschemes: {
+                scheme: 'brewer.Paired12'
+            }
+            },
+            legend: {display:false},
+            scales: {
+            yAxes: [{
+                ticks: {
+                beginAtZero: true
+                },
+                scaleLabel: {
+                display: true,
+                labelString: 'speaking (sec.)'
+                }
+            }]
+            }
+        }
+    });
+
+
+    // Creating empty pie chart for writing contribution
+    var ctx = document.getElementById('write-contri').getContext('2d');
+    var myChart2 = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Writing contribution',
+                data: [],
+                backgroundColor:[],
+                borderWidth: 1
+            }]
+        },
+        options:{
+            legend:{
+            display:false
+            }
+        }
+    });
+
+    // Fetching speaking data and populating graphs
+    var speak_rest_url = '{{request.site.base_url}}/getSpeakingStats/38';
+    $.ajax(
+    {
+        type:"GET",
+        url: speak_rest_url,
+        "headers": {
+                "accept": "application/json",
+                "Access-Control-Allow-Origin":"*"
+            },
+        success: function( data )
+        {
+            var result = data.data;
+            if (data.speaking_data != "empty") {
+                var m = 0; // This is equivalent to group number - 1. So 0 represents the first group.
+
+                // Updating bar chart
+                for (n = 0 ; n < result.speaking_data[m].data.length; n ++) {
+                    myChart.data.datasets[0].data[n]= result.speaking_data[m].data[n].speaking / 60;
+                    myChart.data.labels[n]=result.speaking_data[m].data[n].name;
+                    members = members + result.speaking_data[m].data[n].name + ", ";
+                    myChart.data.datasets[0].backgroundColor[n]= result.speaking_data[m].data[n].color;
+                    myChart.update();
+                }   
+
+                // Updating group dynamics chart
+                console.log('Updating group dynamics');
+                cy_tmp.elements().remove();
+                var updated_graph = [];
+
+                for (n = 0 ; n < result.speaking_data[m].graph.nodes.length; n ++) {
+                    var node_id = "" + result.speaking_data[m].graph.nodes[n].id;
+                    cy_tmp.add({ group: 'nodes', data: { id: node_id,  name: result.speaking_data[m].graph.nodes[n].name,color:result.speaking_data[m].graph.nodes[n].color, size:result.speaking_data[m].graph.nodes[n].size } });
+                }
+
+                for (n = 0 ; n < result.speaking_data[m].graph.edges.length; n ++) {
+                    var edge_id =  result.speaking_data[m].graph.edges[n].id;
+                    console.log('Type:',typeof(node_id));
+                    cy_tmp.add({ group: 'edges', data: { source: result.speaking_data[m].graph.edges[n].source, target: result.speaking_data[m].graph.edges[n].to, weight:result.speaking_data[m].graph.edges[n].weight } });
+                }
+
+                cy_tmp.layout();
+            }
+        }
+    });
+
+    // Fetching revision count and document length
+    console.log('Updating writing statistics');
+    rev_url = '{{request.site.base_url}}/getRevCount/g.EzL5OYHQr5sPvqpa$session_38_group_1';
+    $.ajax(
+    {
+        type:"GET",
+        url: rev_url,
+        "headers": {
+                "accept": "application/json",
+                "Access-Control-Allow-Origin":"*"
+            },
+        success: function( data )
+        {
+            console.log(data.data);
+            if (data.data != "empty") {
+                var result2 = data.data;
+                console.log(result2);
+                Object.keys(result2).forEach(function(key) {
+                    console.log(key);
+                    console.log('---->>>>>');
+                    content = "<p class='text-secondary small'> Total updates: <span class='text-dark fw-bold small'>"+result2.revisions+"</span></p>";
+                    content += "<p class='text-secondary small'> Total words: <span class='text-dark fw-bold small'>"+44+"</span></p>"
+                    $('#write-stats').html(content);
+                });
+            }
+        }
+    }); 
+    
+    // Fetching writing data and populating graphs
+    console.log('Updating writing pie chart');
+    var write_url = '{{request.site.base_url}}/getStats/g.EzL5OYHQr5sPvqpa$session_38_group_1';
+    console.log(write_url);
+    $.ajax(
+    {
+        type:"GET",
+        url: write_url,
+        "headers": {
+                "accept": "application/json",
+                "Access-Control-Allow-Origin":"*"
+            },
+        success: function( data )
+        {
+            console.log(data.data);
+            if (data.data != "empty") {
+                var result2 = data.data;
+                console.log(result2);
+                Object.keys(result2).forEach(function(key) {
+                    console.log(key);
+                    console.log('---->>>>>');
+                    myChart2.data.datasets[0].data[key]= result2[key].addition + result2[key].deletion;
+                    myChart2.data.labels[key]=result2[key].name;
+                    myChart2.data.datasets[0].backgroundColor[key]=result2[key].color;
+                    myChart2.update();
+                });
+            }
+        }
+    }); 
+    
+
+</script>
+
+
+{% endblock %}

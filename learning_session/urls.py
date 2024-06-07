@@ -4,7 +4,7 @@ from . import views
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView, SessionListAdminView
 from .views import UploadVADView, UploadSpeechView, UploadAudioView, RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView
-from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView
+from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView, SessionGroupAnalyticsView
 urlpatterns = [
     path('session/create', login_required(SessionCreateView.as_view()), name='session_create'),
     path('session/edit/<int:pk>/', login_required(SessionUpdateView.as_view()), name='session_edit'),
@@ -14,6 +14,7 @@ urlpatterns = [
     path('session/list/admin', login_required(SessionListAdminView.as_view()), name='session_list_admin'),
     path('session/list/archive', login_required(SessionArchiveListView.as_view()), name='session_list_archive'),
     path('session/show/<int:pk>/', login_required(SessionDetailView.as_view()), name='session_detail'),
+    path('session/<int:pk>/group/<int:gk>/', login_required(SessionGroupAnalyticsView.as_view()), name='session_group_detail'),
     path('session/enter', SessionEnterView.as_view(), name='session_enter'),
     path('session/exit',SessionLeaveView.as_view(),name='session_exit'),
     path('session/consent', ConsentView.as_view(), name='session_consent'),

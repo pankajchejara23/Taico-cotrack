@@ -16,7 +16,7 @@ from django.db import transaction
 from django.urls import reverse
 import jwt
 import io
-
+import requests
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -36,6 +36,42 @@ from rest_framework.response import Response
 
 VAD_OBJECTS = []
 SPEECH_OBJECTS = []
+
+COLORS = ["rgba(31, 119, 180, 0.8)",
+         "rgba(255, 127, 14, 0.8)",
+         "rgba(44, 160, 44, 0.8)",
+         "rgba(214, 39, 40, 0.8)",
+         "rgba(148, 103, 189, 0.8)",
+         "rgba(140, 86, 75, 0.8)",
+         "rgba(227, 119, 194, 0.8)",
+         "rgba(127, 127, 127, 0.8)",
+         "rgba(188, 189, 34, 0.8)",
+         "rgba(23, 190, 207, 0.8)",
+         "rgba(31, 119, 180, 0.8)",
+         "rgba(255, 127, 14, 0.8)",
+         "rgba(44, 160, 44, 0.8)",
+         "rgba(214, 39, 40, 0.8)",
+         "rgba(148, 103, 189, 0.8)",
+         "rgba(140, 86, 75, 0.8)",
+         "rgba(227, 119, 194, 0.8)",
+         "rgba(127, 127, 127, 0.8)",
+         "rgba(188, 189, 34, 0.8)",
+         "rgba(23, 190, 207, 0.8)",
+         "rgba(31, 119, 180, 0.8)",
+         "rgba(255, 127, 14, 0.8)",
+         "rgba(44, 160, 44, 0.8)",
+         "rgba(214, 39, 40, 0.8)",
+         "rgba(148, 103, 189, 0.8)",
+         "rgba(140, 86, 75, 0.8)",
+         "rgba(227, 119, 194, 0.8)",
+         "rgba(127, 127, 127, 0.8)",
+         "rgba(188, 189, 34, 0.8)",
+         "rgba(23, 190, 207, 0.8)",
+         "rgba(31, 119, 180, 0.8)",
+         "rgba(255, 127, 14, 0.8)",
+         "rgba(44, 160, 44, 0.8)",
+         "rgba(214, 39, 40, 0.8)",
+         "rgba(148, 103, 189, 0.8)"]
 
 def generate_pin(s, g):
     """This function generates a unique pin code
@@ -433,13 +469,49 @@ class SessionLeaveView(View):
         return redirect('session_enter')
     
 
+class SessionGroupAnalyticsView(View):
+    """View for displaying dashboard for a particular group
+
+    """
+    template_name = 'group_analytics.html'
+
+    def get(self, request, *args, **kwargs):
+        """This function return group dashboard page.
+
+        Args:
+            request (HttpRequest): HttpRequest object
+            session (Session): Session object
+            group (int): Group number
+
+        """
+        session_id = self.kwargs['pk']
+        group_number = self.kwargs['gk']
+
+        # fetch the corresponding session object
+        session_object = Session.objects.filter(id=session_id).first()
+
+        # fetch sesssion group map
+        session_group_map = SessionGroupMap.objects.filter(session=session_object).first()
+
+        padid = ep_views.get_padid(session_group_map.eth_groupid,1)
+
+        print('Group-1 padid:',padid)
+        # fetch etherpad group
+        context_data = {
+                        'group':group_number,
+                        'session':session_object,
+                        'padid':padid
+                        }
+        return render(request, self.template_name, context_data)
+
+
 class StudentPadView(View):
     """This view shows etherpad to student.
 
     """
     template_name = 'student_pad.html'
     def get(self, request, *args, **kwargs):
-        """This function forward the user to the etherpad view
+        """This function forwards the user to the etherpad view
 
         Args:
             request (HttpRequest): HttpRequest object
@@ -1011,6 +1083,11 @@ def getRevCount(request,padid):
     Returns:
         Response: number of revision counts
     """
+    response = requests.post(f'http://www.cotrack.website/en/getRevCount/{padid}')
+    print('After call')
+    print(response.json())
+    return Response({'data':response.json()})
+    #########################################
     params = {'padID':padid}
     rev_count = call('getRevisionsCount',params)
     return Response({'revisions':rev_count['data']['revisions']})
@@ -1273,6 +1350,10 @@ def getText(request,session_id,group_id):
     Returns:
         Response: text from the pad of the specified group
     """
+    #### Just for testing purposes ##########
+    response = requests.post('http://www.cotrack.website/en/getText/38/1')
+    return Response({'data':response.json()['data']})
+    #########################################
     pad = Pad.objects.all().filter(session=session_id,group=group_id)
     padid =  pad[0].eth_padid
     params = {'padID':padid}
@@ -1293,6 +1374,15 @@ def getSpeakingStats(request,session_id):
     Returns:
         Response: return speaking time, network data, and other details
     """
+
+    #### Just for testing purposes ##########
+    #print('Before call')
+    response = requests.post('http://www.cotrack.website/en/getSpeakingStats/38')
+    #print('After call')
+    #print(response.json())
+    return Response({'data':response.json()})
+    #########################################
+
     global VAD_OBJECTS
     global SPEECH_OBJECTS
     if len(VAD_OBJECTS) > 0:
@@ -1384,6 +1474,8 @@ def getLogDf(session_id,group_id):
     Returns:
         DataFrame: A dataframe of logs data
     """
+    
+
     pad = Pad.objects.all().filter(session=session_id,group=group_id)
     log = pd.DataFrame(columns=['timestamp','author','operation','difference'])
     if len(pad) == 0:
@@ -1417,6 +1509,7 @@ def getLogDf(session_id,group_id):
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
+# change the signature back to  def getGroupPadStats(request,padid)
 def getGroupPadStats(request,padid):
     """This function returns group-wise statistics for writing.
 
@@ -1426,6 +1519,14 @@ def getGroupPadStats(request,padid):
     Returns:
         Response: writing statistics
     """
+    #### Just for testing purposes ##########
+    print('Before call')
+    response = requests.post(f'http://www.cotrack.website/en/getStats/{padid}')
+    print('After call')
+    print(response.json())
+    return Response({'data':response.json()})
+    #########################################
+
 
     pad = Pad.objects.filter(eth_padid = padid)[0]
     session = pad.session

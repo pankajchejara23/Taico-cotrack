@@ -1,0 +1,190 @@
+
+{% extends "base.html" %}
+{% load static%}
+{% load i18n %}
+{% block content %}
+    <div class="container shadow border rounded-3 bg-light">
+        <div>
+            <p class='display-5 text-dark'> {{session.name}}</p>
+        </div>
+        <div class="px-2">
+            <div class='d-flex'>
+                <p><i class='fa fa-users fa-1x text-dark'></i></p> 
+                <p class='mx-2 text-dark'>{{session.groups}}</p>
+                <p><i class='fa fa-clock fa-1x text-dark'></i></p> 
+                <p class='mx-2 text-dark'>{{session.duration}}</p>
+            </div>
+             <!-- Displaying data processing/recording related information -->
+            <div class="px-2 d-flex">
+                {% if session.conf_vad %} 
+                    <p class='badge bg-danger text-dark fw-light'> 
+                        seapking activity detection 
+                    </p>
+                {% endif %}
+                {% if session.conf_speech %} 
+                    <p class='badge bg-danger  text-white fw-light'> 
+                        speech-to-text 
+                    </p>
+                {% endif %}
+            </div>
+            <div class="px-2 d-flex">
+                {% if session.record_audio %} 
+                    <p class='badge bg-danger text-white fw-light'> 
+                        audio recording 
+                    </p>
+                {% endif %}
+                {% if session.record_audio_video %} 
+                    <p class='badge bg-danger text-white fw-light'> 
+                        video recording 
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <table class="table mb-5" style="border-radius: 5;">
+                <thead class="m-2 rounded" style="opacity:.8;">
+                <tr class="rounded p-2 border-top border-bottom">
+                    <th scope="col" class="text-dark  h6">{% trans 'Group'%}</th>
+                    <th scope="col" class="text-dark h6">{% trans 'Speaking behavior'%}</th>
+                    <th scope="col" class="text-dark  h6">{% trans 'Writing behavior'%}</th>
+                    <th scope="col" class="text-dark  h6">{% trans 'Collaboration quality'%}</th>
+                    <th scope="col" class="text-dark  h6">{% trans 'Links'%}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for g in no_groups%}
+                <tr>
+                    <th scope="row">{% trans 'Group'%}-{{forloop.counter}}</th>
+                    <td class="text-center">
+                        {%if g == 0%}
+                        <img id="speak-{{g}}" class="m-0 p-0" height="50"  src="{% static 'assets/images/group-1.png' %}"></img>
+                        {% elif g == 1 %}
+                        <img id="speak-{{g}}" class="m-0 p-0"  height="50"  src="{% static 'assets/images/group-2.png' %}"></img>
+                        {% else %}
+                        <img id="speak-{{g}}" class="m-0 p-0" height="50"   src="{% static 'assets/images/group-3.png' %}"></img>
+                        {% endif %}
+                    </td>
+                    <td class="text-center"><div id="write-{{g}}" class="m-0 p-0" style="min-width:70px;min-height:70px;"></div></td>
+                    <td class="text-center">
+                        {%if g == 0%}
+                        <svg height="100" width="100">
+                        <circle cx="30" cy="30" r="20" stroke="black" stroke-width="1" fill="green" />
+                        </svg>
+                        {% elif g == 1 %}
+                        <svg height="100" width="100">
+                        <circle cx="30" cy="30" r="20" stroke="black" stroke-width="1" fill="lemonchiffon" />
+                        </svg>
+                        {% else %}
+                        <svg height="100" width="100">
+                        <circle cx="30" cy="30" r="20" stroke="black" stroke-width="1" fill="crimson" />
+                        </svg>    
+                        {% endif %}
+                        </td>
+                        <td class="text-center">
+                        <a href="{% url 'session_group_detail' session.id g %}" class="btn btn-link">{% trans 'Group analytics'%}</a> 
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  <style>
+    .order-card {
+    color: #fff;
+}
+table th:first-child{
+  border-radius:5px 0 0 5px;
+}
+
+table th:last-child{
+  border-radius:0 5px 5px 0;
+}
+.bg-c-blue {
+    background: linear-gradient(45deg,#4099ff,#73b4ff);
+}
+
+.bg-c-green {
+    background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+}
+
+.bg-c-yellow {
+    background: linear-gradient(45deg,#FFB64D,#ffcb80);
+}
+
+.bg-c-pink {
+    background: linear-gradient(45deg,#FF5370,#ff869a);
+}
+
+
+.card {
+    border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
+    border: none;
+    margin-bottom: 30px;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.card .card-block {
+    padding: 25px;
+}
+
+.order-card i {
+    font-size: 26px;
+}
+
+.f-left {
+    float: left;
+}
+
+.f-right {
+    float: right;
+}
+  </style>
+
+<script>
+  function normalize_array(arr) {
+    // Function to normalize writing contribution across groups
+    normalize = function(val, max) { 
+                  return(val) / (max); 
+                };
+    max = Math.max.apply(null, arr);
+    hold_normed_values=[];
+    arr.forEach(function(this_num) {
+                  hold_normed_values.push(Math.ceil(5 * normalize(this_num, max)))
+                });   
+    return(hold_normed_values)
+  }
+
+  async function main() {
+  
+  var revs = [396,1085,214];
+  var groups = [1,2,3];
+  var group_list = {{no_group}};
+  console.log('Dataset--------');
+  console.log(group_list);
+ 
+
+  revs_updated = normalize_array(revs);
+  for (var i=0; i<revs.length; i++) {
+    group = '#write-' + i;
+    size = parseInt(revs_updated[i]);
+
+    if (size==0) {
+      innerHTML = "";
+    } else {
+      innerHTML = "<i class='fa fa-edit fa-"+size+"x'></i>";
+
+    $(group).html(innerHTML);
+
+    }
+  }
+
+}
+main()
+
+</script>
+
+{% endblock %}  
