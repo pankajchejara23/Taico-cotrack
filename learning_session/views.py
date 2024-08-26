@@ -1467,6 +1467,55 @@ def getWordCloud(request,session_id,group_id):
     return Response(data)
 
 
+def speechDF(session_id, group_id):
+    """This function returns speech data for a particular group in the form of Pandas DataFrame.
+
+    Args:
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        DataFrame: A dataframe of speech data
+    """
+    speech_df = pd.DataFrame(columns=['timestamp','user','speech'])
+    speeches = Speech.objects.all().filter(session=session_id, group=group_id)
+    for speech in speeches:
+        speech_df =speech_df.append({'timestamp':speech.timestamp,'user':speech.user.authormap.authorid,'speech':speech.TextField},ignore_index=True)
+    speech_df.timestamp = pd.to_datetime(speech_df.timestamp)
+    speech_df.timestamp = pd.to_datetime(speech_df.timestamp)
+    try:
+        speech_df['timestamp'] = speech_df['timestamp'].dt.tz_convert('Europe/Helsinki')
+    except:
+        speech_df['timestamp'] = speech_df['timestamp'].dt.tz_localize('Europe/Helsinki')
+    speech_df['timestamp'] = speech_df['timestamp'].dt.tz_localize(None)
+    return speech_df
+
+
+def getVadDf(session_id,group_id):
+    """This function returns vad data for a particular group in the form of Pandas DataFrame.
+
+    Args:
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        DataFrame: A dataframe of vad data
+    """
+    vad_df = pd.DataFrame(columns=['timestamp','user','speaking'])
+    vads = VAD.objects.filter(session=session_id,group=group_id).order_by('timestamp')
+
+    for v in vads:
+        vad_df =vad_df.append({'timestamp':v.timestamp,'user':v.user.authormap.authorid,'speaking':(v.activity/1000)},ignore_index=True)
+    vad_df.timestamp = pd.to_datetime(vad_df.timestamp)
+    try:
+        vad_df['timestamp'] = vad_df['timestamp'].dt.tz_convert('Europe/Helsinki')
+    except:
+        vad_df['timestamp'] = vad_df['timestamp'].dt.tz_localize('Europe/Helsinki')
+    vad_df['timestamp'] = vad_df['timestamp'].dt.tz_localize(None)
+    vad_df.drop_duplicates(inplace=True)
+    return vad_df
+
+
 def getLogDf(session_id,group_id):
     """This function returns logs data for a particular group in the form of Pandas DataFrame.
 
@@ -1508,6 +1557,100 @@ def getLogDf(session_id,group_id):
             continue
     log.timestamp = pd.to_datetime(log.timestamp,format="%H:%M:%S %d-%m-%Y")
     return log
+
+
+def getProcessedFeatureFromLogVad(request, session_id, group_id):
+    """This function returns processed log and vad features for the prediction task.
+
+    Args:
+        session_id (int): Session id
+        group_id (int): Group id
+
+    Returns:
+        DataFrame: A dictionary of eigth features of log and vad featuers
+    """
+    log_df = getLogDf(session_id, group_id)
+    vad_df = getVadDf(session_id, group_id)
+    #speech_df = getSpeechDf(session_id, group_id)
+
+    unique_users = set(list(log_df['author'].unique()) + list(vad_df['user'].unique()))
+
+    sequence = vad_df['user'].to_list()
+
+    # For computing turn-taking
+    turn_df = pd.DataFrame(columns=['label','conti_frequency'])
+    # This function will count the number of continuous occurence
+    def count_conti_occurence(index):
+        # Set count to 0
+        count=0
+        # Starts from the given index
+        j = index
+        # Loop to iterate over the users sequence
+        while j<len(sequence):
+            # Increase the count if the element at given index (parameter) is same as the iterated element
+            if sequence[j] == sequence[index]:
+                count +=1
+            # If mismatch found, break the loop
+            else:
+                break
+            # Increases j
+            j +=1
+        # Return number of count for sequence[index] and index of first next occurence of different element.
+        return count,(j-index)
+    # Set i to 0 for the Loop
+    i = 0
+    # Iterate for entire sequence of users
+    while i < len(sequence):
+        # Call count_conti_occurence() function
+        count,diff = count_conti_occurence(i)
+        # Add continuous frequency of current user (sequence[i]) to the dataframe
+        turn_df = turn_df.append({'label':sequence[i],'conti_frequency':count},ignore_index=True)
+        # Move to next different element
+        i = i + diff
+
+    added = []
+    deleted = []
+    speak = []
+    turns = []
+    #speech_text[author] = []
+
+    for author in unique_users:
+        author_df = log_df.loc[log_df['author'] == author,['operation','difference']]
+        author_vad_df = vad_df.loc[vad_df['user'] == author,:]
+        #author_speech_df = df_speech.loc[df_speech['user'] == author,:]
+        if author_df.shape[0] != 0:
+            author_add = author_df[author_df['operation'] == '>']['difference'].sum()
+            author_del = author_df[author_df['operation'] == '<']['difference'].sum()
+            added.append(author_add)
+            deleted.append(author_del)
+        else:
+            added.append(0)
+            deleted.append(0)
+
+        if author_vad_df.shape[0] != 0:
+            #print(author_vad_df['speaking_time(sec.)'].sum())
+            speak.append(author_vad_df['speaking_time(sec.)'].sum())
+        else:
+            speak.append(0)
+
+        """
+        if author_speech_df.shape[0] != 0:
+            speech_text[author].append(list(set(author_speech_df['speech'].values)))
+        else:
+            speech_text[author].append('')
+        """
+        turns.append(turn_df.loc[turn_df['label']==author,:].shape[0])
+
+    processed_feature = {}
+    processed_feature['user_speak_mean'] = np.mean(speak)
+    processed_feature['user_speak_sd'] = np.std(speak)
+    processed_feature['user_turns_mean'] = np.mean(turns)
+    processed_feature['user_turns_sd'] = np.std(turns)
+    processed_feature['user_add_mean'] = np.mean(added)
+    processed_feature['user_add_sd'] = np.std(added)
+    processed_feature['user_del_mean'] = np.mean(deleted)
+    processed_feature['user_del_sd'] = np.std(deleted)
+    return processed_feature
 
 
 @api_view(['GET'])
@@ -1585,11 +1728,11 @@ CIM['co']['high'] = "Praise the students"
 CIM['co']['low'] = "Go and talk to the group about the issue, guide them to solve their own problem"
 
 sample_data = {"user_speak_mean": 4.3533333333333335,
- "user_speak_sd": 1.2290810131579057,
- "user_turns_mean": 0.0,
+ "user_speak_sd": 2.2290810131579057,
+ "user_turns_mean": 2.0,
  "user_turns_sd": 0.7071067811865477,
- "user_add_mean": 1.833333333333332,
- "user_add_sd": 1.391714737574006,
+ "user_add_mean": 15.833333333333332,
+ "user_add_sd": 22.391714737574006,
  "user_del_mean": 0.16666666666666666,
  "user_del_sd": 0.23570226039551584}
 
