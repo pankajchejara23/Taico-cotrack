@@ -126,15 +126,15 @@
                 <ul class="text-dark list-group border-0">
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0">
                     {% trans 'Argumentation' %}
-                    <span id="arg_pred" class="badge  rounded-pill"></span>
+                    <span class="arg_pred badge  rounded-pill"></span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
                     {% trans 'Cooperative orientation' %}
-                    <span id="co_pred"  class="badge rounded-pill"></span>
+                    <span class=" co_pred badge rounded-pill"></span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
                     {% trans 'Sustaining mutual understanding' %}
-                    <span id="smu_pred"  class="badge rounded-pill"></span>
+                    <span class="smu_pred badge rounded-pill"></span>
                   </li>
                 </ul>
               </div>
@@ -199,31 +199,17 @@
                   <th scope="col">{% trans 'Suggestions'%}</th>
                 </tr>
               </thead>
-              {% if group == '1'%}
+          
               <tr>
-                <td> {% trans 'Argumentation'%} </td> <td><span class="badge badge-success rounded-pill">{% trans 'High'%}</span></td><td> {% trans 'Praise the students'%}</td>
+                <td> {% trans 'Argumentation'%} </td> <td><span class="arg_pred badge badge-danger rounded-pill"></span></td><td> <span id='arg_inter'></span> </td>
               </tr>
               <tr>
-                <td> {% trans 'Sustaining mutual understanding'%} </td> <td><span class="badge badge-warning rounded-pill">{% trans 'Medium'%}</span></td><td> {% trans 'To promote, specify common rewards for the group, such as group marks'%}</td>
-              </tr>
-              {%elif group == '2' %}
-              <tr>
-                <td> {% trans 'Argumentation'%}</td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td>{% trans ' Make sure there is someone in the group with the role of orienting (raising questions with the direction of discussion)'%}</td>
+                <td> {% trans 'Cooperative orientation'%} </td> <td><span class="co_pred badge badge-danger rounded-pill"></span></td><td> <span id='co_inter'></span> </td>
               </tr>
               <tr>
-                <td> {% trans 'Cooperative orientation'%} </td> <td><span class="badge badge-success rounded-pill">{% trans 'High'%}</span></td><td> {% trans 'Praise the students'%}</td>
+                <td> {% trans 'Sustaining mutual understanding'%} </td> <td><span class="smu_pred badge badge-danger rounded-pill"></span></td><td> <span id='smu_inter'></span></td>
               </tr>
-              {% else %}
-              <tr>
-                <td> {% trans 'Argumentation'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td> {% trans 'Make sure there is someone in the group with the role of orienting (raising questions with the direction of discussion)'%}</td>
-              </tr>
-              <tr>
-                <td> {% trans 'Cooperative orientation'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td> {% trans 'Go and talk to the group aabout the issue, guide them to solve their own problem; Ask about the role divisions, if possible assign a leader whose task is to make sure everyone has shared their thougts and feelings.'%}</td>
-              </tr>
-              <tr>
-                <td> {% trans 'Sustaining mutual understanding'%} </td> <td><span class="badge badge-danger rounded-pill">{% trans 'Low'%}</span></td><td>{% trans 'To promote, specify common rewards for the group, such as group marks'%}</td>
-              </tr>
-              {%endif%}
+
             </table>
         </div>
       </div>
@@ -632,37 +618,46 @@
                 var smu_prediction = result2['arg_prediction'][0];
                 var co_prediction = result2['arg_prediction'][0];
 
+                var arg_inter = result2['arg_strategy'];
+                var smu_inter = result2['smu_strategy'];
+                var co_inter = result2['co_strategy'];
+
+                $('#arg_inter').text(arg_inter);
+                $('#smu_inter').text(arg_inter);
+                $('#co_inter').text(arg_inter);
+
+
                 if (arg_prediction == '1') {
-                  $('#arg_pred').removeClass('bg-danger');
-                  $('#arg_pred').addClass('bg-success');
-                  $('#arg_pred').text('High');
+                  $('.arg_pred').removeClass('bg-danger');
+                  $('.arg_pred').addClass('bg-success');
+                  $('.arg_pred').text('High');
                 }
                 else {
-                  $('#arg_pred').addClass('bg-danger');
-                  $('#arg_pred').removeClass('bg-success');
-                  $('#arg_pred').text('Low');
+                  $('.arg_pred').addClass('bg-danger');
+                  $('.arg_pred').removeClass('bg-success');
+                  $('.arg_pred').text('Low');
                 }
 
                 if (smu_prediction == '1') {
-                  $('#smu_pred').removeClass('bg-danger');
-                  $('#smu_pred').addClass('bg-success');
-                  $('#smu_pred').text('High');
+                  $('.smu_pred').removeClass('bg-danger');
+                  $('.smu_pred').addClass('bg-success');
+                  $('.smu_pred').text('High');
                 }
                 else {
-                  $('#smu_pred').addClass('bg-danger');
-                  $('#smu_pred').removeClass('bg-success');
-                  $('#smu_pred').text('Low');
+                  $('.smu_pred').addClass('bg-danger');
+                  $('.smu_pred').removeClass('bg-success');
+                  $('.smu_pred').text('Low');
                 }
 
                 if (co_prediction == '1') {
-                  $('#co_pred').removeClass('bg-danger');
-                  $('#co_pred').addClass('bg-success');
-                  $('#co_pred').text('High');
+                  $('.co_pred').removeClass('bg-danger');
+                  $('.co_pred').addClass('bg-success');
+                  $('.co_pred').text('High');
                 }
                 else {
-                  $('#co_pred').addClass('bg-danger');
-                  $('#co_pred').removeClass('bg-success');
-                  $('#co_pred').text('Low');
+                  $('.co_pred').addClass('bg-danger');
+                  $('.co_pred').removeClass('bg-success');
+                  $('.co_pred').text('Low');
                 }
 
             }
