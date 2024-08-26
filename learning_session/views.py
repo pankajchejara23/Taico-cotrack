@@ -27,6 +27,8 @@ import datetime
 from django.conf import settings
 from django.utils.translation import gettext as _
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+from .apps import ApiConfig
+import pandas as pd
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -500,7 +502,8 @@ class SessionGroupAnalyticsView(View):
         context_data = {
                         'group':group_number,
                         'session':session_object,
-                        'padid':padid
+                        'padid':padid,
+                        'group_sequence':group_number+1
                         }
         return render(request, self.template_name, context_data)
 
@@ -1568,4 +1571,58 @@ def getGroupPadStats(request,padid):
             'color':color_mapping[v]
         }
     return Response(call_response)
+
+###################### Invetervention strategies are taken from CIM (Kasepalu et al., 2022)
+CIM = {'arg':{},'smu':{},'co':{}}
+
+CIM['arg']['high'] = "Praise the students"
+CIM['arg']['low'] = "Make sure there is someone in the group with the role of orienting (defining the progress in terms of goals, raising questions about the direction of the discussion)"
+
+CIM['smu']['high'] = "Praise high-functioning group "
+CIM['smu']['low'] = "To promote interdependence, specify common rewards for the group, such as a group mark"
+
+CIM['co']['high'] = "Praise the students"
+CIM['co']['low'] = "Go and talk to the group about the issue, guide them to solve their own problem"
+
+sample_data = {"user_speak_mean": 4.3533333333333335,
+ "user_speak_sd": 1.2290810131579057,
+ "user_turns_mean": 0.0,
+ "user_turns_sd": 0.7071067811865477,
+ "user_add_mean": 1.833333333333332,
+ "user_add_sd": 1.391714737574006,
+ "user_del_mean": 0.16666666666666666,
+ "user_del_sd": 0.23570226039551584}
+
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+# predict level of collaboration
+def predictCollaboration(request):
+    cq_model = ApiConfig.cq_model
+    arg_model = ApiConfig.arg_model
+    col_names = ['user_speak_mean', 'user_speak_sd', 'user_turns_mean', 'user_turns_sd',
+                'user_add_mean', 'user_add_sd', 'user_del_mean', 'user_del_sd']
+    #req_data = request.data
+    req_data = sample_data
+    df = pd.DataFrame(req_data,index=[0])
+    y_proba_cq = cq_model.predict_proba(df)
+    pred_cq = cq_model.predict(df)
+    y_proba_arg = arg_model.predict_proba(df)
+    pred_arg = arg_model.predict(df)
+
+    print('Predicted:',pred_arg[0],' Type:',type(pred_arg[0]))
+
+    if int(pred_arg[0]) == 1:
+        arg_intervention = CIM['arg']['high']
+    else:
+        arg_intervention = CIM['arg']['low']
+
+    response_dict = {'cq_probability':y_proba_cq,
+                     'cq_prediction':pred_cq,
+                     'arg_probability':y_proba_arg,
+                     'arg_prediction':pred_arg,
+                     'arg_strategy':arg_intervention}
+    
+    return Response(response_dict, status=200)
 #### REST API END   ###############

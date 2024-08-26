@@ -5,8 +5,8 @@
   <div class="container">
     <a href="{% url 'session_detail' session.id %}" class="p-0 btn btn-link text-white"><i class='fas fa-arrow-left'></i> {% trans 'Back' %}</a>
     <div>
-        <p class="h3 text-left"><span class="text-white">{% trans 'Group' %}-{{group}}</p>
-        <p class="h5 text-left"> <span class="text-white">{% trans 'Session' %}:</span> {{session.name | upper}} <br/> </p>
+        <p class="h3 text-left"><span class="text-white">{% trans 'Group' %}-{{group_sequence}}</p>
+        <p class="h5 text-left"> <span class="text-white">{% trans 'Session' %}: {{session.name | upper}} </span> <br/> </p>
         <p class="h5 text-left"> <span class="text-white">{% trans 'Participants' %}:</span> <span id="members"></span> </p>
         <a  data-bs-toggle="collapse" href="#collapseExample" aria-expanded="true" aria-controls="collapseExample"> 
             <p class="h6 text-right btn btn-sm btn-warning"> 
@@ -114,7 +114,7 @@
                 </div>
                 <div class="mt-2"> {% blocktrans %} <p class="h5 text-dark"> chance of <span class="badge bg-success ">High</span> level of collaboration quality {% endblocktrans %}</p></div>
                   {% else %}
-                  <p class="display-3 text-danger text-center" style='font-family: "Tahoma", Times, serif;'>23%</p>
+                  <p class="display-3 text-danger text-center" style='font-family: "Tahoma", Times, serif;'><span id='pred_cq_proba'>23</span>%</p>
 
                 </div>
                 <div class="mt-2"> {% blocktrans %} <p class="h5 text-dark"> chance of <span class="badge bg-success ">High</span> level of collaboration quality {% endblocktrans %}</p></div>
@@ -124,51 +124,21 @@
               <p class="fw-light text-secondary">{% trans 'Dimensions' %}</p>
               <div class="m-0 p-0" style="min-width:200px;min-height:200px;">
                 <ul class="text-dark list-group border-0">
-
-                  {% if group == '1' %}
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0">
                     {% trans 'Argumentation' %}
-                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                    <span id="arg_pred" class="badge  rounded-pill"></span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
                     {% trans 'Cooperative orientation' %}
-                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
+                    <span id="co_pred"  class="badge rounded-pill"></span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
                     {% trans 'Sustaining mutual understanding' %}
-                    <span class="badge bg-warning rounded-pill">{% trans 'Medium' %}</span>
+                    <span id="smu_pred"  class="badge rounded-pill"></span>
                   </li>
-                  {% elif group == '2' %}
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0">
-                    {% trans 'Argumentation' %}
-                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
-                    {% trans 'Cooperative orientation' %}
-                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
-                    {% trans 'Sustaining mutual understanding' %}
-                    <span class="badge bg-success rounded-pill">{% trans 'High' %}</span>
-                  </li>
-                  {% else %}
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0">
-                    {% trans 'Argumentation' %}
-                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
-                    {% trans 'Cooperative orientation' %}
-                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center border-0 boder-top-1">
-                    {% trans 'Sustaining mutual understanding' %}
-                    <span class="badge bg-danger rounded-pill">{% trans 'Low' %}</span>
-                  </li>
-                  {% endif %}
-
                 </ul>
               </div>
-              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#suggestions" data-whatever="{{group}}"><i class="far fa-lightbulb" aria-hidden="true"> </i>  {% trans 'Intervention Suggestions' %}</button>
+              <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#suggestions" data-bs-whatever="{{group}}"><i class="far fa-lightbulb" aria-hidden="true"> </i>  {% trans 'Intervention Suggestions' %}</button>
 
             </div>
         </div>
@@ -213,8 +183,8 @@
       <div class="modal-content">
         <div class="modal-header border-bottom-0">
           <h5 class="modal-title" id="exampleModalLabel"><span>{% trans 'Intevenstion suggestions'%}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            
           </button>
         </div>
         <div class='modal-content p-2'>
@@ -259,6 +229,7 @@
       </div>
     </div>
   </div>
+  
   <!--
   <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -389,7 +360,7 @@
     var button = $(event.relatedTarget); // Button that triggered the modal
     var recipient = button.data('whatever');
     console.log(recipient); // Extract info from data-* attributes
-    var URL = "http://localhost:8000/getText/38/1";
+    var URL = "http://localhost:8000/getText/38/{{group_sequence}}";
     console.log(URL);
     $.ajax(
     {
@@ -637,7 +608,66 @@
             }
         }
     }); 
-    
+
+  
+
+    // Fetching predictions of collaboration quality and its dimensions
+    console.log('Getting predictions');
+    var predict_url = '{{request.site.base_url}}/predict';
+    $.ajax(
+    {
+        type:"GET",
+        data:{'demo':2},
+        url: predict_url,
+        contentType: "application/json; charset=utf-8",
+        success: function( data )
+        {
+            console.log(data);
+            if (data.data != "empty") {
+                var result2 = data;
+                cq_proba = parseFloat(result2['cq_probability'][0][1]) * 100 ;
+                console.log(cq_proba)
+                $('#pred_cq_proba').text(cq_proba.toFixed(2));
+                var arg_prediction = result2['arg_prediction'][0];
+                var smu_prediction = result2['arg_prediction'][0];
+                var co_prediction = result2['arg_prediction'][0];
+
+                if (arg_prediction == '1') {
+                  $('#arg_pred').removeClass('bg-danger');
+                  $('#arg_pred').addClass('bg-success');
+                  $('#arg_pred').text('High');
+                }
+                else {
+                  $('#arg_pred').addClass('bg-danger');
+                  $('#arg_pred').removeClass('bg-success');
+                  $('#arg_pred').text('Low');
+                }
+
+                if (smu_prediction == '1') {
+                  $('#smu_pred').removeClass('bg-danger');
+                  $('#smu_pred').addClass('bg-success');
+                  $('#smu_pred').text('High');
+                }
+                else {
+                  $('#smu_pred').addClass('bg-danger');
+                  $('#smu_pred').removeClass('bg-success');
+                  $('#smu_pred').text('Low');
+                }
+
+                if (co_prediction == '1') {
+                  $('#co_pred').removeClass('bg-danger');
+                  $('#co_pred').addClass('bg-success');
+                  $('#co_pred').text('High');
+                }
+                else {
+                  $('#co_pred').addClass('bg-danger');
+                  $('#co_pred').removeClass('bg-success');
+                  $('#co_pred').text('Low');
+                }
+
+            }
+        }
+    }); 
 
 </script>
 
