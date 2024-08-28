@@ -1,0 +1,1071 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-28 11:20+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: etherpad_app/forms.py:9
+msgid "Number of pads"
+msgstr ""
+
+#: etherpad_app/forms.py:14
+msgid "Group name"
+msgstr "Grupi nimi"
+
+#: etherpad_app/models.py:74 etherpad_app/templates/pad_list.html:12
+#: learning_session/templates/detail_session.html:47
+#: learning_session/templates/detail_session.html:57
+#: learning_session/templates/group_analytics.html:8
+#: learning_session/templates/list_session.html:45
+msgid "Group"
+msgstr "Grupp"
+
+#: etherpad_app/templates/create_pad.html:3
+#: etherpad_app/templates/pad_detail.html:3
+#: etherpad_app/templates/pad_list.html:3 etherpad_app/templates/success.html:3
+msgid "Etherpad Interface"
+msgstr ""
+
+#: etherpad_app/templates/create_pad.html:13
+msgid "Ehterpad Admin"
+msgstr "Etherpadi liides"
+
+#: etherpad_app/templates/create_pad.html:37
+msgid "Ehterpad Group Name"
+msgstr "Ehterpadi grupi nimi"
+
+#: etherpad_app/templates/create_pad.html:45
+msgid "Number of Writing Pads"
+msgstr "Kirjutusplokkide arv"
+
+#: etherpad_app/templates/create_pad.html:53
+msgid "Create Pads"
+msgstr "Loo padjad"
+
+#: etherpad_app/templates/pad_detail.html:7
+msgid "Pad in Iframe"
+msgstr "Pad Iframe'is"
+
+#: etherpad_app/templates/pad_list.html:7
+msgid "Pads"
+msgstr "Padjad"
+
+#: etherpad_app/templates/pad_list.html:13
+msgid "Pad"
+msgstr "Pad"
+
+#: etherpad_app/templates/pad_list.html:14
+msgid "Link"
+msgstr "Link"
+
+#: etherpad_app/templates/pad_list.html:23
+msgid "link"
+msgstr "Link"
+
+#: etherpad_app/templates/pad_list.html:26
+msgid "No pads"
+msgstr "padjad puuduvad"
+
+#: etherpad_app/templates/success.html:8
+msgid ""
+"Etherpads are created successfully. Below are the links to access those pads."
+msgstr ""
+"Etherpad on edukalt loodud. Allpool on lingid nendele padjadele "
+"juurdepääsuks."
+
+#: learning_session/forms.py:98 learning_session/forms.py:231
+msgid "English"
+msgstr "Inglise"
+
+#: learning_session/forms.py:98 learning_session/forms.py:231
+msgid "Estonian"
+msgstr "Eesti"
+
+#: learning_session/forms.py:99 learning_session/forms.py:232
+msgid "Enable"
+msgstr "Luba"
+
+#: learning_session/forms.py:99 learning_session/forms.py:232
+msgid "Disable"
+msgstr "Keela"
+
+#: learning_session/forms.py:102 learning_session/forms.py:235
+msgid "Learning session title"
+msgstr "Õppesessiooni pealkiri"
+
+#: learning_session/forms.py:108 learning_session/forms.py:241
+msgid "Number of groups"
+msgstr "Rühmade arv"
+
+#: learning_session/forms.py:114 learning_session/forms.py:247
+msgid "Language"
+msgstr "Keel"
+
+#: learning_session/forms.py:121 learning_session/forms.py:125
+#: learning_session/forms.py:254 learning_session/forms.py:258
+msgid "Days"
+msgstr "Päevad"
+
+#: learning_session/forms.py:128 learning_session/forms.py:132
+#: learning_session/forms.py:261 learning_session/forms.py:265
+msgid "Hours"
+msgstr "Tundi"
+
+#: learning_session/forms.py:135 learning_session/forms.py:139
+#: learning_session/forms.py:268 learning_session/forms.py:272
+msgid "Minutes"
+msgstr "Minutid"
+
+#: learning_session/forms.py:151 learning_session/forms.py:282
+msgid "Learning activity"
+msgstr "Õppetegevus"
+
+#: learning_session/forms.py:179 learning_session/forms.py:310
+msgid "Audio recording"
+msgstr "Helisalvestus"
+
+#: learning_session/forms.py:185 learning_session/forms.py:316
+msgid "Audio/Video recording"
+msgstr "Heli/video salvestamine"
+
+#: learning_session/forms.py:191 learning_session/forms.py:322
+msgid "Capture speaking activity"
+msgstr "Jäädvustage kõnetegevust"
+
+#: learning_session/forms.py:197 learning_session/forms.py:328
+msgid "Capture speech-to-text"
+msgstr "Jäädvustage kõne tekstiks"
+
+#: learning_session/forms.py:203 learning_session/forms.py:334
+msgid "Add consent form"
+msgstr "Lisa nõusolekuvorm"
+
+#: learning_session/forms.py:209 learning_session/forms.py:340
+msgid "Consent form"
+msgstr "Nõusoleku vorm"
+
+#: learning_session/forms.py:372
+msgid "Enter access pin"
+msgstr "Sisestage juurdepääsunõel"
+
+#: learning_session/forms.py:401
+msgid "Permission"
+msgstr "Luba"
+
+#: learning_session/forms.py:415 users/forms.py:27 users/forms.py:57
+msgid "user name"
+msgstr "kasutajanimi"
+
+#: learning_session/forms.py:421 users/forms.py:32
+msgid "email"
+msgstr "elektronpost"
+
+#: learning_session/forms.py:427 users/forms.py:37 users/forms.py:42
+msgid "password"
+msgstr "parool"
+
+#: learning_session/forms.py:430
+msgid "Teacher role"
+msgstr "Õpetaja roll"
+
+#: learning_session/templates/consent.html:8
+msgid "Informed consent for participant"
+msgstr "Osaleja teadlik nõusolek"
+
+#: learning_session/templates/consent.html:22
+msgid ""
+"\n"
+"                        I confirm that I have read and understood the "
+"explanation provided to me.<br/>\n"
+"                        I have had all my questions answered to my "
+"satisfaction, and I voluntarily agree to participate in this study. \n"
+"                      "
+msgstr ""
+"\n"
+"Kinnitan, et olen lugenud ja aru saanudMulle antud selgitus.<br/>\n"
+"Ma olen saanud vastused kõigile oma küsimustelerahulolu ja olen "
+"vabatahtlikult nõus selles uuringus osalema. \n"
+" "
+
+#: learning_session/templates/consent.html:28
+#: users/templates/registration/password_reset.html:47
+msgid "Submit"
+msgstr "Esita"
+
+#: learning_session/templates/create_session.html:4
+#: learning_session/templates/create_user.html:4
+#: learning_session/templates/grant_request.html:4
+#: learning_session/templates/role_request.html:4
+#: learning_session/templates/update_session.html:4
+msgid "Create Learning Session"
+msgstr ""
+
+#: learning_session/templates/create_session.html:316
+msgid "Create"
+msgstr "Loo õppeseanss"
+
+#: learning_session/templates/create_user.html:233
+msgid "Create User"
+msgstr ""
+
+#: learning_session/templates/detail_session.html:48
+msgid "Speaking behavior"
+msgstr ""
+
+#: learning_session/templates/detail_session.html:49
+msgid "Writing behavior"
+msgstr ""
+
+#: learning_session/templates/detail_session.html:50
+#: learning_session/templates/group_analytics.html:102
+msgid "Collaboration quality"
+msgstr ""
+
+#: learning_session/templates/detail_session.html:51
+msgid "Links"
+msgstr ""
+
+#: learning_session/templates/detail_session.html:84
+msgid "Group analytics"
+msgstr ""
+
+#: learning_session/templates/enter_session.html:10
+msgid "Enter Learning Session"
+msgstr ""
+
+#: learning_session/templates/enter_session.html:30
+msgid "Access pin"
+msgstr ""
+
+#: learning_session/templates/enter_session.html:33
+msgid ""
+"If you do not have the pin ask your instructor to provide to join the "
+"session."
+msgstr ""
+
+#: learning_session/templates/enter_session.html:41
+msgid "Enter"
+msgstr ""
+
+#: learning_session/templates/grant_request.html:222
+msgid "Grant role"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:6
+msgid "Back"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:9
+#: learning_session/templates/student_pad.html:3
+msgid "Session"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:10
+msgid "Participants"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:13
+msgid "Configure Dashboard"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:17
+msgid "Here, you can configure your dashboard."
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:18
+#: learning_session/templates/group_analytics.html:59
+msgid "Speaking analytics"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:22
+#: learning_session/templates/group_analytics.html:62
+msgid "Group dynamics"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:28
+#: learning_session/templates/group_analytics.html:66
+msgid "Speaking time"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:32
+#: learning_session/templates/group_analytics.html:79
+msgid "Writing analytics"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:36
+#: learning_session/templates/group_analytics.html:82
+msgid "Writing stats"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:42
+msgid "Individual writing contribution"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:46
+msgid "Predictive analytics"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:50
+msgid "Automated estimation of collaboration quality"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:72
+msgid "Speech text"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:86
+msgid "Individual contribution"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:92
+#: learning_session/templates/group_analytics.html:167
+msgid "Group Document"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:100
+msgid "Prediction"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:110
+msgid ""
+" <p class=\"h5 text-dark\"> chance of <span class=\"badge bg-success\">High</"
+"span> level of collaboration quality "
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:115
+#: learning_session/templates/group_analytics.html:120
+msgid ""
+" <p class=\"h5 text-dark\"> chance of <span class=\"badge bg-success "
+"\">High</span> level of collaboration quality "
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:124
+msgid "Dimensions"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:128
+#: learning_session/templates/group_analytics.html:204
+msgid "Argumentation"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:132
+#: learning_session/templates/group_analytics.html:207
+msgid "Cooperative orientation"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:136
+#: learning_session/templates/group_analytics.html:210
+msgid "Sustaining mutual understanding"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:141
+msgid "Intervention Suggestions"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:152
+msgid "Word cloud"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:185
+msgid "Intevenstion suggestions"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:192
+msgid ""
+"You can use following strategies for the current state collaboration behavior"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:197
+msgid "Dimension"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:198
+msgid "Current state"
+msgstr ""
+
+#: learning_session/templates/group_analytics.html:199
+msgid "Suggestions"
+msgstr ""
+
+#: learning_session/templates/list_session.html:3
+#: learning_session/templates/list_session_backup.html:3
+msgid "Learning Sessions"
+msgstr ""
+
+#: learning_session/templates/list_session.html:13
+#: learning_session/templates/list_session_backup.html:21
+#: learning_session/templates/update_session.html:316
+msgid "Edit"
+msgstr ""
+
+#: learning_session/templates/list_session.html:14
+msgid "Duplicate"
+msgstr ""
+
+#: learning_session/templates/list_session.html:16
+#: learning_session/templates/list_session_backup.html:29
+msgid "Archive"
+msgstr ""
+
+#: learning_session/templates/list_session.html:18
+msgid "Download VAD"
+msgstr ""
+
+#: learning_session/templates/list_session.html:19
+msgid "Download Speech"
+msgstr ""
+
+#: learning_session/templates/list_session.html:20
+msgid "Download Logs"
+msgstr ""
+
+#: learning_session/templates/list_session.html:23
+msgid "Created on"
+msgstr ""
+
+#: learning_session/templates/list_session.html:27
+msgid "Groups"
+msgstr ""
+
+#: learning_session/templates/list_session.html:30
+msgid "Time"
+msgstr ""
+
+#: learning_session/templates/list_session.html:33
+msgid "Langauge"
+msgstr ""
+
+#: learning_session/templates/list_session.html:42
+msgid "Access Pins"
+msgstr ""
+
+#: learning_session/templates/list_session.html:91
+#: learning_session/templates/list_session_backup.html:117
+msgid "No sessions"
+msgstr ""
+
+#: learning_session/templates/list_session.html:95
+msgid "You do not have any sessions."
+msgstr ""
+
+#: learning_session/templates/list_session.html:98
+#: learning_session/templates/list_session_backup.html:124
+msgid "Create Session"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:24
+msgid " Duplicate"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:33
+msgid "Unarchive"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:42
+msgid "No. of groups:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:46
+msgid "Language:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:50
+msgid "Duration:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:54
+msgid "Created:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:59
+msgid "Etherpad:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:62
+#: learning_session/templates/list_session_backup.html:73
+#: learning_session/templates/list_session_backup.html:83
+#: learning_session/templates/list_session_backup.html:93
+msgid "Yes"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:64
+#: learning_session/templates/list_session_backup.html:75
+#: learning_session/templates/list_session_backup.html:85
+#: learning_session/templates/list_session_backup.html:95
+msgid "No"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:70
+msgid "Audio & Video chat:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:80
+msgid "Record audio:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:90
+msgid "Record video:"
+msgstr ""
+
+#: learning_session/templates/list_session_backup.html:121
+msgid "You do not have any active sessions."
+msgstr ""
+
+#: learning_session/templates/role_request.html:58
+msgid "Send Request"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:15
+#: learning_session/templates/side_menu_admin.html:15
+msgid "Create a session"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:20
+#: learning_session/templates/side_menu_admin.html:20
+msgid "My sessions"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:25
+#: learning_session/templates/side_menu_admin.html:25
+msgid "Archived sessions"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:31
+#: learning_session/templates/side_menu_admin.html:31
+msgid "All sessions"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:36
+#: learning_session/templates/side_menu_admin.html:36
+msgid "Grant teacher role"
+msgstr ""
+
+#: learning_session/templates/side_menu.html:41
+#: learning_session/templates/side_menu_admin.html:41
+msgid "Create a user"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:12
+msgid "Hide task"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:32
+msgid "Write solution here"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:100
+msgid "Recording started!"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:100
+msgid "Recording has been started."
+msgstr ""
+
+#: learning_session/templates/student_pad.html:104
+msgid "Notification sent!"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:104
+msgid "A notification has been sent to the teacher. Teacher will join soon."
+msgstr ""
+
+#: learning_session/templates/student_pad.html:194
+msgid "Saving data"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:194
+msgid ""
+"Your data is being saved on server. It will take few seconds to save all the "
+"data."
+msgstr ""
+
+#: learning_session/templates/student_pad.html:417
+#: learning_session/templates/student_pad.html:423
+msgid "Saved !"
+msgstr ""
+
+#: learning_session/templates/student_pad.html:417
+msgid ""
+"Saving your data on server. Please be patient as it will take around 30 "
+"seconds to save your data."
+msgstr ""
+
+#: learning_session/templates/student_pad.html:423
+msgid "Your data is saved on the server. You can now exit the session."
+msgstr ""
+
+#: learning_session/views.py:174
+msgid "Session is updated."
+msgstr ""
+
+#: learning_session/views.py:176
+msgid "There are some errors while updating pads in Etherpad."
+msgstr ""
+
+#: learning_session/views.py:252
+msgid "Session is archived."
+msgstr ""
+
+#: learning_session/views.py:292
+msgid "Session is duplicated successfully !"
+msgstr ""
+
+#: learning_session/views.py:294
+msgid "Error occurred while duplicating the session !"
+msgstr ""
+
+#: learning_session/views.py:405
+msgid "Session is created successfully !"
+msgstr ""
+
+#: learning_session/views.py:407
+msgid "Error occurred while creating the session !"
+msgstr ""
+
+#: learning_session/views.py:803
+msgid "Your request have been registered."
+msgstr ""
+
+#: learning_session/views.py:928
+msgid "Request has been approved."
+msgstr ""
+
+#: learning_session/views.py:936
+msgid "Request has been declined."
+msgstr ""
+
+#: learning_session/views.py:960 learning_session/views.py:1004
+#: learning_session/views.py:1045
+msgid "Invalid session id"
+msgstr ""
+
+#: templates/about.html:80
+msgid "Meet our team"
+msgstr ""
+
+#: templates/about.html:83
+msgid ""
+"\n"
+"      CoTrack is being developed by research teams from school of digital\n"
+"      technology and school of educational sciences, Tallinn university, "
+"Estonia\n"
+"      and GSIC research group, University of Valladolid, Spain.\n"
+"      "
+msgstr ""
+
+#: templates/about.html:97
+msgid "Researcher & CoTrack Developer"
+msgstr ""
+
+#: templates/about.html:97 templates/about.html:105 templates/about.html:112
+#: templates/about.html:133
+msgid "Tallinn University"
+msgstr ""
+
+#: templates/about.html:105 templates/about.html:112 templates/about.html:122
+#: templates/about.html:132
+msgid "Researcher"
+msgstr ""
+
+#: templates/about.html:123
+msgid "GSIC group,<br />University of Valladolid"
+msgstr ""
+
+#: templates/about.html:142
+msgid "Assistant Professor"
+msgstr ""
+
+#: templates/about.html:159
+msgid "Contact us"
+msgstr ""
+
+#: templates/about.html:167
+msgid ""
+"\n"
+"          Tallinn University, School of Digital Technologies <br />\n"
+"          Narva rd. 29, 10120 Tallinn, Estonia\n"
+"          "
+msgstr ""
+
+#: templates/features.html:10
+msgid ""
+"\n"
+"    <p class='lead'>\n"
+"      CoTrack is a web-based tool to conduct collaborative activity in "
+"online\n"
+"      space as well as physical space. It uses\n"
+"      <a href=\"https://etherpad.org/\" target=\"_blank\">Etherpad</a> to "
+"offer a\n"
+"      collaborative writing space. In addition to offering collaboration "
+"space,\n"
+"      CoTrack also allows capturing of participants' activities, happening "
+"in\n"
+"      digital and physical spaces (e.g., speaking time, turn-taking, number "
+"of\n"
+"      characters written/deleted, etc.).\n"
+"    </p>\n"
+"    <p  class='lead'>\n"
+"      The primary stakeholders of CoTrack are Teachers and Computer-"
+"supported\n"
+"      collaborative learning(CSCL) Researchers. Teachers can use CoTrack to\n"
+"      conduct group activities with monitoring facility, which enable "
+"teachers\n"
+"      to identify groups who are in need of help or not participating well.\n"
+"      <br />\n"
+"      CSCL Researchers can also use CoTrack to collect data for their study "
+"to\n"
+"      understand aspects of collaborative learning (e.g., regulation,\n"
+"      collaboration process). The use of CoTrack benefits researchers by "
+"saving\n"
+"      their time otherwise invested in developing/setting up data "
+"collection\n"
+"      tools. CoTrack offers researchers pre-processed data from the\n"
+"      group-activity in CSV (Comma Seperated Value) file for further "
+"analysis.\n"
+"    </p>\n"
+"    <p><br /></p>\n"
+"    <h3 class='display-5'>CoTrack benefits</h3>\n"
+"    <ul class='lead'>\n"
+"      <li class='display-7'>Custom activity design</li>\n"
+"      CoTrack allows teachers/researchers to cusomize the group activity "
+"and\n"
+"      data recording. For example, CoTrack supports three different types "
+"of\n"
+"      group activities: first, which only involves use of collaborative "
+"text\n"
+"      editor; second, which only involves use of audio/video communication\n"
+"      channels; third, which invovles both.\n"
+"      The recording can also be customized, e.g., record only audio or "
+"video.\n"
+"      \n"
+"\n"
+"      <li><b>Multimodal data collection</b></li>\n"
+"      CoTrack captures following types of data\n"
+"      <ol>\n"
+"        <li>\n"
+"          <i>Voice activity detection (VAD)</i>: Data indicating whether "
+"someone\n"
+"          speaks or not.\n"
+"        </li>\n"
+"       \n"
+"        <li>\n"
+"          <i>Speech to text</i>: Transcript from audio data using Google\n"
+"          speech-to-text api in real time (only supported in chrome "
+"browser).\n"
+"        </li>\n"
+"        <!--\n"
+"        <li>\n"
+"          <i>Head movement</i>: Data approximating head movement in 3D with\n"
+"          coordinates X,Y,Z (In development).\n"
+"        </li>\n"
+"        <li>\n"
+"          <i>Body pose</i>: Data approximating body pose movement using\n"
+"          open-source machine learning models for web (In development).\n"
+"        </li>\n"
+"        -->\n"
+"        <li>\n"
+"          <i>Writing logs</i>: Log data of participants' writing in\n"
+"          collaborative text editor.\n"
+"        </li>\n"
+"      </ol>\n"
+"      <li><b>Activity monitoring</b></li>\n"
+"      CoTracks offers a real-time dashboard (updates every 30 seconds)\n"
+"      presenting a social network (who is talking after whom network) and\n"
+"      groups' writing activities in terms of number of revisions made.\n"
+"\n"
+"      <li><b>Downloading data</b></li>\n"
+"      CoTrack also facilitates downloading of captured data e.g., VAD,\n"
+"      Speech-to-text, writing logs, in CSV format for later analysis.\n"
+"\n"
+"      <li><b>Collaboration quality estimation</b></li>\n"
+"      CoTrack also offers automated estimation of collaboration quality and "
+"potential intervention strategy from learning sciences literature.\n"
+"    </ul>\n"
+"    "
+msgstr ""
+
+#: users/forms.py:15 users/forms.py:79
+msgid "first name"
+msgstr ""
+
+#: users/forms.py:21 users/forms.py:86
+msgid "last name"
+msgstr ""
+
+#: users/forms.py:62
+msgid "enter password"
+msgstr ""
+
+#: users/templates/navbar.html:25
+msgid "Home"
+msgstr ""
+
+#: users/templates/navbar.html:28
+msgid "Features"
+msgstr "funktsioonid"
+
+#: users/templates/navbar.html:31
+msgid "About Us"
+msgstr "Meie kohta"
+
+#: users/templates/navbar.html:45
+msgid "Dashboard"
+msgstr ""
+
+#: users/templates/navbar.html:49
+msgid "Request for teacher role"
+msgstr ""
+
+#: users/templates/navbar.html:53
+msgid "Show all role requests"
+msgstr ""
+
+#: users/templates/navbar.html:57
+msgid "Logout"
+msgstr ""
+
+#: users/templates/navbar.html:63
+msgid "Regiser"
+msgstr "Registreeru"
+
+#: users/templates/navbar.html:68
+msgid "Login"
+msgstr "Logi sisse"
+
+#: users/templates/registration/change_password.html:12
+msgid "Change Your Password"
+msgstr ""
+
+#: users/templates/registration/change_password.html:36
+msgid "Old Password"
+msgstr ""
+
+#: users/templates/registration/change_password.html:48
+#: users/templates/registration/password_reset_confirm.html:38
+msgid "New Password"
+msgstr ""
+
+#: users/templates/registration/change_password.html:60
+#: users/templates/registration/password_reset_confirm.html:50
+msgid "New Password Confirmation"
+msgstr ""
+
+#: users/templates/registration/change_password.html:70
+msgid "Update Password"
+msgstr ""
+
+#: users/templates/registration/home.html:11
+msgid "Create & monitor <br/> collaborative  learning activity"
+msgstr "Looge ja jälgige <br/> ühisõppetegevust"
+
+#: users/templates/registration/home.html:15
+msgid ""
+"\n"
+"                    CoTrack is an innovative Learning Analytics tool "
+"designed to monitor and enhance collaborative learning activities in "
+"classrooms. Developed over five years by researchers at the Center of "
+"Educational Technology, Tallinn University, Estonia, CoTrack has garnered "
+"international acclaim. <br/><br/>\n"
+"                    \n"
+"                    In 2023, CoTrack was awarded the prestigious \"<i "
+"class='fa fa-award'></i> <b>Best Education Technology Demonstration Award</b>"
+"\" at the Learning Analytics & Knowledge conference in the USA. <br/><br/>\n"
+"\n"
+"                    With CoTrack, educators can facilitate group activities "
+"in a collaborative environment similar to Google Docs. The tool enables the "
+"monitoring of group dynamics and the participation levels of each student, "
+"providing valuable insights. Additionally, CoTrack can collect a variety of "
+"data, including audio, video, and logs, for comprehensive research purposes."
+msgstr ""
+"\n"
+"CoTrack on uuenduslik õppeanalüüsi tööriistmõeldud koostööl põhinevate "
+"õppetegevuste jälgimiseks ja tõhustamiseksklassiruumid. Viie aasta jooksul "
+"välja töötatud keskuse teadlaste poolt Haridustehnoloogia, Tallinna Ülikool, "
+"Eesti, CoTrack on kogunudrahvusvaheline tunnustus. <br/><br/>\n"
+"\n"
+" 2023. aastal pälvis CoTrack maineka \"<i class='fa fa-award'></i> <b>Parima "
+"haridustehnoloogia tutvustuse auhind</b>\" Learning Analytics & Knowledge "
+"konverentsil USA-s. <br/><br/>\n"
+"\n"
+"CoTracki abil saavad õpetajad hõlbustada rühmategevusiGoogle Docsiga "
+"sarnases koostöökeskkonnas. Tööriist võimaldab rühma dünaamika ja iga "
+"õpilase osalemise taseme jälgiminepakkudes väärtuslikku teavet. Lisaks saab "
+"CoTrack koguda mitmesuguseid andmed, sealhulgas heli, video ja logid, "
+"kõikehõlmava uurimistöö jaoks."
+
+#: users/templates/registration/home.html:27
+msgid "Try it Now"
+msgstr "Proovige kohe"
+
+#: users/templates/registration/home.html:44
+msgid "Easy to use interface"
+msgstr "Lihtne kasutada liides"
+
+#: users/templates/registration/home.html:50
+#, fuzzy
+#| msgid "Capture speaking activity"
+msgid "Create group activity"
+msgstr "Jäädvustage kõnetegevust"
+
+#: users/templates/registration/home.html:56
+msgid "Easy to configure tracking"
+msgstr "Lihtne konfigureerida jälgimist"
+
+#: users/templates/registration/home.html:62
+msgid "Previous"
+msgstr "Eelmine"
+
+#: users/templates/registration/home.html:66
+msgid "Next"
+msgstr "Edasi"
+
+#: users/templates/registration/login.html:3
+msgid "Login Page"
+msgstr ""
+
+#: users/templates/registration/login.html:13
+#: users/templates/registration/login.html:63
+msgid "Sign In"
+msgstr ""
+
+#: users/templates/registration/login.html:37
+#: users/templates/registration/register.html:46
+msgid "Username"
+msgstr "Kasutajanimi"
+
+#: users/templates/registration/login.html:45
+#: users/templates/registration/register.html:56
+msgid "Password"
+msgstr "Parool"
+
+#: users/templates/registration/login.html:56
+msgid "Remember me"
+msgstr "Pea mind meeles"
+
+#: users/templates/registration/login.html:71
+msgid "Don't have an account yet? Go to signup"
+msgstr "Kas teil pole veel kontot? Mine registreerumise juurde"
+
+#: users/templates/registration/login.html:72
+#: users/templates/registration/password_reset.html:13
+msgid "Forgot Password"
+msgstr "Unustasin parooli"
+
+#: users/templates/registration/password_reset.html:37
+#: users/templates/registration/register.html:50
+msgid "Email"
+msgstr "E-post"
+
+#: users/templates/registration/password_reset.html:56
+msgid "Create A New Account"
+msgstr "Looge uus konto"
+
+#: users/templates/registration/password_reset.html:57
+msgid "Back To Login"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:3
+msgid "Password Reset"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:16
+msgid "Reset Your Password"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:60
+msgid "Reset Password"
+msgstr ""
+
+#: users/templates/registration/password_reset_confirm.html:69
+msgid ""
+"\n"
+"                        The password reset link was invalid, possibly "
+"because it has already been used.\n"
+"                        Please request a new password reset.\n"
+"                        "
+msgstr ""
+
+#: users/templates/registration/password_reset_email.html:3
+#, python-format
+msgid ""
+"\n"
+"    To initiate the password reset process for your %(user.email)s CoTrack "
+"Account,\n"
+"    click the link below:\n"
+" "
+msgstr ""
+
+#: users/templates/registration/password_reset_email.html:9
+msgid ""
+"\n"
+"    If clicking the link above doesn't work, please copy and paste the URL "
+"in a new browser\n"
+"    window instead.\n"
+"\n"
+"    Sincerely,\n"
+"    CoTrack Developement Team\n"
+"  "
+msgstr ""
+
+#: users/templates/registration/register.html:3
+msgid "Register Page"
+msgstr ""
+
+#: users/templates/registration/register.html:13
+msgid "Create Account"
+msgstr ""
+
+#: users/templates/registration/register.html:36
+msgid "First Name"
+msgstr ""
+
+#: users/templates/registration/register.html:40
+msgid "Last Name"
+msgstr ""
+
+#: users/templates/registration/register.html:61
+msgid "Confirm Password"
+msgstr ""
+
+#: users/templates/registration/register.html:66
+msgid "Sign Up"
+msgstr ""
+
+#: users/templates/registration/register.html:72
+msgid "Already have an account? Go to Sign in"
+msgstr ""
+
+#: users/views.py:48
+msgid "Account created"
+msgstr ""
+
+#: users/views.py:113
+msgid ""
+"\n"
+"                        We have emailed you instructions for setting your "
+"password, \n"
+"                        if an account exists with the email you entered. You "
+"should receive them shortly.\n"
+"                        If you don't recieve an email,\n"
+"                        please make sure you've entered the address you "
+"registered with, and check your spam folder.\n"
+"                        "
+msgstr ""
+
+#: users/views.py:127
+msgid "Successfully changed your password"
+msgstr ""
