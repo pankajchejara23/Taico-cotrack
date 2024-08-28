@@ -6,6 +6,17 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
+    <!-- Adding language change button-->
+    <form class='lang-form' action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ redirect_to }}" />
+        <select class='custom-select' name="language" onchange="this.form.submit()">
+          {% get_current_language as LANGUAGE_CODE %}
+            <option value="en" {% if LANGUAGE_CODE == "en" %} selected{% endif %}> 🇬🇧 </option>
+            <option value="et" {% if LANGUAGE_CODE == "et" %} selected{% endif %}> 🇪🇪 </option>
+        </select>
+    </form>
     
     <!-- Navbar menu -->
     <div class="collapse navbar-collapse" id="navbarScroll">
@@ -31,7 +42,7 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
               {% if request.user.is_authenticated and request.user.is_staff == True %}
-                <a class="dropdown-item" href="{% url 'session_list' %}">{% trans 'My sessions' %}</a>
+                <a class="dropdown-item" href="{% url 'session_list' %}">{% trans 'Dashboard' %}</a>
               {% endif %}
 
               {% if request.user.is_authenticated and request.user.is_staff == False %}
