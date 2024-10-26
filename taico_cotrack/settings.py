@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from django.contrib import messages
 from pathlib import Path
+#from django.utils.translation import gettext as _
 
 # To keep secret keys in environment variables
 from dotenv import load_dotenv
@@ -97,6 +98,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'django.middleware.locale.LocaleMiddleware',
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -168,12 +170,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+#LAGUAGES = (('en',_('English')),('ee',_('Estonian')),('es',_('Spanish')))
+
+LAGUAGES = (('en','English'),('ee','Estonian'),('es','Spanish'))
+
+TIME_ZONE = "Europe/Helsinki"
 
 USE_I18N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -208,5 +217,6 @@ ETHERPAD_KEY = str(os.getenv('ETHERPAD_KEY'))
 JW_SEC = str(os.getenv('JW_SEC'))
 JW_APP = str(os.getenv('JW_APP'))
 
+SERVER_URL = 'www.cotrack.website'
 
 PROTOCOL = 'http'
