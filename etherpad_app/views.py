@@ -26,6 +26,20 @@ def create_etherpad_user(mapping):
         return None
 
 
+def get_padid(etherpad_group, group_number):
+    pad_group_object = PadGroup.objects.filter(groupID=etherpad_group).first()
+
+    pad_object = Pad.objects.filter(eth_group=pad_group_object, group_number=group_number).first()
+
+    if pad_object is not None:
+        ##### For testing only, remove it later
+        return 'g.EzL5OYHQr5sPvqpa$session_38_group_1'
+        #######################################
+        return pad_object.eth_padid
+    else:
+        return None
+
+
 def create_session(mapping):
     """This function generate a link to a pad in the Etherpad for specified groupid
 
@@ -280,6 +294,13 @@ class PadDetailView(DetailView):
         # adding session id 
         context['sessionid'] = auth_session
         return context
+
+######### REST APIs START ###############
+
+
+######### REST APIs END   ###############
+
+
 
 
 ################### Etherpad Changeset Processing ######################
