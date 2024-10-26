@@ -1086,7 +1086,7 @@ def getRevCount(request,padid):
     Returns:
         Response: number of revision counts
     """
-    response = requests.post(f'http://www.cotrack.website/en/getRevCount/{padid}')
+    response = requests.post(f'{settings.PROTOCOL}://{settings.SERVER_URL}/en/getRevCount/{padid}')
     print('After call')
     print(response.json())
     return Response({'data':response.json()})
@@ -1352,11 +1352,12 @@ def getText(request,session_id,group_id):
 
     Returns:
         Response: text from the pad of the specified group
-    """
+    
     #### Just for testing purposes ##########
-    response = requests.post('http://www.cotrack.website/en/getText/38/1')
-    return Response({'data':response.json()['data']})
+    #response = requests.post('http://www.cotrack.website/en/getText/38/1')
+    #return Response({'data':response.json()['data']})
     #########################################
+    """
     pad = Pad.objects.all().filter(session=session_id,group=group_id)
     padid =  pad[0].eth_padid
     params = {'padID':padid}
@@ -1376,7 +1377,7 @@ def getSpeakingStats(request,session_id):
 
     Returns:
         Response: return speaking time, network data, and other details
-    """
+    
 
     #### Just for testing purposes ##########
     #print('Before call')
@@ -1385,6 +1386,7 @@ def getSpeakingStats(request,session_id):
     #print(response.json())
     return Response({'data':response.json()})
     #########################################
+    """
 
     global VAD_OBJECTS
     global SPEECH_OBJECTS
@@ -1664,7 +1666,7 @@ def getGroupPadStats(request,padid):
         padid (str): Etherpad padid
     Returns:
         Response: writing statistics
-    """
+    
     #### Just for testing purposes ##########
     print('Before call')
     response = requests.post(f'http://www.cotrack.website/en/getStats/{padid}')
@@ -1672,7 +1674,7 @@ def getGroupPadStats(request,padid):
     print(response.json())
     return Response({'data':response.json()})
     #########################################
-
+    """
 
     pad = Pad.objects.filter(eth_padid = padid)[0]
     session = pad.session
