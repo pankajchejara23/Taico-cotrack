@@ -138,26 +138,24 @@ WSGI_APPLICATION = "taico_cotrack.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-"""
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
-"""
-
-DATABASES = {
-	'default': {
-    	'ENGINE': 'django.db.backends.mysql',
-    	'NAME': str(os.getenv('COTRACK_DB_NAME')),
-    	'USER': str(os.getenv('COTRACK_DB_USER')),
-    	'PASSWORD': str(os.getenv('COTRACK_DB_PWD')),
-    	'HOST': str(os.getenv('COTRACK_DB_HOST')),   # Or an IP Address that your DB is hosted on
-    	'PORT': str(os.getenv('COTRACK_DB_PORT')),
-	}
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': str(os.getenv('COTRACK_DB_NAME')),
+            'USER': str(os.getenv('COTRACK_DB_USER')),
+            'PASSWORD': str(os.getenv('COTRACK_DB_PWD')),
+            'HOST': str(os.getenv('COTRACK_DB_HOST')),   # Or an IP Address that your DB is hosted on
+            'PORT': str(os.getenv('COTRACK_DB_PORT')),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -201,10 +199,12 @@ LOCALE_PATHS = (
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'static/'),
-)
+if DEBUG:
+    STATICFILES_DIRS = [
+            os.path.join(BASE_DIR, 'static')
+       ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -232,4 +232,4 @@ JW_APP = str(os.getenv('JW_APP'))
 
 SERVER_URL = 'www.cotrack.website'
 
-PROTOCOL = 'http'
+PROTOCOL = 'https'
