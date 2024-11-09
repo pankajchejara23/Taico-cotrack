@@ -9,3 +9,5 @@ PyJWT==2.9.0
 python-dotenv==1.0.1
 requests==2.31.0
 wordcloud==1.9.3
+django-ckeditor==6.7.1
+django-formtools==2.5.1
