@@ -143,7 +143,7 @@ class GroupPin(models.Model):
     """
     session = models.ForeignKey(Session,on_delete=models.CASCADE)
     pin = models.CharField(max_length=6)
-    group = models.IntegerField()
+    group = models.IntegerField(blank=True)
 
 
 admin.site.register(Audiofl)
