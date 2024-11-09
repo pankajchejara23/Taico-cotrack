@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     "etherpad_app.apps.EtherpadAppConfig",
     "learning_session.apps.LearningSessionConfig",
     "rest_framework",
+    'taico_cotrack'
 ]
 
 MIDDLEWARE = [
