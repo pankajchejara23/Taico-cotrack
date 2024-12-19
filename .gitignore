@@ -13,6 +13,7 @@ README_files/
 *.so
 
 taico_cotrack/settings.py
+taico_cotrack/settings_prod.py
 
 # Distribution / packaging
 .DS_Store
