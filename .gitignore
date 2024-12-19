@@ -3,12 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+*.pyc
 
+# Readme processed files
+README.html
+README_files/
 
 # C extensions
 *.so
 
+taico_cotrack/settings.py
+
 # Distribution / packaging
+.DS_Store
 .Python
 build/
 develop-eggs/
