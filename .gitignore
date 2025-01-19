@@ -12,8 +12,11 @@ README_files/
 # C extensions
 *.so
 
-taico_cotrack/settings.py
+# Setting production file
 taico_cotrack/settings_prod.py
+
+# Media files
+media/
 
 # Distribution / packaging
 .DS_Store
