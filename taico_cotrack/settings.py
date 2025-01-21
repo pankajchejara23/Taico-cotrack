@@ -32,7 +32,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["86.107.197.103","localhost"]
+ALLOWED_HOSTS = ["86.107.197.103","localhost","www.cotrack.website"]
 
 LOGIN_REDIRECT_URL = "/session/list"
 LOGIN_URL = '/login'
