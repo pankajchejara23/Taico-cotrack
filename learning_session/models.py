@@ -1,11 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib import admin
-
 from ckeditor_uploader.fields import RichTextUploadingField
 
+# Using custom user model
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 import os
-# Create your models here.
 
 class Session(models.Model):
     """Model to store information regarding the learning session
