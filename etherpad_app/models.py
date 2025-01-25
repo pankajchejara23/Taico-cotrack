@@ -1,11 +1,13 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin
 import requests
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 def call(function, arguments=None, request=None):
     """Functoin to call etherpad api function
@@ -16,7 +18,7 @@ def call(function, arguments=None, request=None):
         request (): request params
     """
     try:
-        url = settings.PROTOCOL +"://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
+        url =  "https://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
         response = requests.post(url,arguments)
 
         # response object
@@ -79,7 +81,7 @@ class Pad(models.Model):
     """
     eth_padid = models.CharField(max_length=50)
     eth_group = models.ForeignKey(PadGroup, on_delete=models.CASCADE)
-    group_number = models.IntegerField()
+    group_number = models.IntegerField(blank=True)
 
 
 admin.site.register(Pad)
