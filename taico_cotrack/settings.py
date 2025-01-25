@@ -139,15 +139,15 @@ WSGI_APPLICATION = "taico_cotrack.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-if DEBUG:
-    DATABASES = {
+"""
+DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-else:
-    DATABASES = {
+"""
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': str(os.getenv('COTRACK_DB_NAME')),
