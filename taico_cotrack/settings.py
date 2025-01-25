@@ -135,7 +135,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "taico_cotrack.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -229,4 +228,4 @@ JW_APP = str(os.getenv('JW_APP'))
 
 SERVER_URL = 'www.cotrack.website'
 
-PROTOCOL = 'http'
+PROTOCOL = 'https'
