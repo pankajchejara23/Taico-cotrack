@@ -20,6 +20,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.views.generic import TemplateView
+from .views import change_language
+from learning_session.views import UploadVADView, UploadSpeechView, UploadAudioView
 
 urlpatterns = i18n_patterns(
     path("admin/", admin.site.urls),
@@ -30,6 +32,13 @@ urlpatterns = i18n_patterns(
     path('features/',TemplateView.as_view(template_name="features.html"), name='features'),
     path("ckeditor/", include('ckeditor_uploader.urls')),
 )
+
+# Adding upload paths without i18
+urlpatterns += [path('vad_upload/', UploadVADView.as_view(), name='upload_vad'),
+                path('speech_upload/', UploadSpeechView.as_view(), name='upload_speech'),
+                path('audio_upload/', UploadAudioView.as_view(), name='upload_audio')
+                ]
 urlpatterns += [path('i18n/', include("django.conf.urls.i18n"))]
+urlpatterns += [ path('change-lang/<lang_code>', change_language, name='change_language')]
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
