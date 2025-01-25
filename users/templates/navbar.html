@@ -1,14 +1,13 @@
 {% load i18n %}
 
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+<nav class="navbar navbar-expand-lg p-2 m-0">
   <div class="container">
-    <a class="navbar-brand lead" href="{% url 'home' %}">CoTrack</a>
+    <a class="navbar-brand lead font-weight-bold text-white" href="{% url 'login' %}"> <i class="fas fa-terminal"></i> CoTrack</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Adding language change button-->
-    <form class='lang-form' action="{% url 'set_language' %}" method="post">
+    </button>    
+    <!-- Adding language change button
+    <form action="{% url 'set_language' %}" method="post"> <i class="fa fa-globe text-white"></i> 
         {% csrf_token %}
         <input name="next" type="hidden" value="{{ redirect_to }}" />
         <select class='custom-select' name="language" onchange="this.form.submit()">
@@ -17,18 +16,29 @@
             <option value="et" {% if LANGUAGE_CODE == "et" %} selected{% endif %}> 🇪🇪 </option>
         </select>
     </form>
-    
+
+  -->
+
     <!-- Navbar menu -->
-    <div class="collapse navbar-collapse" id="navbarScroll">
+    <div class=" collapse navbar-collapse" id="navbarScroll">
       <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="{% url 'home' %}">{% trans 'Home' %}</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="text-white fa fa-globe"></i> 
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+            <li><a class="dropdown-item" href="{%url 'change_language' 'en'%}" data-toggle="tooltip">{% translate 'English' %}</a>
+            <li><a class="dropdown-item" href="{% url 'change_language' 'et'%}" data-toggle="tooltip">{% translate 'Estonian' %}</a>
+          </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'features'%}">{% trans 'Features' %}</a>
+          <a class="nav-link text-white " aria-current="page" href="{% url 'home' %}">{% trans 'Home' %}</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'about'%}">{% trans 'About Us' %}</a>
+          <a class="nav-link text-white " href="{% url 'features'%}">{% trans 'Features' %}</a>
+        </li>
+        <li class=" nav-item">
+          <a class=" text-white  nav-link" href="{% url 'about'%}">{% trans 'About Us' %}</a>
         </li>
       </ul>
       <div class="d-flex navbar-collapse justify-content-end">
@@ -37,7 +47,7 @@
           <!-- Display a dropdown menu for logged in users -->
           {% if request.user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarScrollingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{request.user.email}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
@@ -59,12 +69,12 @@
           </li>
           {% else %}
           <li class="nav-item px-2">
-            <a class="nav-link" href="{% url 'register' %}">
+            <a class="nav-link text-white " href="{% url 'register' %}">
               {% trans 'Regiser' %}
             </a>
           </li>
           <li class="nav-item  px-2">
-            <a class="nav-link" href="{% url 'login' %}">
+            <a class="nav-link text-white " href="{% url 'login' %}">
               {% trans 'Login' %}
             </a>
           </li>
