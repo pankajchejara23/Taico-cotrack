@@ -30,7 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 
-DEBUG = os.getenv('DEBUG')
+DEBUG = True
 
 ALLOWED_HOSTS = ["86.107.197.103","localhost","www.cotrack.website"]
 
@@ -201,6 +201,8 @@ LOCALE_PATHS = (
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+
 
 if DEBUG:
     STATICFILES_DIRS = [
