@@ -3,7 +3,8 @@ from django_toggle_switch_widget.widgets import DjangoToggleSwitchWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.utils.translation import gettext as _
 from .models import Session, VAD, Speech, Audiofl, RoleRequest
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 default_consent_form_content = """<h3>Dear Participant </h3>

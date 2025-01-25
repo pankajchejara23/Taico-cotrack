@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth.models import User
 from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent
 from django.views import View
 from django.contrib import messages
@@ -31,6 +30,8 @@ from .apps import ApiConfig
 import pandas as pd
 
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
@@ -552,8 +553,8 @@ class StudentPadView(View):
 
         # calling etherpad api to generate link to access the writing pad in Etherpad
         sessionID = ep_views.create_session({'authorID':authorid,
-                                                            'groupID':groupid,
-                                                            'validUntil':end_timestamp.timestamp()})
+                                            'groupID':groupid,
+                                            'validUntil':end_timestamp.timestamp()})
 
         # storing sessionID in session object, so that user did not need to enter the pin again
         self.request.session['ethsid'] = sessionID
@@ -565,13 +566,14 @@ class StudentPadView(View):
         pad_name = f'session_{session_object.id}_group_{group_number-1}'
 
         context_data = {'group':group_number,
-                                        'session':session_object,
-                                        'sessionj':session_object,
-                                        'form':audio_form,
-                                        'pad_name':pad_name,
-                                        'sessionid':sessionID,
-                                        'etherpad_url':settings.ETHERPAD_URL,
-                                        'protocol':settings.PROTOCOL}
+                        'session':session_object,
+                        'sessionj':session_object,
+                        'form':audio_form,
+                        'pad_name':pad_name,
+                        'sessionid':sessionID,
+                        'etherpad_url':settings.ETHERPAD_URL,
+                        'protocol':settings.PROTOCOL,
+                        'server':settings.SERVER_URL}
 
         return render(request, self.template_name, context_data)
 
@@ -659,6 +661,7 @@ class UploadVADView(View):
             request (HttpRequest): request parameter
         """
         form = self.form_class(request.POST)
+        print('-----VAD-----',form)
         if form.is_valid():
             # fetch data from submitted form
             session = form.cleaned_data.get("session")

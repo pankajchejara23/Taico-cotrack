@@ -252,7 +252,7 @@
 
         if (typeof recognition != 'undefined') {
           if (conf_vad) {
-           recognition.start();
+          // recognition.start();
          }
         }
       }
@@ -305,23 +305,13 @@
 
         var xhr = new XMLHttpRequest();
 
-        xhr.open('POST', '/vad_upload/', true);
+        xhr.open('POST', '{{protocol}}://{{server}}/vad_upload/', true);
         xhr.send(fd);
         console.log(voice_data);
         console.log('VAD start time:',voice_data.voice_start_time);
         console.log('Sending VAD data, duration:',voice_data.voice_activity_duration);
-
-        /*
-        chatSocket.send(JSON.stringify({
-          'session':{{session.id}},
-          'user': {{request.user.id}},
-          'group': {{group}},
-          'strDate': voice_data.voice_start_time,
-          'activity':voice_data.voice_activity_duration,
-          'speech': text,
-        }));
-        */
-          if (conf_speech)
+1
+        if (conf_speech)
           {
             var fd = new FormData();
             fd.append('csrfmiddlewaretoken', "{{ csrf_token }}");
@@ -332,13 +322,14 @@
             fd.append('TextField',text);
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/speech_upload/', true);
+            xhr.open('POST', '{{protocol}}://{{server}}/speech_upload/', true);
             xhr.send(fd);
             console.log(' ===> Speech data sent:',text);
           }
       }
 
-      function captureMicrophone(callback) {
+      function captureMicrophone(callback) 
+      {
         console.log('capturing camera ...');
         //navigator.getUserMedia = navigator.getUserMedia || navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia;
         navigator.getUserMedia({audio: true, video:true}, callback, function(error) {
@@ -371,7 +362,7 @@
         console.log(fd);
         var xhr = new XMLHttpRequest();
         console.log('opening connection');
-        xhr.open('POST', '/audio_upload/', true);
+        xhr.open('POST', '{{protocol}}://{{server}}/audio_upload/', true);
         console.log('data sending')
         xhr.send(fd);
         console.log('data sent');

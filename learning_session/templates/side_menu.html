@@ -7,6 +7,51 @@
         text-decoration: none;
     }
 </style>
+
+    <!-- Sidebar -->
+    <div class="text-white vh-100 p-3 border-1 rounded-left" style="width: 250px;border-top-left-radius: 40px 40px; border-top:solid; border-left:4px solid white; border-right-style: solid;">
+        <h4 class=" py-3 border-bottom">Menu</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="{% url 'session_create' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-plus me-2"></i>{% translate 'Create a session' %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'session_list' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-folder me-2"></i>{% translate 'My sessions' %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'session_list_archive' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-save me-2"></i>{% translate 'Archived sessions' %}
+                </a>
+            </li>
+            {% if request.user.is_superuser %}
+            <li class="nav-item">
+                <a href="{% url 'session_list_admin' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-folder me-2"></i>{% translate 'All sessions' %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'grant_role' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-check me-2"></i>{% translate 'Grant teacher role' %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'create_user' %}" class="nav-link text-white py-2">
+                    <i class="fa fa-user me-2"></i>{% translate 'Create a user' %}
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+
+
+
+<!--
 <div class=" px-sm-2">
     <div class="d-flex flex-column align-contents-end">
         <ul class="nav nav-pills flex-column mb-sm-auto mt-3 mb-2 align-items-start " id="menu">
@@ -46,3 +91,4 @@
                 
     </div>
 </div>
+-->

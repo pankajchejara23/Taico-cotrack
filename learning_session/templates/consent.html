@@ -3,7 +3,7 @@
 {% load static%}
 {% load i18n %}
 {% block content %}
-    <div class="container shadow bg-light border shadow-lg rounded-3">
+    <div class="container shadow bg-light border shadow-lg rounded-3 mt-5">
         <div>
             <p class='display-5 p-3'> {% trans 'Informed consent for participant'%} </p>
         </div>
@@ -98,32 +98,6 @@ table th:last-child{
     return(hold_normed_values)
   }
 
-  async function main() {
-  
-  var revs = [396,1085,214];
-  var groups = [1,2,3];
-  var group_list = {{no_group}};
-  console.log('Dataset--------');
-  console.log(group_list);
- 
-
-  revs_updated = normalize_array(revs);
-  for (var i=0; i<revs.length; i++) {
-    group = '#write-' + i;
-    size = parseInt(revs_updated[i]);
-
-    if (size==0) {
-      innerHTML = "";
-    } else {
-      innerHTML = "<i class='fa fa-edit fa-"+size+"x'></i>";
-
-    $(group).html(innerHTML);
-
-    }
-  }
-
-}
-main()
 
 </script>
 
