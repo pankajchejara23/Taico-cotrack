@@ -44,6 +44,7 @@ CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'
 
 
+
 CKEDITOR_CONFIGS = {
     'default':
         {
@@ -107,6 +108,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "taico_cotrack.urls"
 
 MESSAGE_TAGS = {
@@ -138,7 +140,7 @@ WSGI_APPLICATION = "taico_cotrack.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-"""
+
 DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -156,7 +158,7 @@ DATABASES = {
             'PORT': str(os.getenv('COTRACK_DB_PORT')),
         }
     }
-
+"""
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -200,9 +202,14 @@ LOCALE_PATHS = (
 
 STATIC_URL = "static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+if DEBUG:
+    STATICFILES_DIRS = [
+            os.path.join(BASE_DIR, 'static')
+       ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
@@ -226,6 +233,6 @@ ETHERPAD_KEY = str(os.getenv('ETHERPAD_KEY'))
 JW_SEC = str(os.getenv('JW_SEC'))
 JW_APP = str(os.getenv('JW_APP'))
 
-SERVER_URL = 'www.cotrack.website'
+SERVER_URL = str(os.getenv('SERVER_URL'))
 
-PROTOCOL = 'https'
+PROTOCOL = str(os.getenv('PROTOCOL'))
