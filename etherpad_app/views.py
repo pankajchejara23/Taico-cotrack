@@ -6,6 +6,7 @@ from .forms import PadCreateForm
 from .models import PadGroup, Pad, AuthorMap
 from .models import call
 import datetime
+from django.conf import settings
 import re
 # Create your views here.
 def create_etherpad_user(mapping):
@@ -32,9 +33,7 @@ def get_padid(etherpad_group, group_number):
     pad_object = Pad.objects.filter(eth_group=pad_group_object, group_number=group_number).first()
 
     if pad_object is not None:
-        ##### For testing only, remove it later
-        return 'g.EzL5OYHQr5sPvqpa$session_38_group_1'
-        #######################################
+        
         return pad_object.eth_padid
     else:
         return None
@@ -293,6 +292,9 @@ class PadDetailView(DetailView):
 
         # adding session id 
         context['sessionid'] = auth_session
+
+        context['protocol'] = 'https'
+        context['server'] = 'www.etherpad.website'
         return context
 
 ######### REST APIs START ###############
