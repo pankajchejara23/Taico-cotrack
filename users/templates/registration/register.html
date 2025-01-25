@@ -1,80 +1,84 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n %}
-{% block title %} {% trans 'Register Page' %} {% endblock title%}
+{% block title %} {% trans 'Login Page' %} {% endblock title%}
 
 <!-- Populating content block in base template -->
 {% block content %}
-    <div class="form-content my-3 p-3">
-		<div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-5">
-                    <div class="card shadow-lg border-0 rounded-lg mt-0 mb-5">
-                        <div class="card-header justify-content-center">
-                        	<h3 class="font-weight-light my-4 text-center">{% trans 'Create Account' %}</h3>
-                        </div>
-                        <div class="card-body p-5">
-                            <form method="POST">
-                                {% csrf_token %}
 
-                                <!-- Form errors -->
-                                {% if form.errors %}
-                                    <div class="alert alert-danger alert-dismissible" role="alert">
-                                        <div id="form_errors">
-                                            {% for key, value in form.errors.items %}
-                                                <strong>{{ value }}</strong>
-                                            {% endfor %}
-                                        </div>
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                {% endif %}
-
-                                <!-- Registration form -->
-                                <div class="form-row">                                    
-                                    <div class="form-group">
-                                        <label class="small mb-1">{% trans 'First Name' %}</label>
-                                        {{ form.first_name }}
-                                    </div>                                                                        
-                                    <div class="form-group">
-                                        <label class="small mb-1">{% trans 'Last Name' %}</label>
-                                        {{ form.last_name }}
-                                    </div>
-                                </div>
-                                <div class="form-row">
-		                            <div class="form-group">
-		                                <label class="small mb-1">{% trans 'Username' %}</label>
-		                                {{ form.username }}
-		                            </div>
-		                            <div class="form-group">
-		                                <label class="small mb-1">{% trans 'Email' %}</label>
-		                                {{ form.email }}
-		                            </div>		                        
-		                        </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label class="small mb-1">{% trans 'Password' %}</label>
-                                        {{ form.password1 }}
-                                        {{ form.errors.password }}
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="small mb-1">{% trans 'Confirm Password' %}</label>
-                                        {{ form.password2 }}
-                                    </div>
-                                </div>
-                                <div class="form-group mt-4 mb-0">
-                                    <button type="submit" class="col-md-12 btn btn-primary">{% trans 'Sign Up' %}</button><br><br>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer text-center">
-                            <div class="small">
-                                <a href="{% url 'login' %}">{% trans 'Already have an account? Go to Sign in' %}</a>
-                            </div>
-                        </div>
-                    </div>
+<link rel="stylesheet" href="{%static 'login_page.css'%}}">
+<!-- Registration 6 - Bootstrap Brain Component -->
+<section class="bg-primary p-3 p-md-4 p-xl-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-9 col-lg-7 col-xl-6 col-xxl-5">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-3 p-md-4 p-xl-5">
+            <div class="row">
+              <div class="col-12">
+                <div class="mb-5">
+                  <h2 class="h3">Registration</h2>
+                  <h3 class="fs-6 fw-normal text-secondary m-0">Enter your details to register</h3>
                 </div>
+              </div>
             </div>
+            <form action="#!">
+              <div class="row gy-3 overflow-hidden">
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name" required>
+                    <label for="firstName" class="form-label">First Name</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" name="lastName" id="lastName" placeholder="First Name" required>
+                    <label for="lastName" class="form-label">Last Name</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                    <label for="email" class="form-label">Email</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="password" class="form-control" name="password1" id="password" value="" placeholder="Password" required>
+                    <label for="password" class="form-label">Password</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    <input type="password" class="form-control" name="password2" id="password" value="" placeholder="Confirm Password" required>
+                    <label for="password" class="form-label">Confirm Password</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" name="iAgree" id="iAgree" required>
+                    <label class="form-check-label text-secondary" for="iAgree">
+                      I agree to the <a href="#!" class="link-primary text-decoration-none">terms and conditions</a>
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="d-grid">
+                    <button class="btn bsb-btn-2xl btn-primary" type="submit">Sign up</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div class="row">
+              <div class="col-12">
+                <hr class="mt-5 mb-4 border-secondary-subtle">
+                <p class="m-0 text-secondary text-center">Already have an account? <a href="{% url 'login' %}" class="link-primary text-decoration-none">Sign in</a></p>
+              </div>
+            </div>
+          </div>
         </div>
-	</div>
-{% endblock content %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

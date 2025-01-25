@@ -12,6 +12,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+
+
 class RegisterView(View):
     """View for user registration
        url: 'register/'
@@ -71,6 +73,19 @@ def logout(request):
     user_logout(request)
     return redirect('login')
 
+def change_language(request, lang_code):
+    """Change user language for translation.
+       url: '/change_lang'
+
+    Args:
+        request (HttpRequest): request object
+        lang_code(str): language code
+    """
+    next = request.META.get('HTTP_REFERER')
+    translation.activate(lang_code)
+    response = HttpResponse(status=204)
+    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang_code)
+    return response
 
 class CustomLoginView(LoginView):
     """View to display and process user's login

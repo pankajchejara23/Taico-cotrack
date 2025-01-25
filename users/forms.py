@@ -1,9 +1,15 @@
 from django import forms
 from django.utils.translation import gettext as _
-from django.contrib.auth.models import User
+
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import Profile
+
+# Using custom user model
+from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
+User = get_user_model()
+
 
 class RegisterForm(UserCreationForm):
     """Thif form uses Django's UserCreationForm to render registration form.
@@ -54,8 +60,9 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(max_length=100,
                                required=True,
                                widget=forms.TextInput(attrs={
-                                   'placeholder': _('user name'),
-                                   'class': 'form-control'
+                                   'placeholder': _('email'),
+                                   'class': 'form-control',
+                                   'autofocus': True
                                })) 
     password = forms.CharField(required=True,
                                widget= forms.PasswordInput(attrs={
@@ -63,10 +70,14 @@ class LoginForm(AuthenticationForm):
                                    'name': 'password',
                                    'class':'form-control'
                                }))
-    remember_me = forms.BooleanField(required= False)
+    remember_me = forms.BooleanField(required= False,widget= forms.CheckboxInput(attrs={
+                                   'class':'form-check-input'
+                               }))
     class Meta:
         model = User
         fields = ['username','password','remember_me']
+
+
 
 
 class UpdateUserForm(forms.ModelForm):
