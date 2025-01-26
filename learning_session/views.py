@@ -1361,7 +1361,7 @@ def getText(request,session_id,group_id):
     #return Response({'data':response.json()['data']})
     #########################################
     """
-    pad = Pad.objects.all().filter(session=session_id,group=group_id)
+    pad = Pad.objects.all().filter(session=session_id,eth_group=group_id)
     padid =  pad[0].eth_padid
     params = {'padID':padid}
     t = call('getHTML',params)
