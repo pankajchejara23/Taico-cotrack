@@ -19,6 +19,8 @@ def call(function, arguments=None, request=None):
     """
     try:
         url =  "https://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
+        print('Making call to ',url)
+        
         response = requests.post(url,arguments)
 
         # response object
