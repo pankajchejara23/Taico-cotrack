@@ -33,9 +33,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from etherpad_app.models import call, Pad, PadGroup
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+
+from django.db.models import Sum
+from etherpad_app.models import Pad
 
 VAD_OBJECTS = []
 SPEECH_OBJECTS = []
@@ -1091,11 +1095,6 @@ def getRevCount(request,padid):
     Returns:
         Response: number of revision counts
     """
-    response = requests.post(f'{settings.PROTOCOL}://{settings.SERVER_URL}/en/getRevCount/{padid}')
-    print('After call')
-    print(response.json())
-    return Response({'data':response.json()})
-    #########################################
     params = {'padID':padid}
     rev_count = call('getRevisionsCount',params)
     return Response({'revisions':rev_count['data']['revisions']})
@@ -1129,7 +1128,6 @@ def getWordCloud(request,session_id,group_id):
         new code
         """
         fig2, ax = plt.subplots(1,1,figsize=(6,8))
-        ax.imshow(img)
         ax.spines['top'].set_visible(False)
         ax.spines['left'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
