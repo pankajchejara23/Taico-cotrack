@@ -532,7 +532,7 @@
 
     // Fetching revision count and document length
     console.log('Updating writing statistics');
-    rev_url = '{{request.site.base_url}}/getRevCount/g.EzL5OYHQr5sPvqpa$session_38_group_1';
+    rev_url = '{{protocol}}://{{server}}/getRevCount/{{padid}}';
     $.ajax(
     {
         type:"GET",
@@ -560,7 +560,7 @@
     
     // Fetching writing data and populating graphs
     console.log('Updating writing pie chart');
-    var write_url = '{{request.site.base_url}}/getStats/g.EzL5OYHQr5sPvqpa$session_38_group_1';
+    var write_url = '{{protocol}}://{{server}}/getStats/{{padid}}';
     console.log(write_url);
     $.ajax(
     {
@@ -589,10 +589,10 @@
     }); 
 
   
-
+    /*
     // Fetching predictions of collaboration quality and its dimensions
     console.log('Getting predictions');
-    var predict_url = '{{request.site.base_url}}/predict';
+    var predict_url = '{{protocol}}://{{server}}/predict';
     $.ajax(
     {
         type:"GET",
@@ -656,6 +656,7 @@
             }
         }
     }); 
+    */
 
 </script>
 
