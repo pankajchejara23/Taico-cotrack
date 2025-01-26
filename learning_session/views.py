@@ -504,6 +504,8 @@ class SessionGroupAnalyticsView(View):
                         'group':group_number,
                         'session':session_object,
                         'padid':padid,
+                        'protocol':settings.PROTOCOL,
+                        'server':settings.SERVER_URL,
                         'group_sequence':group_number+1
                         }
         return render(request, self.template_name, context_data)
