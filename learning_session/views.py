@@ -1317,7 +1317,7 @@ def getUsers(session_id,group_id):
 
     Args:
         session_id (int): Session id
-        group_id (int): Group id
+        group_id (int): Group id (or group number e.g., 1, 2, 3)
 
     Returns:
         dict, dict: two dictionaries, one with user id to color mapping, and another for author id to color mapping
@@ -1326,8 +1326,10 @@ def getUsers(session_id,group_id):
     tmp_users = VAD.objects.filter(session=s,group = group_id).values('user').distinct()
     sp_users = [user['user'] for user in tmp_users]
     et_users = []
-    pad = Pad.objects.filter(session=s).filter(group=group_id)
-    padid =  pad[0].eth_padid
+
+    session_group_object = SessionGroupMap.objects.filter(session=s)[0]
+    
+    padid =  ep_views.get_padid(session_group_object.eth_groupid,group_id)
     params = {'padID':padid}
 
     author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
@@ -1335,7 +1337,7 @@ def getUsers(session_id,group_id):
     id_to_author = {}
 
     for author in author_list:
-        author_mapping = AuthorMap.objects.filter(authorid=author)
+        author_mapping = ep_views.get_author_user_objects(authorid=author)
         id_to_author[author_mapping[0].user.id] = author
         et_users.append(author_mapping[0].user.id)
 

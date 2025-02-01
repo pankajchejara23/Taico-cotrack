@@ -27,13 +27,22 @@ def create_etherpad_user(mapping):
         return None
 
 
+def get_author_user_objects(authorid):
+    """Returns User object associated with authorid
+
+    Args:
+        authorid (str): Etherapd user id
+    """
+    author_map =  AuthorMap.objects.filter(authorid=authorid)
+
+    return author_map
+
 def get_padid(etherpad_group, group_number):
     pad_group_object = PadGroup.objects.filter(groupID=etherpad_group).first()
 
     pad_object = Pad.objects.filter(eth_group=pad_group_object, group_number=group_number).first()
 
     if pad_object is not None:
-        
         return pad_object.eth_padid
     else:
         return None
