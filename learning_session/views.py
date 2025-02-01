@@ -13,6 +13,8 @@ import uuid
 import numpy as np
 from django.db import transaction
 from django.urls import reverse
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 import jwt
 import io
 import requests
@@ -103,6 +105,11 @@ def generate_pin(s, g):
     sg = GroupPin.objects.create(session=s,pin=u_pin,group=g)
     return
 
+def after_login_page(request):
+    if request.user.is_staff:
+        redirect('session_list')
+    else:
+        redirect('session_enter')
 
 class SessionUpdateView(UpdateView):
     """This view allows editing of Session objects.
@@ -183,12 +190,15 @@ class SessionUpdateView(UpdateView):
         return HttpResponseRedirect(reverse(self.get_success_url()))
 
 
-class SessionListView(ListView):
+class SessionListView(UserPassesTestMixin,ListView):
     """View for listing out learning sessions
 
     """
     model = Session
     template_name = 'list_session.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get_queryset(self):
         """This function update the queryset which returns the objects for listview.
@@ -415,7 +425,7 @@ class SessionCreateView(View):
             print('Form is not valid')
 
 
-class SessionEnterView(View):
+class SessionEnterView(LoginRequiredMixin,View):
     """View for displaying entry page for students
 
     """
@@ -469,7 +479,7 @@ class SessionEnterView(View):
             return render(request, self.template_name, {'form':form})
 
 
-class SessionLeaveView(View):
+class SessionLeaveView(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         if 'payload' in self.request.session.keys():
             del self.request.session['payload']
@@ -515,7 +525,7 @@ class SessionGroupAnalyticsView(View):
         return render(request, self.template_name, context_data)
 
 
-class StudentPadView(View):
+class StudentPadView(LoginRequiredMixin,View):
     """This view shows etherpad to student.
 
     """
@@ -584,7 +594,7 @@ class StudentPadView(View):
         return render(request, self.template_name, context_data)
 
 
-class ConsentView(View):
+class ConsentView(LoginRequiredMixin,View):
     """This view shows the consent form and handles student's response.
 
     """
@@ -655,7 +665,7 @@ class ConsentView(View):
             return redirect('session_enter')
 
 
-class UploadVADView(View):
+class UploadVADView(LoginRequiredMixin,View):
     """View for handling audio data processing and storing on server
 
     """
@@ -696,7 +706,7 @@ class UploadVADView(View):
             return HttpResponse('Error')
 
 
-class UploadSpeechView(View):
+class UploadSpeechView(LoginRequiredMixin,View):
     """View for handling speech-to-text conversion and storing on server
 
     """
@@ -732,7 +742,7 @@ class UploadSpeechView(View):
             return HttpResponse('Done')
         
 
-class UploadAudioView(View):
+class UploadAudioView(LoginRequiredMixin,View):
     """View for handling audio files storing on server
 
     """
@@ -771,7 +781,7 @@ class UploadAudioView(View):
             return HttpResponse('Done')
         
 
-class RoleRequestView(View):
+class RoleRequestView(LoginRequiredMixin,View):
     """View for displaying and hanlding role request form
 
     """
@@ -1361,6 +1371,7 @@ def getText(request,session_id,group_id):
     #return Response({'data':response.json()['data']})
     #########################################
     """
+    
     pad = Pad.objects.all().filter(session=session_id,eth_group=group_id)
     padid =  pad[0].eth_padid
     params = {'padID':padid}
@@ -1661,7 +1672,7 @@ def getProcessedFeatureFromLogVad(request, session_id, group_id):
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 # change the signature back to  def getGroupPadStats(request,padid)
-def getGroupPadStats(request,padid):
+def getGroupPadStats(request,group_padid):
     """This function returns group-wise statistics for writing.
 
     Args:
@@ -1678,13 +1689,29 @@ def getGroupPadStats(request,padid):
     return Response({'data':response.json()})
     #########################################
     """
+    # Fetch etherpad group id from padid
+    eth_padgroup = group_padid.split('$')[0]
 
-    pad = Pad.objects.filter(eth_padid = padid)[0]
-    session = pad.session
-    group = pad.group
+    # Group number
+    group_num = int(group_padid.split('_')[1])
+
+    # Get associated SessionGroupMapping object
+    session_group_object = SessionGroupMap.objects.filter(eth_groupid = eth_padgroup)
+
+    # Associated session
+    session = session_group_object.session
+
+    # Fetch pad id 
+    pad_id = ep_views.get_padid(eth_padgroup, group_num)
+
+    # Get Pad object
+    pad = Pad.objects.filter(eth_padid = pad_id)[0]
+
+    group = group_num
+
     t,color_mapping = getUsers(session.id,group)
 
-    params = {'padID':padid}
+    params = {'padID':group_padid}
     rev_count = call('getRevisionsCount',params)
     # get user wise Info
     print(call('padUsersCount',params))
@@ -1702,7 +1729,7 @@ def getGroupPadStats(request,padid):
         params = {'padID':padid,'rev':r+1}
         rev = call('getRevisionChangeset',params)
         ath = call('getRevisionAuthor',params)
-        cs = changeset_parse(rev['data'])
+        cs = ep_views.changeset_parse(rev['data'])
         if (cs['final_op'] == '>'):
             addition[ath['data']] += cs['final_diff']
         if (cs['final_op'] == '<'):
