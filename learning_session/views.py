@@ -1696,7 +1696,7 @@ def getGroupPadStats(request,group_padid):
     group_num = int(group_padid.split('_')[1])
 
     # Get associated SessionGroupMapping object
-    session_group_object = SessionGroupMap.objects.filter(eth_groupid = eth_padgroup)
+    session_group_object = SessionGroupMap.objects.filter(eth_groupid = eth_padgroup)[0]
 
     # Associated session
     session = session_group_object.session
