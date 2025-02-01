@@ -1726,7 +1726,7 @@ def getGroupPadStats(request,group_padid):
         deletion[author] = 0
         author_names[author] = call('getAuthorName',{'authorID':author})['data']
     for r in range(rev_count['data']['revisions']):
-        params = {'padID':padid,'rev':r+1}
+        params = {'padID':group_padid,'rev':r+1}
         rev = call('getRevisionChangeset',params)
         ath = call('getRevisionAuthor',params)
         cs = ep_views.changeset_parse(rev['data'])

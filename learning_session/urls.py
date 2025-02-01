@@ -29,7 +29,7 @@ urlpatterns = [
     path('download/logs/<int:pk>', DownloadLogsView.as_view(), name='download_logs'),
 
     # REST APIs EndPoints
-    path("getStats/<padid>", views.getGroupPadStats),
+    path("getStats/<group_padid>", views.getGroupPadStats),
     path("sessions/word_cloud/<session_id>/<group_id>", views.getWordCloud, name='group_word_cloud'),
     path("getRevCount/<padid>", views.getRevCount, name='getRevisionCount'),
     path("getSpeakingStats/<session_id>", views.getSpeakingStats),
