@@ -1327,13 +1327,16 @@ def getUsers(session_id,group_id):
     sp_users = [user['user'] for user in tmp_users]
     et_users = []
 
-    session_group_object = SessionGroupMap.objects.filter(session=s)[0]
+    session_group_object = SessionGroupMap.objects.filter(session=s).first()
     
     padid =  ep_views.get_padid(session_group_object.eth_groupid,group_id)
-    params = {'padID':padid}
-
+    pad_object = Pad.objects.filter(id=padid).first()
+    params = {'padID':pad_object.eth_padid}
+    print('======> params:',params)
     author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
-
+    # 
+    print('Authors:',author_list)
+    print('Sp users:',sp_users)
     id_to_author = {}
 
     for author in author_list:
@@ -1369,13 +1372,17 @@ def getText(request,session_id,group_id):
         Response: text from the pad of the specified group
     
     #### Just for testing purposes ##########
-    #response = requests.post('http://www.cotrack.website/en/getText/38/1')
+    #response = requests.post('http://www.cotrack.website/en/getText/1/1')
     #return Response({'data':response.json()['data']})
     #########################################
     """
+    session = Session.objects.filter(id=session_id).first()
+    session_group = SessionGroupMap.objects.filter(session=session).first()
     
-    pad = Pad.objects.all().filter(session=session_id,eth_group=group_id)
-    padid =  pad[0].eth_padid
+    # Get pad id for specified group and session
+    pad_id = ep_views.get_padid(session_group.eth_groupid, group_id)
+    pad = Pad.objects.get(id=pad_id)
+    padid =  pad.eth_padid
     params = {'padID':padid}
     t = call('getHTML',params)
     content = t['data']['html']
@@ -1393,15 +1400,9 @@ def getSpeakingStats(request,session_id):
 
     Returns:
         Response: return speaking time, network data, and other details
-    
 
-    #### Just for testing purposes ##########
-    #print('Before call')
-    response = requests.post('http://www.cotrack.website/en/getSpeakingStats/38')
-    #print('After call')
-    #print(response.json())
-    return Response({'data':response.json()})
-    #########################################
+    Url:
+        http://www.cotrack.website/en/getSpeakingStats/1
     """
 
     global VAD_OBJECTS
@@ -1468,8 +1469,10 @@ def getWordCloud(request,session_id,group_id):
     speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
     speeches = " ".join(speech for speech in speeches)
     print(speeches)
+    
     if len(speeches) == 0:
-        data = {'data':'empty'};
+        data = {'data':'empty'}
+        return Response(data)
     else:
         wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
         cloud = wc.generate(speeches)
@@ -1481,8 +1484,9 @@ def getWordCloud(request,session_id,group_id):
         image.seek(0)
         string = base64.b64encode(image.read())
         #image_64 =  urllib.parse.quote(string)
-    data = {'data':str(string.decode())}
-    return Response(data)
+        data = {'data':str(string.decode())}
+        return Response(data)
+    
 
 
 def speechDF(session_id, group_id):
@@ -1682,20 +1686,12 @@ def getGroupPadStats(request,group_padid):
         padid (str): Etherpad padid
     Returns:
         Response: writing statistics
-    
-    #### Just for testing purposes ##########
-    print('Before call')
-    response = requests.post(f'http://www.cotrack.website/en/getStats/{padid}')
-    print('After call')
-    print(response.json())
-    return Response({'data':response.json()})
-    #########################################
     """
     # Fetch etherpad group id from padid
     eth_padgroup = group_padid.split('$')[0]
 
     # Group number
-    group_num = int(group_padid.split('_')[1])
+    group_num = int(group_padid.split('_')[-1]) + 1
 
     # Get associated SessionGroupMapping object
     session_group_object = SessionGroupMap.objects.filter(eth_groupid = eth_padgroup)[0]
@@ -1706,8 +1702,10 @@ def getGroupPadStats(request,group_padid):
     # Fetch pad id 
     pad_id = ep_views.get_padid(eth_padgroup, group_num)
 
+
+
     # Get Pad object
-    pad = Pad.objects.filter(eth_padid = pad_id)[0]
+    pad = Pad.objects.filter(id = pad_id)[0]
 
     group = group_num
 
