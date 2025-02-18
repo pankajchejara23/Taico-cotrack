@@ -579,7 +579,7 @@ class StudentPadView(LoginRequiredMixin,View):
         audio_form = AudioflForm()  # this form used to store audio data on server
 
         # pad name
-        pad_name = f'session_{session_object.id}_group_{group_number-1}'
+        pad_name = f'{groupid}$session_{session_object.id}_group_{group_number-1}'
 
         context_data = {'group':group_number,
                         'session':session_object,
@@ -1384,7 +1384,9 @@ def getText(request,session_id,group_id):
     pad = Pad.objects.get(id=pad_id)
     padid =  pad.eth_padid
     params = {'padID':padid}
+    print('getHTML params:',params)
     t = call('getHTML',params)
+    print("getHTML response:",t)
     content = t['data']['html']
     return Response({'data':content})
 
