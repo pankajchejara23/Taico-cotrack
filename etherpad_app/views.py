@@ -38,12 +38,21 @@ def get_author_user_objects(authorid):
     return author_map
 
 def get_padid(etherpad_group, group_number):
+    """This function returns pad id of specified group number belonging to a particular etherpad group.
+
+    Args:
+        etherpad_group (str): Etherpad group id
+        group_number (int): Group number
+
+    Returns:
+        int: Pad id
+    """
     pad_group_object = PadGroup.objects.filter(groupID=etherpad_group).first()
 
     pad_object = Pad.objects.filter(eth_group=pad_group_object, group_number=group_number).first()
 
     if pad_object is not None:
-        return pad_object.eth_padid
+        return pad_object.id
     else:
         return None
 
@@ -129,7 +138,7 @@ def create_pads(pad_number, group_name):
                                                     groupID=eth_group_id)
 
         # create n pads in etherpad
-        for num in range(int(pad_number)):
+        for num in range(1,int(pad_number)+1):
             #prepare pad name
             pad_name = f'{group_name}_group_{num}'
 
