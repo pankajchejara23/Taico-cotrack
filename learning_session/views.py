@@ -1464,34 +1464,6 @@ def getSpeakingStats(request,session_id):
     return Response({'speaking_data':groups_speaking})
 
 
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def getWordCloud(request,session_id,group_id):
-    stopwords = set(STOPWORDS)
-    session = Session.objects.get(id=session_id)
-    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
-    speeches = " ".join(speech for speech in speeches)
-    print(speeches)
-    
-    if len(speeches) == 0:
-        data = {'data':'empty'}
-        return Response(data)
-    else:
-        wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
-        cloud = wc.generate(speeches)
-        plt.imshow(wc,interpolation ='bilinear')
-        plt.axis('off')
-
-        image = io.BytesIO()
-        plt.savefig(image,format="png")
-        image.seek(0)
-        string = base64.b64encode(image.read())
-        #image_64 =  urllib.parse.quote(string)
-        data = {'data':str(string.decode())}
-        return Response(data)
-    
-
-
 def speechDF(session_id, group_id):
     """This function returns speech data for a particular group in the form of Pandas DataFrame.
 
@@ -1677,6 +1649,47 @@ def getProcessedFeatureFromLogVad(request, session_id, group_id):
     processed_feature['user_del_sd'] = np.std(deleted)
     return processed_feature
 
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getWordCloud(request,session_id,group_id):
+    stopwords = set(STOPWORDS)
+    session = Session.objects.get(id=session_id)
+    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
+    speeches = " ".join(speech for speech in speeches)
+    print(speeches)
+    if len(speeches) == 0:
+        data = {'data':'empty'};
+    else:
+        wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
+        """
+        new code
+        """
+        fig2, ax = plt.subplots(1,1,figsize=(6,8))
+        ax.spines['top'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        cloud = wc.generate(speeches)
+        print('Word cloud generated')
+        ax.imshow(wc,interpolation ='bilinear')
+
+        """
+        fig = plt.figure(figsize=(6,8))
+        cloud = wc.generate(speeches)
+        print('Word cloud generated')
+        plt.imshow(wc,interpolation ='bilinear')
+        plt.axis('off')
+        """
+        image = io.BytesIO()
+        fig2.savefig(image,format="png")
+        image.seek(0)
+        string = base64.b64encode(image.read())
+        #image_64 =  urllib.parse.quote(string)
+    data = {'data':str(string.decode())}
+    return Response(data)
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))

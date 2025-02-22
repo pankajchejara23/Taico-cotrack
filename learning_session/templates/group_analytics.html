@@ -162,9 +162,7 @@
           </button>
         </div>
         <div class='modal-body p-2'>
-
           <div id="etherpad_text">
-            Hello
           </div>
         </div>
       </div>
@@ -327,37 +325,61 @@
     });
 
     const modal = document.getElementById('text') ;
-            
-        modal.addEventListener('show.bs.modal', () => { 
+    modal.addEventListener('show.bs.modal', () => { 
             console.log('show instance method called!'); 
         }) ;
 
-
-    // This code attach a event listener to show group document button.
-    $('#text').on('show.bs.modal', function (event) {
+    // This code attach a event listener to show word cloud.
+    $('#word-cloud').on('show.bs.modal', function (event) {
     console.log('Running function');
     var button = $(event.relatedTarget); // Button that triggered the modal
     var recipient = button.data('whatever');
     console.log(recipient); // Extract info from data-* attributes
-    var URL = "{{protocol}}://{{server}}/getText/38/{{group_sequence}}";
+    var URL = "/en/sessions/word_cloud/{{session.id}}/{{group}}";
     console.log(URL);
     $.ajax(
-    {
+      {
         type:"GET",
         url: URL,
-        "headers": {
-                "accept": "application/json",
-                "Access-Control-Allow-Origin":"*"
-            },
         success: function( data )
         {
             console.log(data.data);
             if (data.data != "empty") {
-                console.log('Setting etherpad text');
-            $('#etherpad_text').html(data.data);
+              image_data = "data:image/png;base64," + data.data;
+              $('#word_cloud_img').attr('src',image_data);
             }
         }
-    })
+      })
+    });
+
+
+
+
+    // This code attach a event listener to show group document button.
+    $('#text').on('show.bs.modal', function (event) {
+      console.log('Running function');
+      var button = $(event.relatedTarget); // Button that triggered the modal
+      var recipient = button.data('whatever');
+      console.log(recipient); // Extract info from data-* attributes
+      var URL = "{{protocol}}://{{server}}/getText/{{session.id}}/{{group_sequence}}";
+      console.log(URL);
+      $.ajax(
+      {
+          type:"GET",
+          url: URL,
+          "headers": {
+                  "accept": "application/json",
+                  "Access-Control-Allow-Origin":"*"
+              },
+          success: function( data )
+          {
+              console.log(data.data);
+              if (data.data != "empty") {
+                  console.log('Setting etherpad text');
+              $('#etherpad_text').html(data.data);
+              }
+          }
+      })
     });
 
     function makeGetRequest(path) {
