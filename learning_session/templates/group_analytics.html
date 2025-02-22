@@ -508,6 +508,7 @@
 
     // Fetching speaking data and populating graphs
     var speak_rest_url = '{{protocol}}://{{server}}/getSpeakingStats/{{session.id}}';
+    console.log('Frist call:getSpeakingStats');
     $.ajax(
     {
         type:"GET",
@@ -517,8 +518,11 @@
                 "Access-Control-Allow-Origin":"*"
             },
         success: function( data )
-        {
-            var result = data.data;
+        { 
+            console.log('Returning speaking stats===========>');
+            console.log(data.speaking_data);
+            var result = data;
+            
             if (data.speaking_data != "empty") {
                 var m = 0; // This is equivalent to group number - 1. So 0 represents the first group.
 
@@ -549,6 +553,7 @@
 
                 cy_tmp.layout();
             }
+                
         }
     });
 
@@ -565,9 +570,10 @@
             },
         success: function( data )
         {
-            console.log(data.data);
-            if (data.data != "empty") {
-                var result2 = data.data;
+            console.log(data);
+            
+            if (data != "empty") {
+                var result2 = data;
                 console.log(result2);
                 Object.keys(result2).forEach(function(key) {
                     console.log(key);
@@ -577,6 +583,7 @@
                     $('#write-stats').html(content);
                 });
             }
+                
         }
     }); 
     
@@ -594,9 +601,9 @@
             },
         success: function( data )
         {
-            console.log(data.data);
-            if (data.data != "empty") {
-                var result2 = data.data;
+            console.log(data);
+            if (data != "empty") {
+                var result2 = data;
                 console.log(result2);
                 Object.keys(result2).forEach(function(key) {
                     console.log(key);
@@ -606,6 +613,7 @@
                     myChart2.data.datasets[0].backgroundColor[key]=result2[key].color;
                     myChart2.update();
                 });
+                
             }
         }
     }); 
