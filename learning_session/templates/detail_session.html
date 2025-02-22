@@ -82,7 +82,7 @@
                         {% endif %}
                         </td>
                         <td>
-                        <a href="{% url 'session_group_detail' session.id g %}" class="btn btn-link">{% trans 'Group analytics'%}</a> 
+                        <a href="{% url 'session_group_detail' session.id forloop.counter %}" class="btn btn-link">{% trans 'Group analytics'%}</a> 
                     </td>
                 </tr>
                 {% endfor %}
