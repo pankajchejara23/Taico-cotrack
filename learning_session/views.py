@@ -878,7 +878,7 @@ class UserCreateView(View):
     """
     form_class = UserCreateForm  
     template_name = 'create_user.html'
-    success_url = '/session/list/admin'
+    success_url = '/session/list/'
 
     def get(self, request, *args, **kwargs):
         """This function shows user creation form.
@@ -907,7 +907,8 @@ class UserCreateView(View):
             user_object = User.objects.create_user(username = user,email = email,password = pwd)
 
             # set is_staff status
-            user_object.is_active = staff
+            user_object.is_staff = staff
+            user_object.is_active = True
             user_object.save()
             messages.success(request, f'User acocunt for <strong>{user_object.email}</strong> has been created.')
         else:
