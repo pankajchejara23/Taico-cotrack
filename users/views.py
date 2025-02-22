@@ -96,6 +96,17 @@ class CustomLoginView(LoginView):
     """
     form_class = LoginForm
 
+    def get_success_url(self):
+        """Redirect users based on their is_staff status. This status differentiate teachers from students.
+
+        """
+        user = self.request.user
+        if user.is_staff:
+            return '/session/list'
+        else:
+            return '/session/enter'
+        
+
     def form_valid(self, form):
         """Function extending the functionality of validity check
            url:'/login'
