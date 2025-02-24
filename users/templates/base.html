@@ -24,18 +24,19 @@
     <!-- Including navbar html -->
     {% include 'navbar.html' %}
   </div>
-  <div class='min-vh-100  d-flex align-items-center justify-content-center'> 
-    <!--Any flash messages pop up in any page -->
-      <div>
+  <div>
         {% if messages %}
-          <div class="alert alert-dismissible fade show" role="alert">
             {% for message in messages %}
-              <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             {% endfor %}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
         {% endif %}
       </div>
+  <div class='min-vh-100  d-flex align-items-center justify-content-center'> 
+    <!--Any flash messages pop up in any page -->
+      
 
       <!-- Content to populate in Django templates -->
         {%block content%}
