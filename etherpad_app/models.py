@@ -22,6 +22,8 @@ def call(function, arguments=None, request=None):
         response = requests.post(url,arguments)
         # response object
         x = response.json()
+        print('--> Calling:',function)
+        print('====== Response:',x)
         return x
     except:
         return None
