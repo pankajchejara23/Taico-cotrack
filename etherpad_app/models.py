@@ -18,14 +18,10 @@ def call(function, arguments=None, request=None):
         request (): request params
     """
     try:
-        url =  "https://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY
-        print('Making call to ',url)
-        
+        url =  settings.ETHERPAD_PROTOCOL + "://" + settings.ETHERPAD_URL + '/api/1.2.12/' +function+'?apikey='+settings.ETHERPAD_KEY   
         response = requests.post(url,arguments)
-
         # response object
         x = response.json()
-        print('Returned:x',x)
         return x
     except:
         return None
