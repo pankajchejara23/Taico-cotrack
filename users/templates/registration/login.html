@@ -12,7 +12,11 @@
 <section class="py-3 py-md-5 py-xl-8">
   <div class="container">
     <div class="row gy-4 align-items-center">
+      {% if request.user.is_authenticated %}
+      <div class="col-12 col-md-10 col-xl-10 text-white">
+      {% else %}
       <div class="col-12 col-md-6 col-xl-7 text-white">
+      {% endif %}
         <div class="d-flex justify-content-center text-bg-primary">
           <div class="col-12 col-xl-9">
             <h1 class="display-3 mb-4" style="font-weight:600">  
@@ -24,17 +28,15 @@
             </h1>
             <p class="fs-5">
                     <!-- Block translated for translations -->
-                    {% blocktrans %}
-                    With CoTrack, educators can facilitate group activities in a collaborative environment similar to Google Docs. 
+                    {% blocktrans %}With CoTrack, educators can facilitate group activities in a collaborative environment similar to Google Docs. 
                     The tool enables the monitoring of group dynamics and the participation levels of each student, providing valuable insights.
-                    Additionally, CoTrack can collect a variety of data, including audio, video, and logs, for comprehensive research purposes.
-                    {% endblocktrans%}
+                    Additionally, CoTrack can collect a variety of data, including audio, video, and logs, for comprehensive research purposes.{% endblocktrans%}
 
                 </p><div class="text-endx">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
                 <path d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
               </svg> <br/>
-              <a class='btn btn-warning' href="{% url 'session_list' %}"> Go to your dashboard</a>
+              <a class='btn btn-warning' href="{% url 'session_list' %}"> {% trans 'Go to your dashboard' %}</a>
             </div>
           </div>
         </div>
@@ -60,8 +62,8 @@
               <div class="row">
                 <div class="col-12">
                   <div class="mb-4">
-                    <h3>Sign in</h3>
-                    <p>Don't have an account? <a href="{% url 'register'%}">Sign up</a></p>
+                    <h3>{% trans 'Sign in' %}</h3>
+                    <p>{% trans "Don't have an account"%}? <a href="{% url 'register'%}">{% trans "Sign Up" %}</a></p>
                   </div>
                 </div>
               </div>
@@ -71,26 +73,26 @@
                   <div class="col-12">
                     <div class="form-floating mb-3">
                       {{ form.username }}
-                      <label for="email" class="form-label">Username</label>
+                      <label for="email" class="form-label">{% trans "Username"%}</label>
                     </div>
                   </div>
                   <div class="col-12">
                     <div class="form-floating mb-3">
                       {{ form.password }}
-                      <label for="password" class="form-label">Password</label>
+                      <label for="password" class="form-label">{% trans "Password"%}</label>
                     </div>
                   </div>
                   <div class="col-12">
                     <div class="form-check">
                       {{ form.remember_me }}
                       <label class="form-check-label text-secondary" for="remember_me">
-                        Keep me logged in
+                        {% trans "Keep me logged in"%}
                       </label>
                     </div>
                   </div>
                   <div class="col-12">
                     <div class="d-grid">
-                      <button class="btn btn-primary btn-lg" type="submit">Log in now</button>
+                      <button class="btn btn-primary btn-lg" type="submit">{% trans "Log in now"%}</button>
                     </div>
                   </div>
                 </div>
@@ -98,20 +100,21 @@
               <div class="row">
                 <div class="col-12">
                   <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-end mt-4">
-                    <a href="{% url 'password_reset'%}">Forgot password</a>
+                    <a href="{% url 'password_reset'%}">{% trans "Forgot password" %}</a>
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-12">
-                  <!-- @todo: Enable after configuration of social media plugin
+                  
                   <p class="mt-4 mb-4">Or continue with</p>
                   <div class="d-flex gap-2 gap-sm-3 justify-content-centerX">
-                    <a href="#!" class="btn btn-outline-danger bsb-btn-circle bsb-btn-circle-2xl">
+                    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger bsb-btn-circle bsb-btn-circle-2xl">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
                         <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z" />
                       </svg>
                     </a>
+                    <!-- @todo: Enable after configuration of social media plugin
                     <a href="#!" class="btn btn-outline-primary bsb-btn-circle bsb-btn-circle-2xl">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
                         <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
