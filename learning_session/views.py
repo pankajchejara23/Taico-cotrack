@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent
 from django.views import View
 from django.contrib import messages
@@ -111,7 +113,21 @@ def after_login_page(request):
     else:
         redirect('session_enter')
 
-class SessionUpdateView(UpdateView):
+
+class StaffRequiredMixin(UserPassesTestMixin):
+    """This mixin put an access restriction on some views
+
+    Args:
+        UserPassesTestMixin (_type_): _description_
+    """
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def handle_no_permission(self):
+        return HttpResponseForbidden("You do not have permission to access this page.")
+
+
+class SessionUpdateView(StaffRequiredMixin,UpdateView):
     """This view allows editing of Session objects.
 
     """
@@ -190,7 +206,7 @@ class SessionUpdateView(UpdateView):
         return HttpResponseRedirect(reverse(self.get_success_url()))
 
 
-class SessionListView(UserPassesTestMixin,ListView):
+class SessionListView(StaffRequiredMixin,UserPassesTestMixin,ListView):
     """View for listing out learning sessions
 
     """
@@ -211,7 +227,7 @@ class SessionListView(UserPassesTestMixin,ListView):
         return queryset
 
 
-class GrantTeacherRoleView(ListView):
+class GrantTeacherRoleView(StaffRequiredMixin,ListView):
     """View for displaying role requests
 
     """
@@ -232,7 +248,7 @@ class SessionListAdminView(ListView):
         return queryset
 
 
-class SessionArchiveListView(ListView):
+class SessionArchiveListView(StaffRequiredMixin,ListView):
     """View for listing out archived learning sessions
 
     """
@@ -245,7 +261,7 @@ class SessionArchiveListView(ListView):
         return queryset
 
 
-class SessionArchiveView(View):
+class SessionArchiveView(StaffRequiredMixin,View):
     """This view handles archiving of sessions.
 
     """
@@ -268,7 +284,7 @@ class SessionArchiveView(View):
         return redirect('session_list')
 
 
-class SessionDuplicateView(View):
+class SessionDuplicateView(StaffRequiredMixin,View):
     """This view handles duplicate and archive actions.
 
     """
@@ -310,7 +326,7 @@ class SessionDuplicateView(View):
         return redirect('session_list')
 
 
-class SessionDetailView(DetailView):
+class SessionDetailView(StaffRequiredMixin,DetailView):
     """View for displaying dashboard for the session
 
     """
@@ -330,7 +346,7 @@ class SessionDetailView(DetailView):
         return context
 
 
-class SessionCreateView(View):
+class SessionCreateView(StaffRequiredMixin,View):
     """View to create learning session
 
     """
@@ -486,7 +502,7 @@ class SessionLeaveView(LoginRequiredMixin,View):
         return redirect('session_enter')
     
 
-class SessionGroupAnalyticsView(View):
+class SessionGroupAnalyticsView(StaffRequiredMixin,View):
     """View for displaying dashboard for a particular group
 
     """
@@ -830,7 +846,7 @@ class RoleRequestView(LoginRequiredMixin,View):
             return render(request, self.template_name, {'form':form})
 
 
-class RoleRequestListView(ListView):
+class RoleRequestListView(StaffRequiredMixin,ListView):
     """View for displaying all role requests.
 
     """
@@ -921,7 +937,7 @@ class UserCreateView(View):
         return HttpResponseRedirect(self.success_url)
 
 
-class RoleRequestAction(View):
+class RoleRequestAction(StaffRequiredMixin,View):
     """View to handle role request actions
     
     """
@@ -964,7 +980,7 @@ class RoleRequestAction(View):
 
 
 # Download data views
-class DownloadVadView(View): 
+class DownloadVadView(StaffRequiredMixin,View): 
     """View to download VAD data
     
     """
@@ -1008,7 +1024,7 @@ class DownloadVadView(View):
             return response
         
 
-class DownloadSpeechView(View): 
+class DownloadSpeechView(StaffRequiredMixin,View): 
     """View to download Speech data
     
     """
@@ -1049,7 +1065,7 @@ class DownloadSpeechView(View):
 
             return response
 
-class DownloadLogsView(View): 
+class DownloadLogsView(StaffRequiredMixin,View): 
     """View to download Logs data
     
     """
@@ -1763,21 +1779,23 @@ def getGroupPadStats(request,group_padid):
     rev_count = call('getRevisionsCount',params)
     print('  getRevisionCount:',rev_count)
     # get user wise Info
-    print('  padUsersCount:',call('padUsersCount',params))
-    print('  listAuthorsOfPad:',call('listAuthorsOfPad',params))
     author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
+    print(' Authors:',author_list)
     addition = {}
     deletion = {}
     author_names = {}
     for author in author_list:
-        print('Author',author)
+        print('------>    Author',author)
         addition[author] = 0
         deletion[author] = 0
+        print('------>    Calling:',call('getAuthorName',{'authorID':author}))
         author_names[author] = call('getAuthorName',{'authorID':author})['data']
     for r in range(rev_count['data']['revisions']):
         params = {'padID':pad.eth_padid,'rev':r+1}
         rev = call('getRevisionChangeset',params)
+        print(' getReivisionChangeSet:',rev)
         ath = call('getRevisionAuthor',params)
+        print(' getRevisionAuthor:',ath)
         cs = ep_views.changeset_parse(rev['data'])
         if (cs['final_op'] == '>'):
             addition[ath['data']] += cs['final_diff']
