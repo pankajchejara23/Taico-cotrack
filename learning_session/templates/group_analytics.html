@@ -5,7 +5,7 @@
   <div class="container">
     <a href="{% url 'session_detail' session.id %}" class="p-0 btn btn-link text-white"><i class='fas fa-arrow-left'></i> {% trans 'Back' %}</a>
     <div>
-        <p class="h3 text-left"><span class="text-white">{% trans 'Group' %}-{{group_sequence}}</p>
+        <p class="h3 text-left"><span class="text-white">{% trans 'Group' %}-{{group}}</p>
         <p class="h5 text-left"> <span class="text-white">{% trans 'Session' %}: {{session.name | upper}} </span> <br/> </p>
         <p class="h5 text-left"> <span class="text-white">{% trans 'Participants' %}:</span> <span id="members"></span> </p>
         <a  data-bs-toggle="collapse" href="#collapseExample" aria-expanded="true" aria-controls="collapseExample"> 
@@ -111,8 +111,6 @@
                     {% endblocktrans %}
                   </p>
                 </div>
-               
-
               </div>
               <p class="fw-light text-secondary">{% trans 'Dimensions' %}</p>
               <div class="m-0 p-0" style="min-width:200px;min-height:200px;">
@@ -131,8 +129,10 @@
                   </li>
                 </ul>
               </div>
-              <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#suggestions" data-bs-whatever="{{group}}"  disabled><i class="far fa-lightbulb" aria-hidden="true"> </i>  {% trans 'Intervention Suggestions' %}</button>
-
+              <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#suggestions" data-bs-whatever="{{group}}"  disabled>
+                <i class="far fa-lightbulb" aria-hidden="true"> </i>  
+                {% trans 'Intervention Suggestions' %}
+              </button>
             </div>
         </div>
       </div>
@@ -352,16 +352,13 @@
       })
     });
 
-
-
-
     // This code attach a event listener to show group document button.
     $('#text').on('show.bs.modal', function (event) {
       console.log('Running function');
       var button = $(event.relatedTarget); // Button that triggered the modal
       var recipient = button.data('whatever');
       console.log(recipient); // Extract info from data-* attributes
-      var URL = "{{protocol}}://{{server}}/getText/{{session.id}}/{{group_sequence}}";
+      var URL = "{{protocol}}://{{server}}/getText/{{session.id}}/{{group}}";
       console.log(URL);
       $.ajax(
       {
@@ -520,12 +517,11 @@
         success: function( data )
         { 
             console.log('Returning speaking stats===========>');
-            console.log(data.speaking_data);
+            console.log(data);
             var result = data;
-            
             if (data.speaking_data != "empty") {
-                var m = 0; // This is equivalent to group number - 1. So 0 represents the first group.
-
+                var m = {{group_sequence}};  
+                console.log()
                 // Updating bar chart
                 for (n = 0 ; n < result.speaking_data[m].data.length; n ++) {
                     myChart.data.datasets[0].data[n]= result.speaking_data[m].data[n].speaking / 60;
@@ -550,7 +546,6 @@
                     console.log('Type:',typeof(node_id));
                     cy_tmp.add({ group: 'edges', data: { source: result.speaking_data[m].graph.edges[n].source, target: result.speaking_data[m].graph.edges[n].to, weight:result.speaking_data[m].graph.edges[n].weight } });
                 }
-
                 cy_tmp.layout();
             }
                 
@@ -558,8 +553,9 @@
     });
 
     // Fetching revision count and document length
-    console.log('Updating writing statistics');
-    rev_url = '{{protocol}}://{{server}}/getRevCount/{{padid}}';
+    
+    rev_url = '{{protocol}}://{{server}}/getRevCount/{{ethid}}';
+    console.log(rev_url);
     $.ajax(
     {
         type:"GET",
@@ -570,16 +566,15 @@
             },
         success: function( data )
         {
+            console.log('Updating writing statistics');
             console.log(data);
             
             if (data != "empty") {
                 var result2 = data;
                 console.log(result2);
                 Object.keys(result2).forEach(function(key) {
-                    console.log(key);
-                    console.log('---->>>>>');
                     content = "<p class='text-secondary small'> Total updates: <span class='text-dark fw-bold small'>"+result2.revisions+"</span></p>";
-                    content += "<p class='text-secondary small'> Total words: <span class='text-dark fw-bold small'>"+44+"</span></p>"
+                    //content += "<p class='text-secondary small'> Total words: <span class='text-dark fw-bold small'>"+44+"</span></p>"
                     $('#write-stats').html(content);
                 });
             }
@@ -588,8 +583,8 @@
     }); 
     
     // Fetching writing data and populating graphs
-    console.log('Updating writing pie chart');
-    var write_url = '{{protocol}}://{{server}}/getStats/{{padid}}';
+    
+    var write_url = '{{protocol}}://{{server}}/getStats/{{ethid}}';
     console.log(write_url);
     $.ajax(
     {
@@ -601,13 +596,12 @@
             },
         success: function( data )
         {
+            console.log('Updating writing pie chart');
             console.log(data);
             if (data != "empty") {
                 var result2 = data;
-                console.log(result2);
                 Object.keys(result2).forEach(function(key) {
                     console.log(key);
-                    console.log('---->>>>>');
                     myChart2.data.datasets[0].data[key]= result2[key].addition + result2[key].deletion;
                     myChart2.data.labels[key]=result2[key].name;
                     myChart2.data.datasets[0].backgroundColor[key]=result2[key].color;
