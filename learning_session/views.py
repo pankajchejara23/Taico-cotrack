@@ -513,6 +513,10 @@ class SessionGroupAnalyticsView(View):
         # This is the id of Pad object (e.g., 1,2,3 etc.)
         padid = ep_views.get_padid(session_group_map.eth_groupid,group_number)
 
+        ethid = Pad.objects.get(id=padid).eth_padid
+
+        print(f'Requested pad info:  ID:{padid}  Eth:{ethid}')
+
         # fetch etherpad group
         context_data = {
                         'group':group_number,
@@ -520,7 +524,8 @@ class SessionGroupAnalyticsView(View):
                         'padid':padid,
                         'protocol':settings.PROTOCOL,
                         'server':settings.SERVER_URL,
-                        'group_sequence':group_number
+                        'group_sequence':group_number-1,
+                        'ethid':ethid
                         }
         return render(request, self.template_name, context_data)
 
@@ -579,7 +584,7 @@ class StudentPadView(LoginRequiredMixin,View):
         audio_form = AudioflForm()  # this form used to store audio data on server
 
         # pad name
-        pad_name = f'{groupid}$session_{session_object.id}_group_{group_number-1}'
+        pad_name = f'{groupid}$session_{session_object.id}_group_{group_number}'
 
         context_data = {'group':group_number,
                         'session':session_object,
@@ -588,7 +593,7 @@ class StudentPadView(LoginRequiredMixin,View):
                         'pad_name':pad_name,
                         'sessionid':sessionID,
                         'etherpad_url':settings.ETHERPAD_URL,
-                        'protocol':settings.PROTOCOL,
+                        'protocol':settings.ETHERPAD_PROTOCOL,
                         'server':settings.SERVER_URL}
 
         return render(request, self.template_name, context_data)
@@ -1096,9 +1101,9 @@ class DownloadLogsView(View):
 
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
-def getRevCount(request,padid):
+def getRevCount(request,ethid):
     """This function returns number of revisions made in the pad of given padid.
-
+    @url: /getRevCount/<padid>
     Args:
         request (HttpRequest): request object
         padid (str): Etherpad pad id
@@ -1106,9 +1111,8 @@ def getRevCount(request,padid):
     Returns:
         Response: number of revision counts
     """
-    pad_object = Pad.objects.filter(id=padid).first()
-    pad_eth_id = pad_object.eth_padid
-    params = {'padID':pad_eth_id}
+
+    params = {'padID':ethid}
     rev_count = call('getRevisionsCount',params)
     return Response({'revisions':rev_count['data']['revisions']})
 
@@ -1719,9 +1723,9 @@ def get_pad_session(pad):
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 # change the signature back to  def getGroupPadStats(request,padid)
-def getGroupPadStats(request,pad_id):
+def getGroupPadStats(request,group_padid):
     """This function returns group-wise statistics for writing.
-
+       @url: /getStats/<pad_id>
     Args:
         request (HttpRequest): request object
         padid (str): Etherpad padid
@@ -1729,12 +1733,12 @@ def getGroupPadStats(request,pad_id):
         Response: writing statistics
     """
 
-    """
+    
     # Fetch etherpad group id from padid
     eth_padgroup = group_padid.split('$')[0]
 
     # Group number
-    group_num = int(group_padid.split('_')[-1]) + 1
+    group_num = int(group_padid.split('_')[-1])
 
     # Get associated SessionGroupMapping object
     session_group_object = SessionGroupMap.objects.filter(eth_groupid = eth_padgroup)[0]
@@ -1744,22 +1748,23 @@ def getGroupPadStats(request,pad_id):
 
     # Fetch pad id 
     pad_id = ep_views.get_padid(eth_padgroup, group_num)
-    """
-
+    
+    print('==============   In getStats')
     # Get Pad object
     pad = Pad.objects.filter(id = pad_id).first()
     group = pad.group_number
 
-    session = get_pad_session(pad)
-
     # Return user list and color mapping (each user is linked with a unique color)
     t,color_mapping = getUsers(session.id,group)
-
-    params = {'padID':pad.eth_padid}
+    #print(f't:{t} color_mapping:{color_mapping}')
+    params = {'padID':group_padid}
+    print('   Params:',params)
+    
     rev_count = call('getRevisionsCount',params)
+    print('  getRevisionCount:',rev_count)
     # get user wise Info
-    print(call('padUsersCount',params))
-    print(call('listAuthorsOfPad',params))
+    print('  padUsersCount:',call('padUsersCount',params))
+    print('  listAuthorsOfPad:',call('listAuthorsOfPad',params))
     author_list = call('listAuthorsOfPad',params)['data']['authorIDs']
     addition = {}
     deletion = {}
