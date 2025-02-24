@@ -24,7 +24,7 @@
     <!-- Including navbar html -->
     {% include 'navbar.html' %}
   </div>
-  <div>
+  <div class="container">
         {% if messages %}
             {% for message in messages %}
             <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
@@ -33,7 +33,7 @@
             </div>
             {% endfor %}
         {% endif %}
-      </div>
+  </div>
   <div class='min-vh-100  d-flex align-items-center justify-content-center'> 
     <!--Any flash messages pop up in any page -->
       
