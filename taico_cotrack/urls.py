@@ -42,3 +42,4 @@ urlpatterns += [path('i18n/', include("django.conf.urls.i18n"))]
 urlpatterns += [ path('change-lang/<lang_code>', change_language, name='change_language')]
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
+urlpatterns += [path('accounts/', include('allauth.urls'))]
