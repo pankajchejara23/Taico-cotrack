@@ -885,8 +885,9 @@ class GrantRoleView(View):
             # get corresponding user object
             user_object = User.objects.get(id=user.id)
 
+            user_object.is_active = True
             # using is_active as a flag to determine teacher's role
-            user_object.is_active = staff
+            user_object.is_staff = staff
             messages.success(request, f'User <strong>{user.email}</strong> has been assigned teacher role.')
         else:
             return render(request, self.template_name, {'form':form})
