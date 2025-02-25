@@ -134,7 +134,7 @@ class SessionUpdateView(StaffRequiredMixin,UpdateView):
     """
     model = Session
     template_name = 'update_session.html'
-    success_url = reverse_lazy('session_list')
+    success_url = 'session_list'
     form_class = SessionUpdateForm
 
     def update_group_pin(self, org_groups, new_groups):
@@ -204,7 +204,7 @@ class SessionUpdateView(StaffRequiredMixin,UpdateView):
         else:
             messages.error(self.request, _('There are some errors while updating pads in Etherpad.'))
             
-        return HttpResponseRedirect(reverse(self.get_success_url()))
+        return HttpResponseRedirect(reverse_lazy(self.get_success_url()))
 
 
 class SessionListView(StaffRequiredMixin,UserPassesTestMixin,ListView):
