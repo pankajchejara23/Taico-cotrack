@@ -53,6 +53,7 @@
             <div class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
               {% if request.user.is_authenticated and request.user.is_staff == True %}
                 <a class="dropdown-item" href="{% url 'session_list' %}">{% trans 'Dashboard' %}</a>
+                <a class="dropdown-item" href="{% url 'session_enter' %}">{% trans 'Enter into a session' %}</a>
               {% endif %}
 
               {% if request.user.is_authenticated and request.user.is_staff == False %}
