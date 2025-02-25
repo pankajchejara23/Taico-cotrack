@@ -888,6 +888,7 @@ class GrantRoleView(View):
             user_object.is_active = True
             # using is_active as a flag to determine teacher's role
             user_object.is_staff = staff
+            user_object.save()
             messages.success(request, f'User <strong>{user.email}</strong> has been assigned teacher role.')
         else:
             return render(request, self.template_name, {'form':form})
@@ -918,6 +919,7 @@ class UserCreateView(View):
             request (HttpRequest): request parameter
         """
         form = self.form_class(request.POST)
+        print(form)
         if form.is_valid():
             # fetching submitted data
             user = form.cleaned_data.get('name')
@@ -927,7 +929,7 @@ class UserCreateView(View):
 
             # create a new user
             user_object = User.objects.create_user(username = user,email = email,password = pwd)
-
+            print('Setting is_staff to',staff)
             # set is_staff status
             user_object.is_staff = staff
             user_object.is_active = True
