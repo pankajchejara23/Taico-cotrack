@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.http import HttpResponseForbidden
 from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent
 from django.views import View
@@ -133,7 +134,7 @@ class SessionUpdateView(StaffRequiredMixin,UpdateView):
     """
     model = Session
     template_name = 'update_session.html'
-    success_url = '/session/list'
+    success_url = reverse_lazy('session_list')
     form_class = SessionUpdateForm
 
     def update_group_pin(self, org_groups, new_groups):
