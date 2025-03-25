@@ -258,7 +258,7 @@ class SessionArchiveListView(StaffRequiredMixin,ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(status=False)
+        queryset = queryset.filter(status=False).filter(creator=self.request.user)
         return queryset
 
 
