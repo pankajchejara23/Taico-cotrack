@@ -973,13 +973,13 @@ class UserBulkCreateView(View):
 
             # create a new user
             for user_number in range(1,how_many+1):
-                user = f'{prefix}_{user}'
-                email = f'{prefix}_{user}@demo.ee'
+                user = f'{prefix}_{user_number}'
+                email = f'{prefix}_{user_number}@demo.ee'
 
                 user_object = User.objects.create_user(username = user,email = email,password = pwd)
                 user_object.is_active = True
                 user_object.save()
-            messages.success(request, f'{how_many} Users accounts are created.<br/> user-name : {prefix}_N  (here N is a number from 1 to {how_many}<br/>  password:{pwd}')
+            messages.success(request, f'{how_many} user accounts are created.<br/> user-name : {prefix}_N  (here N is a number from 1 to {how_many}<br/>  password:{pwd}')
         else:
             return render(request, self.template_name, {'form':form})
         return HttpResponseRedirect(self.success_url)

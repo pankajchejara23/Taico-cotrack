@@ -4,8 +4,10 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.utils.translation import gettext as _
 from .models import Session, VAD, Speech, Audiofl, RoleRequest
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 User = get_user_model()
 
+MAX_BULK_USERS_LIMIT = 20
 
 default_consent_form_content = """<h3>Dear Participant </h3>
       With your permission, we would like to record audio and video during collaborative activity session so that we can analyze it in detail later on.
@@ -456,5 +458,29 @@ class UserBulkCreateForm(forms.Form):
                                     'placeholder': _('Number of users to create'),
                                     'class': 'form-control',
                                 }))
+
+    def clean_prefix(self):
+        """
+        This check ensure that the prefix has not been used previously by other users.
+        """
+        prefix = self.cleaned_data['prefix']
+        user_name = f'{prefix}_1'
+
+        users = User.objects.all().filter(username=user_name)
+        if len(users) != 0:
+            raise ValidationError("The specified prefix has already been used. Please use another prefix")
+    
+        return prefix
+
+    def clean_how_many(self):
+        """
+        This check ensure that number of users does not exceed the limit.
+        """
+        how_many = self.cleaned_data['how_many']
+    
+        if how_many > MAX_BULK_USERS_LIMIT:
+            raise ValidationError(f"You can create only upto {MAX_BULK_USERS_LIMIT} users per prefix.")
+
+        return how_many
     
     
