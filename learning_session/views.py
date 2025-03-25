@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.core.files.base import File
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
 from .forms import SessionCreateForm, SessionEnterForm, AudioflForm, VADForm, SpeechForm, SessionUpdateForm 
-from .forms import ConsentForm, RoleRequestForm, GrantTeacherRoleForm, UserCreateForm
+from .forms import ConsentForm, RoleRequestForm, GrantTeacherRoleForm, UserCreateForm, UserBulkCreateForm
 from etherpad_app import views as ep_views
 from datetime import date, timedelta
 import uuid
@@ -940,6 +940,49 @@ class UserCreateView(View):
             return render(request, self.template_name, {'form':form})
         return HttpResponseRedirect(self.success_url)
 
+
+class UserBulkCreateView(View):
+    """View for creating new user accounts.
+
+    """
+    form_class = UserBulkCreateForm  
+    template_name = 'create_bulk_users.html'
+    success_url = '/session/list'
+
+    def get(self, request, *args, **kwargs):
+        """This function shows user creation form.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class()
+        return render(request, self.template_name, {'form':form})
+    
+    def post(self, request, *args, **kwargs):
+        """This function handles submission of user creation form.
+
+        Args:
+            request (HttpRequest): request parameter
+        """
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # fetching submitted data
+            prefix = form.cleaned_data.get('prefix')
+            pwd = form.cleaned_data.get('password')
+            how_many = form.cleaned_data.get('how_many')
+
+            # create a new user
+            for user_number in range(1,how_many+1):
+                user = f'{prefix}_{user_number}'
+                email = f'{prefix}_{user_number}@demo.ee'
+
+                user_object = User.objects.create_user(username = user,email = email,password = pwd)
+                user_object.is_active = True
+                user_object.save()
+            messages.success(request, f'{how_many} user accounts are created.<br/> user-name : {prefix}_N  (here N is a number from 1 to {how_many}<br/>  password:{pwd}')
+        else:
+            return render(request, self.template_name, {'form':form})
+        return HttpResponseRedirect(self.success_url)
 
 class RoleRequestAction(StaffRequiredMixin,View):
     """View to handle role request actions

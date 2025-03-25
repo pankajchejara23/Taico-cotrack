@@ -1,0 +1,70 @@
+{% extends "teacher_base.html" %} 
+{% load static %} 
+{% load i18n %} 
+{% block title %} {% trans 'Create Learning Session' %} {% endblock title%} 
+{% block content %}
+
+<div class='container'>
+<h3 class='fw-light my-3 text-white'>Create users in bulk </h3>
+<p class='lead text-white'> Here, you can create users for your lessons.  </p>
+<div class="form-content text-white my-1 p-2">
+  <div class="border-0 rounded-lg mt-0 mb-3">
+    {% if form.errors %}
+    <div class="alert alert-danger alert-dismissible  fade show" role="alert">
+      <div id="form_errors">
+        {% for key, value in form.errors.items %}
+        <strong class='lead'>{{key | upper}}</strong> {{ value }}
+        {% endfor %}
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <div class="">
+      <form method="POST">
+        {{form.media}} {% csrf_token %}
+        <fieldset class="form-group border rounded px-4 py-2 pb-4">
+          <legend class="float-none w-auto p-2">User</legend>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.prefix.label}} </label>
+                {{ form.prefix }}
+              </div>
+            </div>
+          </div>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.password.label}} </label>
+                {{ form.password }}
+              </div>
+            </div>
+          </div>
+          <div class="form-row px-2 py-2">
+            <div class="col-lg-4 col-sm-12">
+              <div class="form-group">
+                <label class="small mb-1"> {{form.how_many.label}} </label>
+                {{ form.how_many }}
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div class="form-row mt-4">
+          <div class="col-md-12">
+            <div class="form-group mt-0 mb-1">
+              <button
+                name="create"
+                class="col-md-12 btn btn-warning"
+                id="login"
+              >
+                {% trans 'Create Users' %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+  {% endblock content %}
+
