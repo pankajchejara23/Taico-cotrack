@@ -3,7 +3,7 @@
 {% block content %}
 <div class='m-3 text-light'>
     <h3 class='fw-light'> Requests submitted for teacher's role </h3>
-    <p > These requests are submitted by CoTrack's users for teacher's privilges. </p>
+    <p > These requests are submitted by CoTrack's users for teacher's privileges. </p>
 </div>
 <div class='m-3 fw-light border rounded p-4 bg-light' style="opacity:.8;">
 
@@ -14,6 +14,7 @@
         <th scope="col">School</th>
         <th scope="col">Subject</th>
         <th scope="col">Class size</th>
+        <th scope="col">Status</th>
         <th scope="col">Action</th>
       </tr>
     </thead>
@@ -24,6 +25,15 @@
         <td>{{obj.school}}</td>
         <td>{{obj.subject}}</td>
         <td>{{obj.class_size}}</td>
+        <td>
+           {% if obj.pending %}
+              <span class="badge  rounded-pill bg-secondary">pending</span>
+           {% elif obj.decision %}
+              <span class="badge rounded-pill bg-success">approved</span>
+           {% else %}
+            <span class="badge rounded-pill bg-danger">rejected</span>
+           {% endif %}
+        </td>
         <td>
           <a href="{% url 'role_request_action' obj.id 'grant'%}" class=""><i title="Grant the permission" class='fa fa-check text-success'></i></a>
           <a href="{% url 'role_request_action' obj.id 'reject'%}"  class="px-3"><i title="Reject the permission" class='fa fa-ban text-danger'></i></a>
