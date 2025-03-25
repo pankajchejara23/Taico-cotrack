@@ -810,7 +810,7 @@ class RoleRequestView(LoginRequiredMixin,View):
     model = RoleRequest
     form_class = RoleRequestForm
     template_name = 'role_request.html'
-    success_url = '/session/list'
+    success_url = '/session/enter'
 
     def get(self, request, *args, **kwargs):
         """This function shows the form to make a request for teacher's role.
@@ -822,8 +822,9 @@ class RoleRequestView(LoginRequiredMixin,View):
 
         # save only if the request does not exists alredy
         roles = RoleRequest.objects.filter(user=self.request.user)
+
         if roles.count() !=0:
-            messages.error(request, 'You already made a request.')
+            messages.error(request, 'You already made a request. It is in processing')
             return HttpResponseRedirect(self.success_url)
         else:
             return render(request, self.template_name, {'form':form})
@@ -1004,15 +1005,14 @@ class RoleRequestAction(StaffRequiredMixin,View):
         if request.user.is_superuser:
             # fetch corresponding role request object
             role_request_object = RoleRequest.objects.get(id=role_request_id)
-
+            user = role_request_object.user
             # grant action
             if action == 'grant':
-                user = role_request_object.user
                 user.is_staff = True
                 user.save()
-
                 # setting the request status as processed
                 role_request_object.pending = False
+                role_request_object.decision = True
                 messages.success(request, _('Request has been approved.'))
                 role_request_object.save()
             
@@ -1020,6 +1020,8 @@ class RoleRequestAction(StaffRequiredMixin,View):
             if action == 'reject':
                 # setting the request status as processed
                 role_request_object.pending = False
+                user.is_staff = False
+                user.save()
                 role_request_object.save()
                 messages.success(request, _('Request has been declined.'))
         return HttpResponseRedirect(reverse('request_list'))
