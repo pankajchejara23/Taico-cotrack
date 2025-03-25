@@ -433,4 +433,28 @@ class UserCreateForm(forms.Form):
                                           klass="django-toggle-switch-dark-primary"
                                           )
                                       )
+
+
+
+class UserBulkCreateForm(forms.Form):
+    """Form to create users in bulk
+
+    """
+    prefix = forms.CharField(max_length=100,
+                                required=True,
+                                widget=forms.TextInput(attrs={
+                                    'placeholder': _('prefix for users names'),
+                                    'class': 'form-control'
+                                }))
+    
+    password = forms.CharField(required=True,
+                                widget=forms.TextInput(attrs={
+                                    'placeholder': _('password for all users'),
+                                    'class': 'form-control',
+                                }))
+    how_many = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={
+                                    'placeholder': _('Number of users to create'),
+                                    'class': 'form-control',
+                                }))
+    
     

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from . import views
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView, SessionListAdminView
-from .views import RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView
+from .views import RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView, UserBulkCreateView
 from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView, SessionGroupAnalyticsView
 urlpatterns = [
     path('session/create', login_required(SessionCreateView.as_view()), name='session_create'),
@@ -24,6 +24,7 @@ urlpatterns = [
     path('request/list', RoleRequestListView.as_view(), name='request_list'),
     path('role/assing', GrantRoleView.as_view(), name='grant_role'),
     path('user/create', UserCreateView.as_view(), name='create_user'),
+    path('user/bulk_create', UserBulkCreateView.as_view(), name='create_bulk_user'),
     path('download/vad/<int:pk>', DownloadVadView.as_view(), name='download_vad'),
     path('download/speech/<int:pk>', DownloadSpeechView.as_view(), name='download_speech'),
     path('download/logs/<int:pk>', DownloadLogsView.as_view(), name='download_logs'),
