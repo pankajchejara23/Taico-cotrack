@@ -310,7 +310,7 @@ class SessionDuplicateView(StaffRequiredMixin,View):
         # generate a secure access pin for each pad in the group
         for group in range(groups):
             group += 1
-            generate_pin(self.object, g)
+            generate_pin(session_object, group) ### @todo: Here new session object needs to be passed
 
         # create equal number of pads in Etherpad (one for each group)
         group_name = f'session_{session_object.id}'
