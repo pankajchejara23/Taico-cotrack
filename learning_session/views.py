@@ -1579,7 +1579,7 @@ class DownloadGroupResponsesView(StaffRequiredMixin,View):
             content = t['data']['html']
 
             # Append
-            contents += f"<h2> Group-{group} Response <h2/> <hr/> {content}"
+            contents += f"<h2> Group-{group} Response </h2> <hr/> {content}"
 
         fname = f"{session.name}_responses.html"
         # Create response with HTML content
