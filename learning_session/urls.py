@@ -4,7 +4,7 @@ from . import views
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView, SessionListAdminView
 from .views import RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView, UserBulkCreateView
-from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView, SessionGroupAnalyticsView
+from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView, SessionGroupAnalyticsView, DownloadGroupResponsesView
 urlpatterns = [
     path('session/create', login_required(SessionCreateView.as_view()), name='session_create'),
     path('session/edit/<int:pk>/', login_required(SessionUpdateView.as_view()), name='session_edit'),
@@ -28,6 +28,7 @@ urlpatterns = [
     path('download/vad/<int:pk>', DownloadVadView.as_view(), name='download_vad'),
     path('download/speech/<int:pk>', DownloadSpeechView.as_view(), name='download_speech'),
     path('download/logs/<int:pk>', DownloadLogsView.as_view(), name='download_logs'),
+    path('download/responses/<int:pk>', DownloadGroupResponsesView.as_view(), name='download_responses'),
 
     # REST APIs EndPoints
     path("getStats/<group_padid>", views.getGroupPadStats),

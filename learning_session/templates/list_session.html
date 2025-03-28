@@ -15,6 +15,7 @@
                     
                     <li><a class="dropdown-item" href="{% url 'session_archive' session.id %}"><i class="fa fa-archive"></i> {% trans 'Archive' %}</a></li>
                     <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'download_responses' session.id %}"><i class="fa fa-file"></i> {% trans 'Download Response' %}</a></li>
                     <li><a class="dropdown-item" href="{% url 'download_vad' session.id %}"><i class="fa fa-download"></i> {% trans 'Download VAD' %}</a></li>
                     <li><a class="dropdown-item" href="{% url 'download_speech' session.id %}"><i class="fa fa-comments"></i> {% trans 'Download Speech' %}</a></li>
                     <li><a class="dropdown-item" href="{% url 'download_logs' session.id %}"><i class="fa fa-file"></i> {% trans 'Download Logs' %}</a></li>

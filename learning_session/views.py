@@ -1535,6 +1535,59 @@ def getSpeakingStats(request,session_id):
     return Response({'speaking_data':groups_speaking})
 
 
+class DownloadGroupResponsesView(StaffRequiredMixin,View): 
+    """View to download group responses data
+    
+    """
+    def get(self, request, *args, **kwargs):
+        """This function returns a html file containing groups' responses in a particular session id.
+
+        Args:
+            session_id (int): Session id
+    
+        Returns:
+            Response consisting of a html file with groups' written text from Etherpad
+
+        Url:
+            http://www.cotrack.website/en/getGroupResponses/1
+        """
+        # get session id
+        session_id = kwargs['pk']
+
+        session = Session.objects.get(id=session_id)
+        session_group = SessionGroupMap.objects.filter(session=session).first()
+        
+        # To store group responses
+        contents = ''
+
+        # Number of groups
+        groups = session.groups
+
+        for group in range(groups):
+            group = group + 1
+
+            # Get pad id for specified group and session
+            pad_id = ep_views.get_padid(session_group.eth_groupid, group)
+            pad = Pad.objects.get(id=pad_id)
+            padid =  pad.eth_padid
+
+            # Prepare params and make a call to get text from Etherpad
+            params = {'padID':padid}
+            t = call('getHTML',params)
+
+            # Etherpad text
+            content = t['data']['html']
+
+            # Append
+            contents += f"<h2> Group-{group} Response <h2/> <hr/> {content}"
+
+        fname = f"{session.name}_responses.html"
+        # Create response with HTML content
+        response = HttpResponse(contents, content_type='text/html')
+        response['Content-Disposition'] = f'attachment; filename={fname}'
+        return response
+
+
 def speechDF(session_id, group_id):
     """This function returns speech data for a particular group in the form of Pandas DataFrame.
 
