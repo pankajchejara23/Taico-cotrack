@@ -1218,22 +1218,23 @@ def getWordCloud(request,session_id,group_id):
     session = Session.objects.get(id=session_id)
     print('=======================================>')
     print('Session:',session.language)
+    print(EST_REMOVE_WORDS)
     # Additional words to remove from generated word cloud
     if session.language == 'En':
         stopwords += EN_REMOVE_WORDS
     else:
         stopwords += EST_REMOVE_WORDS
-    print('STOPWORDS',stopwords)
-    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
-    speeches = " ".join(speech for speech in speeches)
-    print(speeches)
+    
+    speeches_seperate = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
+    speeches_joined = " ".join(speech for speech in speeches_seperate)
+
+    # Explicitly removing additional words
+    speeches = [item for item in speeches_joined if item not in EST_REMOVE_WORDS]
+
     if len(speeches) == 0:
         data = {'data':'empty'}
     else:
         wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
-        """
-        new code
-        """
         fig2, ax = plt.subplots(1,1,figsize=(6,8))
         ax.spines['top'].set_visible(False)
         ax.spines['left'].set_visible(False)
@@ -1243,14 +1244,6 @@ def getWordCloud(request,session_id,group_id):
         ax.set_yticks([])
         cloud = wc.generate(speeches)
         ax.imshow(wc,interpolation ='bilinear')
-
-        """
-        fig = plt.figure(figsize=(6,8))
-        cloud = wc.generate(speeches)
-        print('Word cloud generated')
-        plt.imshow(wc,interpolation ='bilinear')
-        plt.axis('off')
-        """
         image = io.BytesIO()
         fig2.savefig(image,format="png")
         image.seek(0)
