@@ -46,6 +46,23 @@ from rest_framework.response import Response
 from django.db.models import Sum
 from etherpad_app.models import Pad
 
+# Words to remove from Estonian word cloud
+EST_REMOVE_WORDS = ['ma', 'sa', 'ta', 'me', 'te', 'nad', 'mina', 'sina', 'tema', 'meie', 'teie', 
+                    'nemad', 'see', 'need', 'kes', 'mis', 'milline', 'kelle', 'mille', 'end', 'ennast', 
+                    'ise', 'igaüks', 'ja', 'ning', 'ega', 'või', 'ehk', 'kas', 'aga', 'kuid', 'ent', 
+                    'vaid', 'sest', 'kuigi', 'kui', 'et', 'nii et', 'nagu', 'jaoks', 'kohta', 'pärast', 
+                    'ees', 'vahel', 'vastu', 'juurde', 'juurest', 'peal', 'pealt', 'all', 'alt', 'läbi', 
+                    'peale', 'kuni', 'mööda', 'tõttu', 'asemel', 'abil', 'olen', 'oled', 'on', 'olime', 
+                    'oli', 'olid', 'saan', 'saad', 'saab', 'sain', 'sai', 'võin', 'võib', 'võis', 'pean', 
+                    'peab', 'pidi', 'tohin', 'tohib', 'siin', 'seal', 'siia', 'sealt', 'kuskil', 'alati', 
+                    'vahel', 'kunagi', 'juba', 'veel', 'just', 'ainult', 'ainult siis', 'siis', 'nüüd', 
+                    'ka', 'niisiis', 'samuti', 'natuke', 'enamasti', 'täiesti', 'üks', 'teine', 'mõni', 
+                    'mitu', 'kõik', 'jah', 'ei']
+
+# Words to remove from English word cloud
+EN_REMOVE_WORDS = []
+
+
 VAD_OBJECTS = []
 SPEECH_OBJECTS = []
 
@@ -1197,8 +1214,15 @@ def getWordCloud(request,session_id,group_id):
         Response: image of word-cloud
     
     """
-    stopwords = set(STOPWORDS)
+    stopwords = set(STOPWORDS) 
     session = Session.objects.get(id=session_id)
+
+    # Additional words to remove from generated word cloud
+    if session.language == 'en':
+        stopwords += EN_REMOVE_WORDS
+    else:
+        stopwords += EST_REMOVE_WORDS
+
     speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
     speeches = " ".join(speech for speech in speeches)
     print(speeches)
@@ -1217,7 +1241,6 @@ def getWordCloud(request,session_id,group_id):
         ax.set_xticks([])
         ax.set_yticks([])
         cloud = wc.generate(speeches)
-        print('Word cloud generated')
         ax.imshow(wc,interpolation ='bilinear')
 
         """
