@@ -1214,7 +1214,7 @@ def getWordCloud(request,session_id,group_id):
         Response: image of word-cloud
     
     """
-    stopwords = STOPWORDS
+    stopwords = list(STOPWORDS)
     session = Session.objects.get(id=session_id)
     print('=======================================>')
     print('Session:',session.language)
@@ -1249,7 +1249,7 @@ def getWordCloud(request,session_id,group_id):
         image.seek(0)
         string = base64.b64encode(image.read())
         #image_64 =  urllib.parse.quote(string)
-    data = {'data':str(string.decode())}
+        data = {'data':str(string.decode())}
     print('Returning:',data)
     return Response(data)
 
