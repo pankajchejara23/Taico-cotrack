@@ -1216,7 +1216,8 @@ def getWordCloud(request,session_id,group_id):
     """
     stopwords = set(STOPWORDS) 
     session = Session.objects.get(id=session_id)
-
+    print('=======================================>')
+    print('Session:',session.language)
     # Additional words to remove from generated word cloud
     if session.language == 'En':
         stopwords += EN_REMOVE_WORDS
@@ -1795,49 +1796,6 @@ def getProcessedFeatureFromLogVad(request, session_id, group_id):
     processed_feature['user_del_mean'] = np.mean(deleted)
     processed_feature['user_del_sd'] = np.std(deleted)
     return processed_feature
-
-"""
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def getWordCloud(request,session_id,group_id):
-    stopwords = set(STOPWORDS)
-    session = Session.objects.get(id=session_id)
-    speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
-    speeches = " ".join(speech for speech in speeches)
-    print(speeches)
-    if len(speeches) == 0:
-        data = {'data':'empty'};
-    else:
-        wc = WordCloud(background_color = 'white', max_words=2000, stopwords = stopwords)
-        """
-        new code
-        """
-        fig2, ax = plt.subplots(1,1,figsize=(6,8))
-        ax.spines['top'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        cloud = wc.generate(speeches)
-        print('Word cloud generated')
-        ax.imshow(wc,interpolation ='bilinear')
-
-        """
-        fig = plt.figure(figsize=(6,8))
-        cloud = wc.generate(speeches)
-        print('Word cloud generated')
-        plt.imshow(wc,interpolation ='bilinear')
-        plt.axis('off')
-        """
-        image = io.BytesIO()
-        fig2.savefig(image,format="png")
-        image.seek(0)
-        string = base64.b64encode(image.read())
-        #image_64 =  urllib.parse.quote(string)
-    data = {'data':str(string.decode())}
-    return Response(data)
-"""
 
 def get_pad_session(pad):
     """This function returns session object associated with given pad object.
