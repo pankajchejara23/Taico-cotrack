@@ -1229,7 +1229,7 @@ def getWordCloud(request,session_id,group_id):
     speeches_joined = " ".join(speech for speech in speeches_seperate)
 
     # Explicitly removing additional words
-    speeches = " ".join([item for item in speeches_joined if item not in EST_REMOVE_WORDS])
+    speeches = " ".join([item for item in speeches_joined.split(' ') if item not in EST_REMOVE_WORDS])
 
     if len(speeches) == 0:
         data = {'data':'empty'}
