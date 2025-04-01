@@ -28,7 +28,7 @@
         <td>
            {% if obj.pending %}
               <span class="badge  rounded-pill bg-secondary">pending</span>
-           {% elif obj.decision %}
+           {% elif obj.decision or obj.user.is_staff%}
               <span class="badge rounded-pill bg-success">approved</span>
            {% else %}
             <span class="badge rounded-pill bg-danger">rejected</span>
