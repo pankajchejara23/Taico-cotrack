@@ -1218,10 +1218,12 @@ def getWordCloud(request,session_id,group_id):
     session = Session.objects.get(id=session_id)
 
     # Additional words to remove from generated word cloud
-    if session.language == 'en':
+    if session.language == 'En':
         stopwords += EN_REMOVE_WORDS
     else:
         stopwords += EST_REMOVE_WORDS
+
+    print('STOPWORDS',stopwords)
 
     speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
     speeches = " ".join(speech for speech in speeches)
