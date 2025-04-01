@@ -1222,9 +1222,7 @@ def getWordCloud(request,session_id,group_id):
         stopwords += EN_REMOVE_WORDS
     else:
         stopwords += EST_REMOVE_WORDS
-
     print('STOPWORDS',stopwords)
-
     speeches = Speech.objects.all().filter(session = session, group = group_id).values_list('TextField',flat=True)
     speeches = " ".join(speech for speech in speeches)
     print(speeches)
@@ -1798,7 +1796,7 @@ def getProcessedFeatureFromLogVad(request, session_id, group_id):
     processed_feature['user_del_sd'] = np.std(deleted)
     return processed_feature
 
-
+"""
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def getWordCloud(request,session_id,group_id):
@@ -1839,7 +1837,7 @@ def getWordCloud(request,session_id,group_id):
         #image_64 =  urllib.parse.quote(string)
     data = {'data':str(string.decode())}
     return Response(data)
-
+"""
 
 def get_pad_session(pad):
     """This function returns session object associated with given pad object.
