@@ -1214,7 +1214,7 @@ def getWordCloud(request,session_id,group_id):
         Response: image of word-cloud
     
     """
-    stopwords = set(STOPWORDS) 
+    stopwords = STOPWORDS
     session = Session.objects.get(id=session_id)
     print('=======================================>')
     print('Session:',session.language)
