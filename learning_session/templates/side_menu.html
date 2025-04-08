@@ -47,7 +47,7 @@
 
             {% if request.user.is_staff %}
             <li class="nav-item">
-                <a href="{% url 'create_bulk_user' %}" class="nav-link text-white py-2">
+                <a href="{% url 'list_bulk_user' %}" class="nav-link text-white py-2">
                     <i class="fa fa-users me-2"></i>{% translate 'Create users in bulk' %}
                 </a>
             </li>
