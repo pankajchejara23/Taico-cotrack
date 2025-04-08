@@ -147,6 +147,17 @@ class GroupPin(models.Model):
     group = models.IntegerField(blank=True)
 
 
+class DummyAccounts(models.Model):
+    """Model to store information about user accounts created by a teachers
+    """
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    prefix = models.TextField()
+    password_str = models.TextField()
+    num_accounts = models.IntegerField()
+    status = models.BooleanField(default=False)
+
+
+
 admin.site.register(Audiofl)
 admin.site.register(Session)
 admin.site.register(VAD)
@@ -155,3 +166,4 @@ admin.site.register(GroupPin)
 admin.site.register(Consent)
 admin.site.register(RoleRequest)
 admin.site.register(SessionGroupMap)
+admin.site.register(DummyAccounts)

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from . import views
 from .views import SessionListView, SessionCreateView, SessionDetailView, SessionEnterView
 from .views import SessionArchiveView, SessionUpdateView, SessionDuplicateView, SessionArchiveListView, SessionListAdminView
-from .views import RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView, UserBulkCreateView
+from .views import RoleRequestView, RoleRequestAction, RoleRequestListView, GrantRoleView, UserCreateView, UserBulkCreateView, UserBulkListView
 from .views import DownloadVadView, DownloadSpeechView, DownloadLogsView, ConsentView, StudentPadView, SessionLeaveView, SessionGroupAnalyticsView, DownloadGroupResponsesView
 urlpatterns = [
     path('session/create', login_required(SessionCreateView.as_view()), name='session_create'),
@@ -24,7 +24,8 @@ urlpatterns = [
     path('request/list', RoleRequestListView.as_view(), name='request_list'),
     path('role/assing', GrantRoleView.as_view(), name='grant_role'),
     path('user/create', UserCreateView.as_view(), name='create_user'),
-    path('user/bulk_create', UserBulkCreateView.as_view(), name='create_bulk_user'),
+    path('user/bulk/create', UserBulkCreateView.as_view(), name='create_bulk_user'),
+    path('user/bulk/list', UserBulkListView.as_view(), name='list_bulk_user'),
     path('download/vad/<int:pk>', DownloadVadView.as_view(), name='download_vad'),
     path('download/speech/<int:pk>', DownloadSpeechView.as_view(), name='download_speech'),
     path('download/logs/<int:pk>', DownloadLogsView.as_view(), name='download_logs'),
@@ -34,7 +35,7 @@ urlpatterns = [
     path("getStats/<group_padid>", views.getGroupPadStats),
     path("sessions/word_cloud/<session_id>/<group_id>", views.getWordCloud, name='group_word_cloud'),
     path("getRevCount/<ethid>", views.getRevCount, name='getRevisionCount'),
-    path("getSpeakingStats/<session_id>", views.getSpeakingStats),
+    path("getSpeakingStats/<session_id>", views.getSessionStats),
     path("getText/<session_id>/<group_id>",views.getText),
     path("predict/",views.predictCollaboration)
 

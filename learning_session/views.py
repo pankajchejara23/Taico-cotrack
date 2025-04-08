@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.http import HttpResponseForbidden
-from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent
+from .models import Session, GroupPin, SessionGroupMap, VAD, Speech, Audiofl, RoleRequest, Consent, DummyAccounts
 from django.views import View
 from django.contrib import messages
 from django.core.files.base import File
@@ -45,6 +45,10 @@ from rest_framework.response import Response
 
 from django.db.models import Sum
 from etherpad_app.models import Pad
+from django.template.defaulttags import register
+
+
+import math
 
 # Words to remove from Estonian word cloud
 EST_REMOVE_WORDS = ['ma', 'sa', 'ta', 'me', 'te', 'nad', 'mina', 'sina', 'tema', 'meie', 'teie', 
@@ -357,10 +361,17 @@ class SessionDetailView(StaffRequiredMixin,DetailView):
         Args:
             request (HttpRequest): request parameter
         """
+        session_id = self.kwargs['pk']
+
+        session_stats = getSessionStats(session_id)
+
         context = super().get_context_data(**kwargs)
 
-        # adding number of groups
+        # Adding number of groups
         context["no_groups"] = list(range(self.object.groups))
+
+        # Adding writing and speaking stats
+        context["stats"] = session_stats
         return context
 
 
@@ -872,6 +883,8 @@ class RoleRequestListView(StaffRequiredMixin,ListView):
     model = RoleRequest
     template_name = 'role_list.html'
 
+    
+
 
 class GrantRoleView(View):
     """View for granting teacher's role to the users.
@@ -958,6 +971,24 @@ class UserCreateView(View):
             return render(request, self.template_name, {'form':form})
         return HttpResponseRedirect(self.success_url)
 
+class UserBulkListView(ListView):
+    """View for showing created user accounts.
+
+    """
+    model = DummyAccounts
+    template_name = 'dummy_accounts_list.html'
+
+    def get_queryset(self):
+        """This function update the queryset which returns the objects for listview.
+
+        Returns:
+            queryset: queryset containing objects
+        """
+        queryset = super().get_queryset()
+        queryset = queryset.filter().filter(owner = self.request.user)
+        return queryset
+
+
 
 class UserBulkCreateView(View):
     """View for creating new user accounts.
@@ -988,12 +1019,12 @@ class UserBulkCreateView(View):
             prefix = form.cleaned_data.get('prefix')
             pwd = form.cleaned_data.get('password')
             how_many = form.cleaned_data.get('how_many')
+            dummy = DummyAccounts.objects.create(owner = self.request.user, prefix=prefix,password_str=pwd, num_accounts=how_many)
 
-            # create a new user
+            # create users
             for user_number in range(1,how_many+1):
                 user = f'{prefix}_{user_number}'
                 email = f'{prefix}_{user_number}@demo.ee'
-
                 user_object = User.objects.create_user(username = user,email = email,password = pwd)
                 user_object.is_active = True
                 user_object.save()
@@ -1230,6 +1261,8 @@ def getWordCloud(request,session_id,group_id):
 
     # Explicitly removing additional words
     speeches = " ".join([item for item in speeches_joined.split(' ') if item not in EST_REMOVE_WORDS])
+
+
 
     if len(speeches) == 0:
         data = {'data':'empty'}
@@ -1480,22 +1513,9 @@ def getText(request,session_id,group_id):
     return Response({'data':content})
 
 
-@api_view(['GET'])
-@permission_classes((permissions.AllowAny,))
-def getSpeakingStats(request,session_id):
-    """This function returns speaking statistics and group-dynamics data for each group for a specified session.
 
-    Args:
-        request (HttpRequest): request object
-        session_id (int): Session id
 
-    Returns:
-        Response: return speaking time, network data, and other details
-
-    Url:
-        http://www.cotrack.website/en/getSpeakingStats/1
-    """
-
+def getSpeakingData(session_id):
     global VAD_OBJECTS
     global SPEECH_OBJECTS
     if len(VAD_OBJECTS) > 0:
@@ -1549,7 +1569,26 @@ def getSpeakingStats(request,session_id):
         group_speaking['quality'] = gini(np.array(gini_data))
         groups_speaking.append(group_speaking)
 
-    return Response({'speaking_data':groups_speaking})
+    return {'speaking_data':groups_speaking}
+
+
+@api_view(['GET'])
+@permission_classes((permissions.AllowAny,))
+def getSpeakingStats(request,session_id):
+    """This function returns speaking statistics and group-dynamics data for each group for a specified session.
+
+    Args:
+        request (HttpRequest): request object
+        session_id (int): Session id
+
+    Returns:
+        Response: return speaking time, network data, and other details
+
+    Url:
+        http://www.cotrack.website/en/getSpeakingStats/1
+    """
+    data = getSpeakingData(session_id)
+    return Response(data)
 
 
 class DownloadGroupResponsesView(StaffRequiredMixin,View): 
@@ -1789,6 +1828,118 @@ def getProcessedFeatureFromLogVad(request, session_id, group_id):
     processed_feature['user_del_mean'] = np.mean(deleted)
     processed_feature['user_del_sd'] = np.std(deleted)
     return processed_feature
+
+@register.filter(name='lookup')
+def lookup(value, arg):
+    return value[arg]
+
+
+def getSessionEtherpadStats(session_id):
+    """This function returns all groups' statistics of writing for each session.
+    Args:
+        session (int): Session id
+    Returns:
+        Response: writing statistics
+    """
+    data = {}
+    speak = {}
+    write = {}
+    revs = {}
+    session = Session.objects.filter(id=session_id).first()
+    session_group = SessionGroupMap.objects.filter(session=session).first()
+    
+    # Fetching revisions counts for each group
+    for group in range(session.groups):
+        group += 1
+
+        # Get pad id for specified group and session
+        pad_id = ep_views.get_padid(session_group.eth_groupid, group)
+        pad = Pad.objects.get(id=pad_id)
+        padid =  pad.eth_padid
+        params = {'padID':padid}
+
+        # Call to fetch revisions count for the current group
+        rev_call = call('getRevisionsCount',params)
+
+        # Revisions
+        revisions = rev_call['data']["revisions"]
+        size = math.log(revisions) if revisions > 0 else 0
+        # Get number of revision
+
+        revs[group] = revisions
+        
+        write[group] = size * 10
+    #data['revs'] = revs
+    
+    return write
+
+
+def getSessionSpeakingStats(session_id):
+    """This function returns all groups' statistics of writing for each session.
+    Args:
+        session (int): Session id
+    Returns:
+        Response: writing statistics
+    """
+    global VAD_OBJECTS
+    global SPEECH_OBJECTS
+    if len(VAD_OBJECTS) > 0:
+        objs = VAD.objects.bulk_create(VAD_OBJECTS)
+        VAD_OBJECTS = []
+
+    if len(SPEECH_OBJECTS) > 0:
+        objs = Speech.objects.bulk_create(SPEECH_OBJECTS)
+        SPEECH_OBJECTS = []
+
+    s = Session.objects.get(id=session_id)
+    groups = s.groups
+    
+    # Preparing interaction dictionary for sticky figures plotting
+    interactions = {}
+    speaking_data = {}
+
+    for group in range(groups):
+        group = group + 1
+        vads = VAD.objects.all().filter(session=session_id)
+        tmp_users = vads.filter(group = group).values('user').distinct()
+        users = [user['user'] for user in tmp_users]
+        user_sequence = vads.filter(group = group).values_list('user',flat=True)
+
+        speaking_data = {}
+   
+        for user in users:
+            user_vads = vads.filter(group = group).filter(user = user).aggregate(Sum('activity'))
+            speaking_data[user] = user_vads['activity__sum'] * .001
+
+        tmp_users = vads.filter(group = group).values('user').distinct()
+        users = [user['user'] for user in tmp_users]
+        user_sequence = vads.filter(group = group).values_list('user',flat=True)
+
+        graph_dict = generateElements(user_sequence,speaking_data,session_id,group)
+        group_interaction = {}
+        print(graph_dict['edges'])
+        for item in graph_dict['edges']:
+            group_interaction[f'{item["source"]}-{item["to"]}'] = item["weight"]
+  
+        interactions[group] = group_interaction
+
+    return interactions
+
+
+def getSessionStats(session_id):
+    """This function returns all groups' statistics of writing for each session.
+       @url: /getSessionPadStats/<pad_id>
+    Args:
+        request (HttpRequest): request object
+        session (int): Session id
+    Returns:
+        Response: writing statistics
+    """
+    
+    speak_stats = getSessionSpeakingStats(session_id)
+    write_stats = getSessionEtherpadStats(session_id)
+    return {'speak':speak_stats,'write':write_stats}
+
 
 def get_pad_session(pad):
     """This function returns session object associated with given pad object.
