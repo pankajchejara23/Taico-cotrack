@@ -361,7 +361,10 @@ class SessionDetailView(StaffRequiredMixin,DetailView):
         Args:
             request (HttpRequest): request parameter
         """
-        session_id = self.kwargs['pk']
+        session_object = self.get_object()
+        session_id = session_object.id
+
+        print('Session id in Detail view:',session_id)
 
         session_stats = getSessionStats(session_id)
 
