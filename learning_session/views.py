@@ -715,7 +715,7 @@ class ConsentView(LoginRequiredMixin,View):
             return redirect('session_enter')
 
 
-class UploadVADView(LoginRequiredMixin,View):
+class UploadVADView(View):
     """View for handling audio data processing and storing on server
 
     """
@@ -756,7 +756,7 @@ class UploadVADView(LoginRequiredMixin,View):
             return HttpResponse('Error')
 
 
-class UploadSpeechView(LoginRequiredMixin,View):
+class UploadSpeechView(View):
     """View for handling speech-to-text conversion and storing on server
 
     """
@@ -792,7 +792,7 @@ class UploadSpeechView(LoginRequiredMixin,View):
             return HttpResponse('Done')
         
 
-class UploadAudioView(LoginRequiredMixin,View):
+class UploadAudioView(View):
     """View for handling audio files storing on server
 
     """
