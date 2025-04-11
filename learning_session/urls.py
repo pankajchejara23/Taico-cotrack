@@ -35,7 +35,7 @@ urlpatterns = [
     path("getStats/<group_padid>", views.getGroupPadStats),
     path("sessions/word_cloud/<session_id>/<group_id>", views.getWordCloud, name='group_word_cloud'),
     path("getRevCount/<ethid>", views.getRevCount, name='getRevisionCount'),
-    path("getSpeakingStats/<session_id>", views.getSessionStats),
+    path("getSpeakingStats/<session_id>", views.getSpeakingStats),
     path("getText/<session_id>/<group_id>",views.getText),
     path("predict/",views.predictCollaboration)
 
