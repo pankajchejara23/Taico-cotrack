@@ -1,0 +1,72 @@
+{% load i18n %} 
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+     <!-- jQuery as some of the functionalities are not available with the jQuery loaded by the following bootstrap bundle -->
+    <script
+          src="https://code.jquery.com/jquery-3.7.1.min.js"
+          ></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!--Font awesome icons -->
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+  <title>{% block title %} {% endblock %} </title>
+</head>
+<body  class="container-fluid bg-secondary">
+  <div class='min-vh-100  d-flex align-items-center justify-content-center'> 
+
+      <!-- Content  -->
+      <section class="py-3 py-md-5 py-xl-8">
+        <div class="container">
+          <div class="row gy-4 align-items-center">
+            <div class="col-12 col-md-12 col-xl-12 text-white">
+                  <h1 class="display-3 mb-4" style="font-weight:600">  
+                     <i class="fas fa-terminal"></i> CoTrack
+                  </h1>
+                  <hr class="border-primary-subtle mb-4">
+                  <h1 class="display-6 mb-4" style="font-weight:600"> 
+                      {% trans 'The site is down for a bit of maintenace.' %}
+                  </h1>
+                  <p class="fs-5">
+                          <!-- Block translated for translations -->
+                          {% blocktrans %}
+                          We will be up again in a few hours. Thank you for your patience.
+                          {% endblocktrans%}
+      
+                      </p><div class="text-endx">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-grip-horizontal" viewBox="0 0 16 16">
+                      <path d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                    </svg> <br/>
+                    
+                  </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+
+
+  </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <!-- Clipboard js 
+    <script src="{% static 'clipboard.min.js' %}"></script>
+    -->
+
+</body>
+</html>
+
+<!-- Populating content block in base template -->
+{% block content %}
+
+{% endblock content %}

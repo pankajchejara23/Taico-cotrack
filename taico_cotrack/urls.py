@@ -31,6 +31,7 @@ urlpatterns = i18n_patterns(
     path('about/',TemplateView.as_view(template_name="about.html"), name='about'),
     path('features/',TemplateView.as_view(template_name="features.html"), name='features'),
     path("ckeditor/", include('ckeditor_uploader.urls')),
+    path("maintenance/",TemplateView.as_view(template_name="maintenance.html"), name='maintenance')
 )
 
 # Adding upload paths without i18
