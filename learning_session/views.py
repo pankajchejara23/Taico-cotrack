@@ -61,7 +61,32 @@ EST_REMOVE_WORDS = ['ma', 'sa', 'ta', 'me', 'te', 'nad', 'mina', 'sina', 'tema',
                     'peab', 'pidi', 'tohin', 'tohib', 'siin', 'seal', 'siia', 'sealt', 'kuskil', 'alati', 
                     'vahel', 'kunagi', 'juba', 'veel', 'just', 'ainult', 'ainult siis', 'siis', 'nüüd', 
                     'ka', 'niisiis', 'samuti', 'natuke', 'enamasti', 'täiesti', 'üks', 'teine', 'mõni', 
-                    'mitu', 'kõik', 'jah', 'ei']
+                    'mitu', 'kõik', 'jah', 'ei', "Selle",
+                    "Seda",
+                    "Nii",
+                    "Noh",
+                    "Väga",
+                    "Olla",
+                    "Oleks",
+                    "Oma",
+                    "Neid",
+                    "Ole",
+                    "Ongi",
+                    "Midagi",
+                    "Hea",
+                    "Okei",
+                    "Olema",
+                    "Mida",
+                    "Teha",
+                    "Aa",
+                    "Kuidas",
+                    "Mhm",
+                    "Onju",
+                    "Jaa",
+                    "Meil",
+                    "Sellest",
+                    "Iga"
+]
 
 # Words to remove from English word cloud
 EN_REMOVE_WORDS = []
