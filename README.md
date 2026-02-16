@@ -74,8 +74,6 @@ Everything is set now to run the server.
 python manage.py runserver
 ```
 
-
-## Maintainer
-
-For questions, research collaboration, or support, please contact the
-project maintainer: Pankaj Chejara (pankajch@tlu.ee).
+## Production
+When putting CoTrack in production, make sure Etherpad is already installed and running. CoTrack uses Etherpad and **might fail if Etherpad** is not available.
+Refer to [resources](https://etherpad.org/) for instructions.
